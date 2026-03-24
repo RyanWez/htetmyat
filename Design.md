@@ -158,7 +158,7 @@
 │  Password    ••••••••••  [👁] [📋Copy]    │
 │  Country     🇺🇸 United States            │
 │  Status      🟢 Active                   │
-│  Expires     Mar 30, 2026                │
+│                                          │
 │                                          │
 │  ┌──────────┐  ┌───────────────────┐     │
 │  │ View More│  │ ⚠️ Report Issue   │     │
@@ -222,10 +222,8 @@
 
 | Status | Color | Label |
 |--------|-------|-------|
-| 🟢 Active | `--accent-success` | Available |
-| 🟡 In Use | `--accent-warning` | Someone is using |
-| 🔴 Expired | `--accent-danger` | Account expired |
-| 🔵 New | `--accent-info` | Newly added |
+| 🟢 Active | `--accent-success` | Account is active and ready |
+| ⚪ Inactive | `--text-tertiary` | Account is disabled/unavailable |
 
 ---
 
@@ -246,7 +244,7 @@
 │                                             │
 ├─────────────────────────────────────────────┤
 │  📊 Stats Bar                               │
-│  12 Active IDs  │  340+ Users  │  24/7      │
+│  12 Active IDs  │  Updates Daily  │  24/7   │
 ├─────────────────────────────────────────────┤
 │                                             │
 │  🍎 Latest Apple IDs                        │
@@ -274,11 +272,11 @@
 │                                             │
 │  ┌───────────────────────────────────────┐  │
 │  │ 🍎 user1@icloud.com                  │  │
-│  │ 🇺🇸 US │ 🟢 Active │ Expires: 30 Mar │  │
+│  │ 🇺🇸 US │ 🟢 Active                     │  │
 │  │ [View Details] [Copy Password]        │  │
 │  ├───────────────────────────────────────┤  │
 │  │ 🍎 user2@icloud.com                  │  │
-│  │ 🇯🇵 JP │ 🟢 Active │ Expires: 28 Mar │  │
+│  │ 🇯🇵 JP │ ⚪ Inactive                   │  │
 │  │ [View Details] [Copy Password]        │  │
 │  └───────────────────────────────────────┘  │
 │                                             │
@@ -308,8 +306,8 @@
 │    │                                  │     │
 │    │  [       Sign In        ]        │     │
 │    │                                  │     │
-│    │  ─── Or continue with ───        │     │
-│    │  [Google]  [Telegram]            │     │
+│    │                                  │     │
+│    │                                  │     │
 │    └───────────────────────────────────┘     │
 │                                             │
 └─────────────────────────────────────────────┘
@@ -325,15 +323,15 @@
 │           │  Dashboard                      │
 │  ◉ HMA   │                                 │
 │           │  Quick Stats                    │
-│  ─────── │  ┌────┐ ┌────┐ ┌────┐ ┌────┐   │
-│  📊 Dash  │  │ 12 │ │ 5  │ │340│ │ 3  │   │
-│  🍎 IDs   │  │IDs │ │New │ │Usr│ │Exp │   │
-│  📝 Posts │  └────┘ └────┘ └────┘ └────┘   │
-│  👥 Users │                                 │
-│  ⚙️ Settings│ Recent Activity               │
-│           │  • user1@icloud.com viewed      │
-│  ─────── │  • New ID added: jp_user@...    │
-│  🚪 Logout│  • 2 accounts expire tomorrow  │
+│  ─────── │  ┌──────┐ ┌──────┐ ┌──────┐    │
+│  📊 Dash  │  │  12  │ │  10  │ │  2   │    │
+│  🍎 IDs   │  │Total │ │Active│ │Inactv│    │
+│  📝 Posts │  └──────┘ └──────┘ └──────┘    │
+│  ⚙️ Settings│                                 │
+│           │  Recent Activity               │
+│  ─────── │  • user1@icloud.com updated     │
+│  🚪 Logout│  • jp_user account inactive    │
+│           │                                 │
 │           │                                 │
 └───────────┴─────────────────────────────────┘
 ```
@@ -348,8 +346,8 @@
 │           │  │ Email  │Country│Status│Action││
 │           │  │────────┼───────┼──────┼──────││
 │           │  │user1@..│  🇺🇸  │ 🟢  │[✏️🗑]││
-│           │  │user2@..│  🇯🇵  │ 🟡  │[✏️🗑]││
-│           │  │user3@..│  🇬🇧  │ 🔴  │[✏️🗑]││
+│           │  │user2@..│  🇯🇵  │ ⚪  │[✏️🗑]││
+│           │  │user3@..│  🇬🇧  │ 🟢  │[✏️🗑]││
 │           │  └────────────────────────────┘ │
 │           │                                 │
 │           │  Showing 1-10 of 12  [← 1 2 →] │
@@ -371,14 +369,9 @@
 │  │                                  │  │
 │  └──────────────────────────────────┘  │
 │                                        │
-│  Country          Expiry Date          │
-│  ┌────────────┐   ┌──────────────┐     │
-│  │ 🇺🇸 US  ▾  │   │ 2026-03-30   │     │
-│  └────────────┘   └──────────────┘     │
-│                                        │
 │  Notes (optional)                      │
 │  ┌──────────────────────────────────┐  │
-│  │ e.g. Don't change password      │  │
+│  │ e.g. Don't change password       │  │
 │  └──────────────────────────────────┘  │
 │                                        │
 │  Status: [● Active] [○ Inactive]       │
