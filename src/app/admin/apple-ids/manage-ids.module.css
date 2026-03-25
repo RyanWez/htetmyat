@@ -79,3 +79,39 @@
   color: var(--text-tertiary);
   border-color: var(--text-tertiary);
 }
+
+/* Filter Tabs */
+.filterTabs {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.filterTab {
+  padding: 6px 16px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.filterTab:hover {
+  background: var(--bg-elevated);
+  border-color: var(--text-tertiary);
+}
+
+.filterTabActive {
+  background: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+.filterTabActive:hover {
+  background: var(--accent-primary-hover);
+  border-color: var(--accent-primary-hover);
+}

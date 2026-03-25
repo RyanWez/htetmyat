@@ -2,9 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag } from '@/lib/utils';
+import { fetchAllAppleIds } from './actions';
 import styles from './manage-ids.module.css';
 
 export default function AdminAppleIds() {
@@ -12,6 +12,7 @@ export default function AdminAppleIds() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<AppleId | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [form, setForm] = useState({
     email: '', password: '', country: 'US', is_active: true, notes: '',
   });
@@ -20,9 +21,10 @@ export default function AdminAppleIds() {
 
   const fetchAppleIds = async () => {
     try {
-      const supabase = createClient();
-      const { data } = await supabase.from('apple_ids').select('*').order('created_at', { ascending: false });
-      setAppleIds(data || []);
+      const result = await fetchAllAppleIds();
+      if (result.success) {
+        setAppleIds(result.data as AppleId[]);
+      }
     } catch (err) {
       console.error(err);
     } finally {
@@ -86,6 +88,26 @@ export default function AdminAppleIds() {
     }
   };
 
+  const handleToggleStatus = async (item: AppleId) => {
+    try {
+      const { updateAppleId } = await import('./actions');
+      const result = await updateAppleId(item.id, { is_active: !item.is_active });
+      if (!result?.success) throw new Error(result?.error || 'Failed to toggle status');
+      fetchAppleIds();
+    } catch (err) {
+      console.error(err);
+      alert('Error toggling status');
+    }
+  };
+
+  const activeCount = appleIds.filter((a) => a.is_active).length;
+  const inactiveCount = appleIds.filter((a) => !a.is_active).length;
+  const filteredAppleIds = statusFilter === 'all'
+    ? appleIds
+    : statusFilter === 'active'
+      ? appleIds.filter((a) => a.is_active)
+      : appleIds.filter((a) => !a.is_active);
+
   const countries = [
     { code: 'US', name: 'United States' },
     { code: 'JP', name: 'Japan' },
@@ -110,7 +132,7 @@ export default function AdminAppleIds() {
         <div className={styles.headerRow}>
           <div>
             <h1 className={styles.pageTitle}>Apple ID Management</h1>
-            <p className={styles.pageDesc}>{appleIds.length} total Apple IDs</p>
+            <p className={styles.pageDesc}>{appleIds.length} total · {activeCount} active · {inactiveCount} inactive</p>
           </div>
           <div className={styles.headerActions}>
             <button className="btn btn-primary" onClick={openAdd}>
@@ -122,6 +144,28 @@ export default function AdminAppleIds() {
           </div>
         </div>
       </motion.div>
+
+      {/* Status Filter Tabs */}
+      <div className={styles.filterTabs}>
+        <button
+          className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
+          onClick={() => setStatusFilter('all')}
+        >
+          All ({appleIds.length})
+        </button>
+        <button
+          className={`${styles.filterTab} ${statusFilter === 'active' ? styles.filterTabActive : ''}`}
+          onClick={() => setStatusFilter('active')}
+        >
+          🟢 Active ({activeCount})
+        </button>
+        <button
+          className={`${styles.filterTab} ${statusFilter === 'inactive' ? styles.filterTabActive : ''}`}
+          onClick={() => setStatusFilter('inactive')}
+        >
+          ⚪ Inactive ({inactiveCount})
+        </button>
+      </div>
 
       {/* Table */}
       <motion.div
@@ -148,8 +192,8 @@ export default function AdminAppleIds() {
               </tr>
             </thead>
             <tbody>
-              {appleIds.map((item) => (
-                <tr key={item.id}>
+              {filteredAppleIds.map((item) => (
+                <tr key={item.id} style={{ opacity: item.is_active ? 1 : 0.6 }}>
                   <td>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)' }}>
                       {item.email}
@@ -166,6 +210,13 @@ export default function AdminAppleIds() {
                   </td>
                   <td>
                     <div className={styles.actions}>
+                      <button
+                        className="btn btn-ghost btn-sm"
+                        title={item.is_active ? 'Deactivate' : 'Activate'}
+                        onClick={() => handleToggleStatus(item)}
+                      >
+                        {item.is_active ? '⚪' : '🟢'}
+                      </button>
                       <button className="btn btn-ghost btn-sm" onClick={() => openEdit(item)}>
                         ✏️
                       </button>
@@ -176,10 +227,14 @@ export default function AdminAppleIds() {
                   </td>
                 </tr>
               ))}
-              {appleIds.length === 0 && (
+              {filteredAppleIds.length === 0 && (
                 <tr>
                   <td colSpan={5} style={{ textAlign: 'center', padding: 'var(--space-8)' }}>
-                    No Apple IDs found. Click &quot;Add New ID&quot; to create one.
+                    {statusFilter === 'inactive'
+                      ? 'No inactive Apple IDs.'
+                      : statusFilter === 'active'
+                        ? 'No active Apple IDs.'
+                        : 'No Apple IDs found. Click "Add New ID" to create one.'}
                   </td>
                 </tr>
               )}

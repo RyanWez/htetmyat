@@ -14,6 +14,24 @@ async function verifyAdmin() {
   }
 }
 
+export async function fetchAllAppleIds() {
+  await verifyAdmin();
+  
+  try {
+    const supabase = await createServiceClient();
+    const { data, error } = await supabase
+      .from('apple_ids')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) throw error;
+    return { success: true, data: data || [] };
+  } catch (err) {
+    console.error('Error fetching Apple IDs:', err);
+    return { success: false, data: [], error: 'Failed to fetch Apple IDs' };
+  }
+}
+
 export async function addAppleId(data: Omit<AppleId, 'id' | 'created_at' | 'updated_at'>) {
   await verifyAdmin();
   
