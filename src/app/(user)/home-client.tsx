@@ -4,6 +4,7 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useRef } from 'react';
+import AppleIcon from '@/components/AppleIcon';
 import styles from './home.module.css';
 
 export default function HomeClient() {
@@ -70,7 +71,7 @@ export default function HomeClient() {
       >
         <div className={styles.statsInner}>
           <div className={styles.statItem}>
-            <div className={styles.statIcon}>🍎</div>
+            <div className={styles.statIcon}><AppleIcon /></div>
             <div>
               <div className={styles.statValue}>12+</div>
               <div className={styles.statLabel}>Active IDs</div>

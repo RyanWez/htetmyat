@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import AppleIcon from '@/components/AppleIcon';
 import styles from './AdminSidebar.module.css';
 
 const menuItems = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
-  { href: '/admin/apple-ids', label: 'Apple IDs', icon: '🍎' },
+  { href: '/admin/apple-ids', label: 'Apple IDs', icon: <AppleIcon /> },
   { href: '/admin/posts', label: 'Blog Posts', icon: '📝' },
   { href: '/admin/users', label: 'Users', icon: '👥' },
   { href: '/admin/reports', label: 'Reports', icon: '⚠️' },

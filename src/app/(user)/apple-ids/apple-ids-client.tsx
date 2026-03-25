@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag, copyToClipboard } from '@/lib/utils';
+import AppleIcon from '@/components/AppleIcon';
 import styles from './apple-ids.module.css';
 
 export default function AppleIdsClient() {
@@ -58,7 +59,7 @@ export default function AppleIdsClient() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <h1 className={styles.pageTitle}>🍎 Free Apple IDs</h1>
+          <h1 className={styles.pageTitle}><AppleIcon /> Free Apple IDs</h1>
           <p className={styles.pageDesc}>
             Browse available Apple IDs and copy credentials to use.
           </p>
@@ -104,7 +105,7 @@ export default function AppleIdsClient() {
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
                 <div className={styles.cardHeader}>
-                  <span className={styles.appleIcon}>🍎</span>
+                  <span className={styles.appleIcon}><AppleIcon /></span>
                   <span className={styles.cardEmail}>{appleId.email}</span>
                 </div>
 
@@ -166,7 +167,7 @@ export default function AppleIdsClient() {
         {/* Empty state */}
         {!loading && filtered.length === 0 && (
           <div className={styles.empty}>
-            <span className={styles.emptyIcon}>🍎</span>
+            <span className={styles.emptyIcon}><AppleIcon /></span>
             <h3>No Apple IDs Available</h3>
             <p>Check back later for new Apple IDs.</p>
           </div>

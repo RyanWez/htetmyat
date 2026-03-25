@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import AppleIcon from '@/components/AppleIcon';
 import styles from './dashboard.module.css';
 
 interface DashboardStats {
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
   };
 
   const statCards = [
-    { label: 'Total IDs', value: stats.totalIds, icon: '🍎', color: 'var(--brand-primary)' },
+    { label: 'Total IDs', value: stats.totalIds, icon: <AppleIcon />, color: 'var(--brand-primary)' },
     { label: 'Active IDs', value: stats.activeIds, icon: '✅', color: 'var(--accent-success)' },
     { label: 'Inactive IDs', value: stats.inactiveIds, icon: '⚠️', color: 'var(--accent-warning)' },
     { label: 'Blog Posts', value: stats.totalPosts, icon: '📰', color: 'var(--accent-info)' },
@@ -90,7 +91,7 @@ export default function AdminDashboard() {
         <h2 className={styles.sectionTitle}>Quick Actions</h2>
         <div className={styles.quickActions}>
           <Link href="/admin/apple-ids" className={`glass-card ${styles.actionCard}`}>
-            <div className={styles.actionIcon}>🍎</div>
+            <div className={styles.actionIcon}><AppleIcon /></div>
             <div className={styles.actionLabel}>Manage Apple IDs</div>
           </Link>
           <Link href="/admin/posts" className={`glass-card ${styles.actionCard}`}>

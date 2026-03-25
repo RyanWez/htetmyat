@@ -1,0 +1,30 @@
+.iconWrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+}
+
+.iconWrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.lightIcon {
+  display: block;
+}
+
+.darkIcon {
+  display: none;
+}
+
+:global([data-theme="dark"]) .lightIcon {
+  display: none !important;
+}
+
+:global([data-theme="dark"]) .darkIcon {
+  display: block !important;
+}
