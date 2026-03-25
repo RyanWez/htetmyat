@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { fetchAllAppleIds } from './actions';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
@@ -23,7 +24,25 @@ export default function AdminAppleIds() {
     email: '', password: '', country: 'US', is_active: true, notes: '',
   });
 
-  useEffect(() => { fetchAppleIds(); }, []);
+  useEffect(() => {
+    fetchAppleIds();
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('admin:apple_ids')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'apple_ids' },
+        () => {
+          fetchAppleIds();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const fetchAppleIds = async () => {
     try {

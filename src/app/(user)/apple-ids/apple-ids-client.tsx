@@ -18,6 +18,22 @@ export default function AppleIdsClient() {
 
   useEffect(() => {
     fetchAppleIds();
+
+    const supabase = createClient();
+    const channel = supabase
+      .channel('public:apple_ids')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'apple_ids' },
+        (payload) => {
+          fetchAppleIds();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const fetchAppleIds = async () => {

@@ -103,3 +103,6 @@ CREATE POLICY "Admins can manage posts"
     ON public.posts
     FOR ALL
     USING (auth.role() = 'service_role');
+
+-- Apple IDs Table အတွက် Realtime စနစ်ကို ဖွင့်ပေးရန်
+ALTER PUBLICATION supabase_realtime ADD TABLE apple_ids;
