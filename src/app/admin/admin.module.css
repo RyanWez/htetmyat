@@ -8,6 +8,7 @@
   margin-left: var(--sidebar-width);
   padding: var(--space-8);
   max-width: calc(100% - var(--sidebar-width));
+  position: relative;
 }
 
 @media (max-width: 1024px) {

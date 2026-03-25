@@ -26,7 +26,7 @@ export default function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <button className={styles.toggle} aria-hidden="true" disabled>
+      <button className={styles.toggle} aria-hidden="true">
         <span className={styles.icon}></span>
       </button>
     );
