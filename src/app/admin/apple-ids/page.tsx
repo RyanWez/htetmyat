@@ -88,7 +88,10 @@ export default function AdminAppleIds() {
     }
   };
 
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
   const handleToggleStatus = async (item: AppleId) => {
+    setTogglingId(item.id);
     try {
       const { updateAppleId } = await import('./actions');
       const result = await updateAppleId(item.id, { is_active: !item.is_active });
@@ -97,6 +100,8 @@ export default function AdminAppleIds() {
     } catch (err) {
       console.error(err);
       alert('Error toggling status');
+    } finally {
+      setTogglingId(null);
     }
   };
 
@@ -151,19 +156,19 @@ export default function AdminAppleIds() {
           className={`${styles.filterTab} ${statusFilter === 'all' ? styles.filterTabActive : ''}`}
           onClick={() => setStatusFilter('all')}
         >
-          All ({appleIds.length})
+          All <span className={styles.filterCount}>{appleIds.length}</span>
         </button>
         <button
           className={`${styles.filterTab} ${statusFilter === 'active' ? styles.filterTabActive : ''}`}
           onClick={() => setStatusFilter('active')}
         >
-          🟢 Active ({activeCount})
+          <span className={styles.statusDotGreen} /> Active <span className={styles.filterCount}>{activeCount}</span>
         </button>
         <button
           className={`${styles.filterTab} ${statusFilter === 'inactive' ? styles.filterTabActive : ''}`}
           onClick={() => setStatusFilter('inactive')}
         >
-          ⚪ Inactive ({inactiveCount})
+          <span className={styles.statusDotGray} /> Inactive <span className={styles.filterCount}>{inactiveCount}</span>
         </button>
       </div>
 
@@ -193,7 +198,7 @@ export default function AdminAppleIds() {
             </thead>
             <tbody>
               {filteredAppleIds.map((item) => (
-                <tr key={item.id} style={{ opacity: item.is_active ? 1 : 0.6 }}>
+                <tr key={item.id} className={!item.is_active ? styles.rowInactive : ''}>
                   <td>
                     <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-sm)' }}>
                       {item.email}
@@ -201,8 +206,9 @@ export default function AdminAppleIds() {
                   </td>
                   <td>{getCountryFlag(item.country)} {item.country}</td>
                   <td>
-                    <span className={`badge ${item.is_active ? 'badge-success' : 'badge-neutral'}`}>
-                      {item.is_active ? '🟢 Active' : '⚪ Inactive'}
+                    <span className={`${styles.statusBadge} ${item.is_active ? styles.statusActive : styles.statusInactive}`}>
+                      <span className={styles.statusIndicator} />
+                      {item.is_active ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td style={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -211,17 +217,20 @@ export default function AdminAppleIds() {
                   <td>
                     <div className={styles.actions}>
                       <button
-                        className="btn btn-ghost btn-sm"
+                        className={`${styles.switchTrack} ${item.is_active ? styles.switchOn : ''} ${togglingId === item.id ? styles.switchLoading : ''}`}
                         title={item.is_active ? 'Deactivate' : 'Activate'}
                         onClick={() => handleToggleStatus(item)}
+                        disabled={togglingId === item.id}
+                        type="button"
+                        aria-label={item.is_active ? 'Deactivate' : 'Activate'}
                       >
-                        {item.is_active ? '⚪' : '🟢'}
+                        <span className={styles.switchThumb} />
                       </button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => openEdit(item)}>
-                        ✏️
+                      <button className={`btn btn-ghost btn-sm ${styles.actionBtn}`} onClick={() => openEdit(item)} title="Edit">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
-                      <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(item.id)}>
-                        🗑️
+                      <button className={`btn btn-ghost btn-sm ${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => handleDelete(item.id)} title="Delete">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                       </button>
                     </div>
                   </td>
@@ -307,21 +316,18 @@ export default function AdminAppleIds() {
               </div>
               <div className={styles.formGroup}>
                 <label className="input-label">Status</label>
-                <div className={styles.statusToggle}>
+                <div className={styles.modalStatusControl}>
                   <button
-                    className={`${styles.toggleBtn} ${form.is_active ? styles.toggleActive : ''}`}
-                    onClick={() => setForm({ ...form, is_active: true })}
+                    className={`${styles.modalSwitchTrack} ${form.is_active ? styles.switchOn : ''}`}
+                    onClick={() => setForm({ ...form, is_active: !form.is_active })}
                     type="button"
                   >
-                    🟢 Active
+                    <span className={styles.switchThumb} />
                   </button>
-                  <button
-                    className={`${styles.toggleBtn} ${!form.is_active ? styles.toggleInactive : ''}`}
-                    onClick={() => setForm({ ...form, is_active: false })}
-                    type="button"
-                  >
-                    ⚪ Inactive
-                  </button>
+                  <span className={`${styles.modalStatusLabel} ${form.is_active ? styles.modalStatusLabelActive : styles.modalStatusLabelInactive}`}>
+                    <span className={styles.statusIndicator} />
+                    {form.is_active ? 'Active' : 'Inactive'}
+                  </span>
                 </div>
               </div>
             </div>
