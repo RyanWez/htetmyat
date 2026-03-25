@@ -50,27 +50,39 @@ export default function AdminAppleIds() {
 
   const handleSave = async () => {
     try {
-      const supabase = createClient();
+      let result;
       if (editing) {
-        await supabase.from('apple_ids').update(form).eq('id', editing.id);
+        // Use server action instead of client supabase
+        const { updateAppleId } = await import('./actions');
+        result = await updateAppleId(editing.id, form);
       } else {
-        await supabase.from('apple_ids').insert(form);
+        // Use server action instead of client supabase
+        const { addAppleId } = await import('./actions');
+        result = await addAppleId(form);
       }
+      
+      if (!result?.success) throw new Error(result?.error || 'Failed to save');
+      
       setShowModal(false);
       fetchAppleIds();
     } catch (err) {
       console.error(err);
+      alert('Error saving data');
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this Apple ID?')) return;
     try {
-      const supabase = createClient();
-      await supabase.from('apple_ids').delete().eq('id', id);
+      const { deleteAppleId } = await import('./actions');
+      const result = await deleteAppleId(id);
+      
+      if (!result?.success) throw new Error(result?.error || 'Failed to delete');
+      
       fetchAppleIds();
     } catch (err) {
       console.error(err);
+      alert('Error deleting data');
     }
   };
 

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
 import styles from './dashboard.module.css';
 
 interface DashboardStats {
@@ -24,22 +23,9 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      const supabase = createClient();
-
-      const [idsResult, postsResult] = await Promise.all([
-        supabase.from('apple_ids').select('is_active'),
-        supabase.from('posts').select('id', { count: 'exact' }),
-      ]);
-
-      const ids = idsResult.data || [];
-      const activeIds = ids.filter((id) => id.is_active).length;
-
-      setStats({
-        totalIds: ids.length,
-        activeIds,
-        inactiveIds: ids.length - activeIds,
-        totalPosts: postsResult.count || 0,
-      });
+      const { getDashboardStats } = await import('./actions');
+      const data = await getDashboardStats();
+      setStats(data);
     } catch (err) {
       console.error('Error fetching stats:', err);
     } finally {

@@ -21,10 +21,9 @@ export default auth((req) => {
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
-
   // Admin route protection
   if (pathname.startsWith('/admin')) {
-    const role = req.auth?.user && (req.auth.user as { role?: string }).role;
+    const role = req.auth?.user?.role;
     if (role !== 'admin') {
       return NextResponse.redirect(new URL('/', req.url));
     }

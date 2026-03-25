@@ -124,7 +124,7 @@ export default function HomePage() {
               </Link>
             </motion.div>
             
-            {(session?.user as { role?: string })?.role === 'admin' && (
+            {session?.user?.role === 'admin' && (
               <motion.div whileHover={{ y: -5 }} transition={{ duration: 0.2 }}>
                 <Link href="/admin" className={`glass-card ${styles.quickCard}`}>
                   <div className={styles.quickIcon}>⚙️</div>

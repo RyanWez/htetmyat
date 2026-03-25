@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
@@ -10,15 +10,26 @@ import ThemeToggle from '@/components/ui/ThemeToggle';
 export default function Header() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/apple-ids', label: 'Apple IDs' },
     { href: '/blog', label: 'Blog' },
   ];
+  const isAdmin = session?.user?.role === 'admin';
 
-  const isAdmin = (session?.user as { role?: string })?.role === 'admin';
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <header className={styles.header}>
@@ -30,12 +41,13 @@ export default function Header() {
         </Link>
 
         {/* Desktop Nav */}
-        <nav className={styles.nav}>
+        <nav className={`${styles.nav} ${mobileMenuOpen ? styles.navOpen : ''}`}>
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={`${styles.navLink} ${pathname === link.href ? styles.navLinkActive : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >
               {link.label}
             </Link>
@@ -44,6 +56,7 @@ export default function Header() {
             <Link
               href="/admin"
               className={`${styles.navLink} ${pathname.startsWith('/admin') ? styles.navLinkActive : ''}`}
+              onClick={() => setMobileMenuOpen(false)}
             >
               Admin
             </Link>
@@ -55,10 +68,10 @@ export default function Header() {
           <ThemeToggle />
 
           {session?.user && (
-            <div className={styles.userMenu}>
+            <div className={styles.userMenu} ref={dropdownRef}>
               <button
                 className={styles.avatarBtn}
-                onClick={() => setMenuOpen(!menuOpen)}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
                 aria-label="User Menu"
               >
                 <div className={styles.avatar}>
@@ -66,18 +79,18 @@ export default function Header() {
                 </div>
               </button>
 
-              {menuOpen && (
+              {dropdownOpen && (
                 <div className={styles.dropdown}>
                   <div className={styles.dropdownHeader}>
                     <span className={styles.dropdownName}>{session.user.name}</span>
                     <span className={styles.dropdownEmail}>{session.user.email}</span>
                   </div>
                   <div className={styles.dropdownDivider} />
-                  <Link href="/profile" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
+                  <Link href="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
                     Profile
                   </Link>
                   {isAdmin && (
-                    <Link href="/admin" className={styles.dropdownItem} onClick={() => setMenuOpen(false)}>
+                    <Link href="/admin" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
                       Admin Panel
                     </Link>
                   )}
@@ -96,7 +109,7 @@ export default function Header() {
           {/* Mobile Hamburger */}
           <button
             className={styles.hamburger}
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle Menu"
           >
             <span />

@@ -5,8 +5,10 @@ import styles from './ThemeToggle.module.css';
 
 export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const stored = localStorage.getItem('hma-theme') as 'light' | 'dark' | null;
     const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const initial = stored || preferred;
@@ -21,6 +23,14 @@ export default function ThemeToggle() {
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('hma-theme', next);
   };
+
+  if (!mounted) {
+    return (
+      <button className={styles.toggle} aria-hidden="true" disabled>
+        <span className={styles.icon}></span>
+      </button>
+    );
+  }
 
   return (
     <button
