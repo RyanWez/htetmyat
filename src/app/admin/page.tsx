@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
 import styles from './dashboard.module.css';
 
@@ -88,18 +89,18 @@ export default function AdminDashboard() {
       >
         <h2 className={styles.sectionTitle}>Quick Actions</h2>
         <div className={styles.quickActions}>
-          <a href="/admin/apple-ids" className={`glass-card ${styles.actionCard}`}>
+          <Link href="/admin/apple-ids" className={`glass-card ${styles.actionCard}`}>
             <div className={styles.actionIcon}>🍎</div>
             <div className={styles.actionLabel}>Manage Apple IDs</div>
-          </a>
-          <a href="/admin/posts" className={`glass-card ${styles.actionCard}`}>
+          </Link>
+          <Link href="/admin/posts" className={`glass-card ${styles.actionCard}`}>
             <div className={styles.actionIcon}>📝</div>
             <div className={styles.actionLabel}>Manage Content</div>
-          </a>
-          <a href="/admin/users" className={`glass-card ${styles.actionCard}`}>
+          </Link>
+          <Link href="/admin/users" className={`glass-card ${styles.actionCard}`}>
             <div className={styles.actionIcon}>👥</div>
             <div className={styles.actionLabel}>User Access</div>
-          </a>
+          </Link>
         </div>
       </motion.div>
     </div>
