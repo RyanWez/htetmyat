@@ -116,7 +116,9 @@ export default function LoginPage() {
             className={`btn btn-gradient btn-lg ${styles.submitBtn}`}
             disabled={loading}
           >
-            {loading ? 'Authenticating...' : 'Sign In'}
+            {loading ? (
+              <><span className="spinner" style={{ width: 18, height: 18 }} /> Authenticating...</>
+            ) : 'Sign In'}
           </motion.button>
         </form>
       </motion.div>

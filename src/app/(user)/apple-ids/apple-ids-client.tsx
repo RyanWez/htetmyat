@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag, copyToClipboard } from '@/lib/utils';
+import { useToast } from '@/components/ui/Toast';
 import AppleIcon from '@/components/AppleIcon';
 import styles from './apple-ids.module.css';
 
@@ -13,6 +14,7 @@ export default function AppleIdsClient() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const toast = useToast();
 
   useEffect(() => {
     fetchAppleIds();
@@ -36,11 +38,14 @@ export default function AppleIdsClient() {
     }
   };
 
-  const handleCopy = async (text: string, id: string) => {
+  const handleCopy = async (text: string, id: string, label?: string) => {
     const success = await copyToClipboard(text);
     if (success) {
       setCopiedId(id);
+      toast.success(label ? `${label} copied to clipboard` : 'Copied to clipboard');
       setTimeout(() => setCopiedId(null), 2000);
+    } else {
+      toast.error('Failed to copy', 'Please copy manually.');
     }
   };
 
@@ -116,7 +121,7 @@ export default function AppleIdsClient() {
                       <span className={styles.password}>••••••••</span>
                       <button
                         className={`btn btn-sm btn-ghost ${styles.copyBtn}`}
-                        onClick={() => handleCopy(appleId.password, `pwd-${appleId.id}`)}
+                        onClick={() => handleCopy(appleId.password, `pwd-${appleId.id}`, 'Password')}
                       >
                         {copiedId === `pwd-${appleId.id}` ? '✅ Copied!' : '📋 Copy'}
                       </button>
@@ -148,13 +153,13 @@ export default function AppleIdsClient() {
                 <div className={styles.cardActions}>
                   <button
                     className="btn btn-primary btn-sm"
-                    onClick={() => handleCopy(appleId.email, `email-${appleId.id}`)}
+                    onClick={() => handleCopy(appleId.email, `email-${appleId.id}`, 'Email')}
                   >
                     {copiedId === `email-${appleId.id}` ? '✅ Copied!' : '📋 Copy Email'}
                   </button>
                   <button
                     className="btn btn-secondary btn-sm"
-                    onClick={() => handleCopy(appleId.password, `pwd2-${appleId.id}`)}
+                    onClick={() => handleCopy(appleId.password, `pwd2-${appleId.id}`, 'Password')}
                   >
                     {copiedId === `pwd2-${appleId.id}` ? '✅ Copied!' : '🔑 Copy Password'}
                   </button>

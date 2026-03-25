@@ -5,6 +5,8 @@ import { motion } from 'framer-motion';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag } from '@/lib/utils';
 import { fetchAllAppleIds } from './actions';
+import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmDialog';
 import styles from './manage-ids.module.css';
 
 export default function AdminAppleIds() {
@@ -13,6 +15,10 @@ export default function AdminAppleIds() {
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<AppleId | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const toast = useToast();
+  const { confirm } = useConfirm();
   const [form, setForm] = useState({
     email: '', password: '', country: 'US', is_active: true, notes: '',
   });
@@ -51,14 +57,13 @@ export default function AdminAppleIds() {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     try {
       let result;
       if (editing) {
-        // Use server action instead of client supabase
         const { updateAppleId } = await import('./actions');
         result = await updateAppleId(editing.id, form);
       } else {
-        // Use server action instead of client supabase
         const { addAppleId } = await import('./actions');
         result = await addAppleId(form);
       }
@@ -66,25 +71,39 @@ export default function AdminAppleIds() {
       if (!result?.success) throw new Error(result?.error || 'Failed to save');
       
       setShowModal(false);
+      toast.success(editing ? 'Apple ID updated successfully' : 'Apple ID added successfully');
       fetchAppleIds();
     } catch (err) {
       console.error(err);
-      alert('Error saving data');
+      toast.error('Failed to save Apple ID', 'Please check your input and try again.');
+    } finally {
+      setSaving(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this Apple ID?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Apple ID?',
+      message: 'This action cannot be undone. The Apple ID will be permanently removed.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      variant: 'danger',
+    });
+    if (!confirmed) return;
+    setDeletingId(id);
     try {
       const { deleteAppleId } = await import('./actions');
       const result = await deleteAppleId(id);
       
       if (!result?.success) throw new Error(result?.error || 'Failed to delete');
       
+      toast.success('Apple ID deleted successfully');
       fetchAppleIds();
     } catch (err) {
       console.error(err);
-      alert('Error deleting data');
+      toast.error('Failed to delete Apple ID');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -96,10 +115,11 @@ export default function AdminAppleIds() {
       const { updateAppleId } = await import('./actions');
       const result = await updateAppleId(item.id, { is_active: !item.is_active });
       if (!result?.success) throw new Error(result?.error || 'Failed to toggle status');
+      toast.success(`Apple ID ${item.is_active ? 'deactivated' : 'activated'}`);
       fetchAppleIds();
     } catch (err) {
       console.error(err);
-      alert('Error toggling status');
+      toast.error('Failed to toggle status');
     } finally {
       setTogglingId(null);
     }
@@ -332,11 +352,15 @@ export default function AdminAppleIds() {
               </div>
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
+              <button className="btn btn-secondary" onClick={() => setShowModal(false)} disabled={saving}>
                 Cancel
               </button>
-              <button className="btn btn-primary" onClick={handleSave}>
-                {editing ? 'Save Changes' : 'Add Apple ID'}
+              <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                {saving ? (
+                  <><span className="spinner" /> {editing ? 'Saving...' : 'Adding...'}</>
+                ) : (
+                  editing ? 'Save Changes' : 'Add Apple ID'
+                )}
               </button>
             </div>
           </motion.div>
