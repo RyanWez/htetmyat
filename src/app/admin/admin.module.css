@@ -15,5 +15,6 @@
     margin-left: 0;
     max-width: 100%;
     padding: var(--space-4);
+    padding-top: calc(var(--space-4) + 64px);
   }
 }
