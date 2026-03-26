@@ -2,6 +2,9 @@
 
 export interface AppleId {
   id: string;
+  title: string;
+  description: string;
+  images: string[];
   email: string;
   password: string;
   country: string;

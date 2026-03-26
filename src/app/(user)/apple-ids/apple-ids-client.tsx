@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag, copyToClipboard } from '@/lib/utils';
@@ -125,9 +126,29 @@ export default function AppleIdsClient() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
               >
-                <div className={styles.cardHeader}>
-                  <span className={styles.appleIcon}><AppleIcon /></span>
-                  <span className={styles.cardEmail}>{appleId.email}</span>
+                <div style={{ position: 'relative', width: '100%', height: '160px', overflow: 'hidden', borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }}>
+                  {appleId.images && appleId.images.length > 0 ? (
+                    <img 
+                      src={appleId.images[0]} 
+                      alt={appleId.title} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', backgroundColor: 'var(--bg-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                      <AppleIcon />
+                    </div>
+                  )}
+                  <Link href={`/apple-ids/${appleId.id}`} style={{ position: 'absolute', inset: 0, zIndex: 10 }} aria-label="View Details" />
+                </div>
+
+                <div className={styles.cardHeader} style={{ flexWrap: 'wrap' }}>
+                  <div style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <span className={styles.appleIcon}><AppleIcon /></span>
+                    <Link href={`/apple-ids/${appleId.id}`} style={{ fontWeight: 600, fontSize: 'var(--text-lg)', color: 'var(--text-primary)', textDecoration: 'none' }}>
+                      {appleId.title || 'Apple ID'}
+                    </Link>
+                  </div>
+                  <span className={styles.cardEmail} style={{ fontSize: 'var(--text-sm)', opacity: 0.8 }}>{appleId.email}</span>
                 </div>
 
                 <div className={styles.cardBody}>

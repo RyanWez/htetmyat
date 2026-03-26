@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
-import { fetchAllAppleIds } from './actions';
+import { fetchAllAppleIds, uploadAppleIdImage } from './actions';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/ConfirmDialog';
 import styles from './manage-ids.module.css';
@@ -21,8 +21,9 @@ export default function AdminAppleIds() {
   const toast = useToast();
   const { confirm } = useConfirm();
   const [form, setForm] = useState({
-    email: '', password: '', country: 'US', is_active: true, notes: '',
+    title: '', description: '', email: '', password: '', country: 'US', is_active: true, notes: '', images: [] as string[]
   });
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   useEffect(() => {
     fetchAppleIds();
@@ -59,18 +60,21 @@ export default function AdminAppleIds() {
 
   const openAdd = () => {
     setEditing(null);
-    setForm({ email: '', password: '', country: 'US', is_active: true, notes: '' });
+    setForm({ title: '', description: '', email: '', password: '', country: 'US', is_active: true, notes: '', images: [] });
     setShowModal(true);
   };
 
   const openEdit = (item: AppleId) => {
     setEditing(item);
     setForm({
+      title: item.title || '',
+      description: item.description || '',
       email: item.email,
       password: item.password,
       country: item.country,
       is_active: item.is_active,
       notes: item.notes || '',
+      images: item.images || [],
     });
     setShowModal(true);
   };
@@ -124,6 +128,39 @@ export default function AdminAppleIds() {
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files?.length) return;
+    setUploadingImages(true);
+    const files = Array.from(e.target.files);
+    const newImages = [...form.images];
+    
+    try {
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        const result = await uploadAppleIdImage(formData);
+        
+        if (!result.success) throw new Error(result.error);
+        if (result.url) newImages.push(result.url);
+      }
+      setForm({ ...form, images: newImages });
+      toast.success('Images uploaded successfully');
+    } catch (err: any) {
+      console.error(err);
+      toast.error('Failed to upload images', err.message);
+    } finally {
+      setUploadingImages(false);
+      e.target.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = [...form.images];
+    newImages.splice(index, 1);
+    setForm({ ...form, images: newImages });
   };
 
   const [togglingId, setTogglingId] = useState<string | null>(null);
@@ -308,6 +345,54 @@ export default function AdminAppleIds() {
               </button>
             </div>
             <div className="modal-body">
+              <div className={styles.formGroup}>
+                <label className="input-label">Title *</label>
+                <input
+                  className="input-field"
+                  type="text"
+                  placeholder="e.g. Action Games ID - GTA & Minecraft"
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
+                  required
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className="input-label">Games/Description *</label>
+                <textarea
+                  className="textarea-field"
+                  placeholder="List games available..."
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  required
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className="input-label">Images (Max 3+)</label>
+                <input 
+                  type="file" 
+                  multiple 
+                  accept="image/*" 
+                  onChange={handleImageUpload} 
+                  disabled={uploadingImages}
+                  className="input-field"
+                  style={{ padding: '0.4rem', background: 'transparent' }}
+                />
+                {uploadingImages && <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: '4px' }}>Uploading...</div>}
+                {form.images?.length > 0 && (
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
+                    {form.images.map((img, i) => (
+                      <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
+                        <img src={img} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                        <button 
+                          className="btn-icon" 
+                          style={{ position: 'absolute', top: '-5px', right: '-5px', backgroundColor: 'var(--color-danger)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                          onClick={(e) => { e.preventDefault(); removeImage(i); }}
+                        >✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
               <div className={styles.formGroup}>
                 <label className="input-label">Email *</label>
                 <input

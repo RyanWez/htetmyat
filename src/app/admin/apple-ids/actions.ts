@@ -85,3 +85,39 @@ export async function deleteAppleId(id: string) {
     return { success: false, error: 'Failed to delete Apple ID' };
   }
 }
+
+export async function uploadAppleIdImage(formData: FormData) {
+  try {
+    await verifyAdmin();
+    
+    const file = formData.get('file') as File | null;
+    if (!file) return { success: false, error: 'No file provided' };
+
+    const supabase = await createServiceClient();
+    
+    // Generate safe filename
+    const fileExt = file.name.split('.').pop() || 'png';
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    
+    // Convert File to Buffer
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    
+    const { error: uploadError } = await supabase.storage
+      .from('apple_ids')
+      .upload(fileName, buffer, {
+        contentType: file.type,
+      });
+      
+    if (uploadError) throw uploadError;
+    
+    const { data: { publicUrl } } = supabase.storage
+      .from('apple_ids')
+      .getPublicUrl(fileName);
+      
+    return { success: true, url: publicUrl };
+  } catch (err: any) {
+    console.error('Upload Error:', err);
+    return { success: false, error: err.message || 'Failed to upload image' };
+  }
+}
