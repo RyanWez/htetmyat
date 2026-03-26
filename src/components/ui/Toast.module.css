@@ -22,14 +22,15 @@
   background: var(--bg-surface-solid);
   border: 1px solid var(--border-default);
   box-shadow: 
-    0 12px 24px -6px rgba(0, 0, 0, 0.08),
-    0 4px 12px -2px rgba(0, 0, 0, 0.04),
+    0 12px 24px -6px rgba(0, 0, 0, 0.12),
+    0 4px 12px -2px rgba(0, 0, 0, 0.08),
     0 0 0 1px var(--border-subtle);
   pointer-events: auto;
   position: relative;
   overflow: hidden;
   animation: toastSlideIn 0.4s cubic-bezier(0.2, 1, 0.3, 1) forwards;
   width: 100%;
+  backdrop-filter: blur(8px);
 }
 
 .toastExiting {
@@ -38,8 +39,8 @@
 
 .toastIcon {
   flex-shrink: 0;
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -93,9 +94,10 @@
   color: var(--text-primary);
 }
 
-/* Variants */
+/* Variants with subtle backgrounds */
 .toastSuccess {
-  border-left: 3px solid var(--accent-success);
+  border-left: 4px solid var(--accent-success);
+  background: linear-gradient(to right, rgba(16, 185, 129, 0.05), var(--bg-surface-solid));
 }
 .toastSuccess .toastIcon {
   background: var(--accent-success-light);
@@ -103,7 +105,8 @@
 }
 
 .toastError {
-  border-left: 3px solid var(--accent-danger);
+  border-left: 4px solid var(--accent-danger);
+  background: linear-gradient(to right, rgba(239, 68, 68, 0.05), var(--bg-surface-solid));
 }
 .toastError .toastIcon {
   background: var(--accent-danger-light);
@@ -111,18 +114,19 @@
 }
 
 .toastInfo {
-  border-left: 3px solid var(--accent-info);
+  border-left: 4px solid var(--accent-info);
+  background: linear-gradient(to right, rgba(14, 165, 233, 0.05), var(--bg-surface-solid));
 }
 .toastInfo .toastIcon {
   background: var(--accent-info-light);
   color: var(--accent-info);
 }
 
-/* Animations */
+/* Animations from top center */
 @keyframes toastSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-30px) scale(0.95);
+    transform: translateY(-40px) scale(0.9);
   }
   to {
     opacity: 1;
@@ -134,9 +138,11 @@
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
+    filter: blur(0);
   }
   to {
     opacity: 0;
     transform: translateY(-20px) scale(0.95);
+    filter: blur(4px);
   }
 }
