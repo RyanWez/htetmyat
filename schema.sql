@@ -68,11 +68,11 @@ ALTER TABLE public.apple_ids ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.posts ENABLE ROW LEVEL SECURITY;
 
--- Allow public read access to active apple_ids
-CREATE POLICY "Public can view active apple ids"
+-- Allow public read access to all apple_ids
+CREATE POLICY "Public can view all apple ids"
     ON public.apple_ids
     FOR SELECT
-    USING (is_active = true);
+    USING (true);
 
 -- Allow public read access to published posts
 CREATE POLICY "Public can view published posts"
