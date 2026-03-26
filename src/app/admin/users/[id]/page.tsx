@@ -1,10 +1,12 @@
 import { fetchUserById } from '../actions';
-import UserDetailClient from './user-detail-client';
+import UserDetailClient from '@/app/admin/users/[id]/user-detail-client';
 import { notFound } from 'next/navigation';
 
 export const metadata = {
   title: 'User Details - HMA Admin',
 };
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminUserDetailPage({ params }: { params: { id: string } }) {
   const resolvedParams = await params;

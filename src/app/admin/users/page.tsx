@@ -2,8 +2,10 @@ import { fetchAllUsers } from './actions';
 import UsersClient from './users-client';
 
 export const metadata = {
-  title: 'User Management - HMA Admin',
+  title: 'User Details - HMA Admin',
 };
+
+export const dynamic = 'force-dynamic';
 
 export default async function AdminUsersPage() {
   const { data: users, count, success, error } = await fetchAllUsers();
