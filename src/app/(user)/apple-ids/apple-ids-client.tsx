@@ -17,7 +17,6 @@ export default function AppleIdsClient() {
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
-  const [availableCountries, setAvailableCountries] = useState<string[]>([]);
   const [dbRevision, setDbRevision] = useState(0);
 
   const PAGE_SIZE = 12;
@@ -25,14 +24,6 @@ export default function AppleIdsClient() {
   // Realtime channel setup (only runs once)
   useEffect(() => {
     const supabase = createClient();
-    
-    // Fetch unique countries once for the filter tabs
-    supabase.from('apple_ids').select('country').eq('is_active', true).then(({ data }) => {
-      if (data) {
-        const unique = Array.from(new Set(data.map(d => d.country)));
-        setAvailableCountries(unique);
-      }
-    });
 
     const channel = supabase
       .channel('public:apple_ids')
@@ -58,13 +49,17 @@ export default function AppleIdsClient() {
         const supabase = createClient();
         let query = supabase
           .from('apple_ids')
-          .select('*', { count: 'exact' })
-          .eq('is_active', true)
-          .order('created_at', { ascending: false });
+          .select('*', { count: 'exact' });
 
-        if (filter !== 'all') {
-          query = query.eq('country', filter);
+        if (filter === 'active') {
+          query = query.eq('is_active', true);
+        } else if (filter === 'inactive') {
+          query = query.eq('is_active', false);
         }
+
+        query = query
+          .order('is_active', { ascending: false })
+          .order('created_at', { ascending: false });
 
         if (searchQuery.trim()) {
           query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
@@ -105,13 +100,18 @@ export default function AppleIdsClient() {
       const supabase = createClient();
       let query = supabase
         .from('apple_ids')
-        .select('*', { count: 'exact' })
-        .eq('is_active', true)
+        .select('*', { count: 'exact' });
+
+      if (filter === 'active') {
+        query = query.eq('is_active', true);
+      } else if (filter === 'inactive') {
+        query = query.eq('is_active', false);
+      }
+
+      query = query
+        .order('is_active', { ascending: false })
         .order('created_at', { ascending: false });
 
-      if (filter !== 'all') {
-        query = query.eq('country', filter);
-      }
       if (searchQuery.trim()) {
         query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
       }
@@ -158,15 +158,18 @@ export default function AppleIdsClient() {
             >
               All
             </button>
-            {availableCountries.map((country) => (
-              <button
-                key={country}
-                className={`${styles.filterBtn} ${filter === country ? styles.filterActive : ''}`}
-                onClick={() => setFilter(country)}
-              >
-                {getCountryFlag(country)} {country}
-              </button>
-            ))}
+            <button
+              className={`${styles.filterBtn} ${filter === 'active' ? styles.filterActive : ''}`}
+              onClick={() => setFilter('active')}
+            >
+              🟢 Active
+            </button>
+            <button
+              className={`${styles.filterBtn} ${filter === 'inactive' ? styles.filterActive : ''}`}
+              onClick={() => setFilter('inactive')}
+            >
+              ⚪ Inactive
+            </button>
           </div>
 
           <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
