@@ -221,7 +221,32 @@
 }
 
 @media (max-width: 768px) {
-  .nav { display: none; }
+  .nav { 
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: calc(100% + var(--space-2));
+    left: var(--space-4);
+    right: var(--space-4);
+    background: var(--bg-surface-solid);
+    padding: var(--space-4);
+    border-radius: var(--radius-xl);
+    border: 1px solid var(--border-default);
+    box-shadow: var(--shadow-lg);
+    z-index: 100;
+  }
+  
+  .navOpen { 
+    display: flex;
+    animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .navLink {
+    width: 100%;
+    text-align: center;
+    padding: 12px;
+  }
+
   .hamburger { display: flex; }
   .userMenu { display: none; }
 }
