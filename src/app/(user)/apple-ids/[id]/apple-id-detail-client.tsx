@@ -105,7 +105,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
           >
             {/* Header info */}
             <div style={{ marginBottom: 'var(--space-6)' }}>
-              <h1 style={{ margin: '0 0 var(--space-4) 0', fontSize: 'var(--text-3xl)', fontWeight: 800, background: 'linear-gradient(45deg, var(--text-primary), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h1 style={{ margin: '0 0 var(--space-4) 0', fontSize: 'var(--text-3xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.5px' }}>
                 {appleId.title || 'Premium Apple ID'}
               </h1>
               
@@ -137,40 +137,51 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
 
             <div style={{ height: '1px', background: 'var(--border-color)', margin: 'var(--space-6) 0' }} />
 
-            {/* Credentials Section */}
-            <h3 style={{ marginBottom: 'var(--space-4)', fontSize: 'var(--text-lg)' }}>Credentials</h3>
-            <div style={{ display: 'grid', gap: '16px' }}>
+            {/* Credentials Section (Redesigned as a Secure Vault) */}
+            <div style={{ marginTop: 'var(--space-6)', padding: 'var(--space-6)', background: 'linear-gradient(145deg, #111827 0%, #0f172a 100%)', borderRadius: 'var(--radius-xl)', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 10px 30px -10px rgba(59, 130, 246, 0.15)', position: 'relative', overflow: 'hidden' }}>
+              {/* Decorative background glow */}
+              <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '120%', height: '200%', background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.1) 0%, transparent 50%)', pointerEvents: 'none' }} />
               
-              {/* Email Box */}
-              <div style={{ padding: 'var(--space-4)', background: 'var(--bg-card-hover)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid var(--border-color)' }}>
-                <div>
-                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: '4px' }}>Apple ID Email</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-lg)', fontWeight: 500 }}>{appleId.email}</div>
-                </div>
-                <button 
-                  onClick={() => handleCopy(appleId.email, 'email', 'Email')}
-                  className="btn btn-gradient"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                   {copiedId === 'email' ? '✅ Copied' : '📋 Copy'}
-                </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 'var(--space-5)', position: 'relative', zIndex: 1 }}>
+                <span style={{ fontSize: '20px' }}>🔐</span>
+                <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', color: '#fff', fontWeight: 600 }}>Secure Credentials</h3>
               </div>
-
-              {/* Password Box */}
-              <div style={{ padding: 'var(--space-4)', background: 'var(--bg-card-hover)', borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid var(--border-color)' }}>
-                <div>
-                  <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginBottom: '4px' }}>Password</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: 'var(--text-lg)', fontWeight: 500 }}>{appleId.password}</div>
+              
+              <div style={{ display: 'grid', gap: 'var(--space-4)', position: 'relative', zIndex: 1 }}>
+                
+                {/* Email Box */}
+                <div style={{ padding: '16px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Apple ID Email</div>
+                    <div style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)', fontSize: '18px', color: '#60a5fa', fontWeight: 600, letterSpacing: '0.5px' }}>{appleId.email}</div>
+                  </div>
+                  <button 
+                    onClick={() => handleCopy(appleId.email, 'email', 'Email')}
+                    style={{ background: copiedId === 'email' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.15)', color: copiedId === 'email' ? '#10b981' : '#60a5fa', border: copiedId === 'email' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(59, 130, 246, 0.4)', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', fontSize: '14px' }}
+                    onMouseOver={(e) => { if (copiedId !== 'email') { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.25)'; } }}
+                    onMouseOut={(e) => { if (copiedId !== 'email') { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)'; } }}
+                  >
+                     {copiedId === 'email' ? '✅ Copied' : '📋 Copy'}
+                  </button>
                 </div>
-                <button 
-                  onClick={() => handleCopy(appleId.password, 'password', 'Password')}
-                  className="btn btn-primary"
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                >
-                   {copiedId === 'password' ? '✅ Copied' : '🔑 Copy'}
-                </button>
-              </div>
 
+                {/* Password Box */}
+                <div style={{ padding: '16px', background: 'rgba(0, 0, 0, 0.4)', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: '1px solid rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(10px)' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ fontSize: '12px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 600 }}>Password</div>
+                    <div style={{ fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)', fontSize: '18px', color: '#fbbf24', fontWeight: 600, letterSpacing: '2px' }}>{appleId.password}</div>
+                  </div>
+                  <button 
+                    onClick={() => handleCopy(appleId.password, 'password', 'Password')}
+                    style={{ background: copiedId === 'password' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.15)', color: copiedId === 'password' ? '#10b981' : '#fbbf24', border: copiedId === 'password' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(245, 158, 11, 0.4)', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '8px', transition: 'all 0.2s', fontSize: '14px' }}
+                    onMouseOver={(e) => { if (copiedId !== 'password') { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.25)'; } }}
+                    onMouseOut={(e) => { if (copiedId !== 'password') { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)'; } }}
+                  >
+                     {copiedId === 'password' ? '✅ Copied' : '🔑 Copy'}
+                  </button>
+                </div>
+
+              </div>
             </div>
 
              {/* Usage Warning */}
