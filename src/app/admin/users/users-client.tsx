@@ -24,11 +24,10 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
     startTransition(async () => {
       const res = await createUserAction(formData);
       if (res.success) {
-        setSuccessMsg('User created successfully');
+        setSuccessMsg('User created successfully. They can now login.');
         setIsModalOpen(false);
         formRef.current?.reset();
-        // Hide success message after 3 seconds
-        setTimeout(() => setSuccessMsg(''), 3000);
+        setTimeout(() => setSuccessMsg(''), 4000);
       } else {
         setError(res.error || 'Failed to create user');
       }
@@ -36,132 +35,204 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
   }
 
   return (
-    <div style={{ maxWidth: 1000, position: 'relative' }}>
-      {successMsg && (
-        <div style={{ padding: 'var(--space-4)', background: 'var(--success-light)', color: 'var(--success-dark)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-4)' }}>
-          {successMsg}
-        </div>
-      )}
+    <div style={{ maxWidth: 1040, position: 'relative', margin: '0 auto' }}>
+      <AnimatePresence>
+        {successMsg && (
+          <motion.div 
+            initial={{ opacity: 0, y: -20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+            style={{ 
+              padding: '16px 20px', 
+              background: 'linear-gradient(135deg, var(--success-main) 0%, #10B981 100%)', 
+              color: '#fff', 
+              borderRadius: 'var(--radius-lg)', 
+              marginBottom: 'var(--space-6)',
+              boxShadow: '0 10px 25px -5px rgba(16, 185, 129, 0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              fontWeight: 600,
+              gap: 12
+            }}
+          >
+            <span style={{ fontSize: 20 }}>✨</span> {successMsg}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'var(--space-6)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-8)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
         <div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-3xl)', fontWeight: 800 }}>
-            User List 
-            <span style={{ fontSize: 'var(--text-lg)', fontWeight: 'normal', color: 'var(--text-tertiary)', marginLeft: 12 }}>
-              Total: {totalCount}
-            </span>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
+            User Management 
           </h1>
+          <p style={{ color: 'var(--text-tertiary)', marginTop: 4, fontSize: '0.95rem' }}>
+            {totalCount} total registered {totalCount === 1 ? 'user' : 'users'} across the platform.
+          </p>
         </div>
         
-        <div style={{ display: 'flex', gap: 'var(--space-3)', width: '100%', maxWidth: 400 }}>
+        <div style={{ display: 'flex', gap: 'var(--space-4)', width: '100%', maxWidth: 420 }}>
           <div style={{ position: 'relative', flex: 1 }}>
-            <span style={{ position: 'absolute', left: 12, top: 10, color: 'var(--text-tertiary)' }}>🔍</span>
+            <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }}>
+              🔍
+            </span>
             <input 
               type="text"
-              placeholder="Search users by email..."
+              placeholder="Search by email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={{
                 width: '100%',
-                padding: '10px 16px 10px 40px',
-                borderRadius: 'var(--radius-md)',
+                padding: '12px 16px 12px 42px',
+                borderRadius: 'var(--radius-lg)',
                 border: '1px solid var(--border-default)',
-                background: 'var(--bg-surface-solid)',
-                color: 'var(--text-primary)'
+                background: 'rgba(255, 255, 255, 0.03)',
+                color: 'var(--text-primary)',
+                outline: 'none',
+                transition: 'all 0.2s ease',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--brand-primary)';
+                e.target.style.boxShadow = '0 0 0 3px rgba(147, 51, 234, 0.15), inset 0 2px 4px rgba(0,0,0,0.1)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--border-default)';
+                e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.1)';
               }}
             />
           </div>
-          <button 
+          <motion.button 
+            whileHover={{ scale: 1.02, translateY: -1 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => setIsModalOpen(true)}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: 8,
-              background: 'var(--brand-primary)',
+              background: 'linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%)',
               color: 'white',
               border: 'none',
-              padding: '10px 16px',
-              borderRadius: 'var(--radius-md)',
+              padding: '0 20px',
+              borderRadius: 'var(--radius-lg)',
               fontWeight: 600,
               cursor: 'pointer',
-              whiteSpace: 'nowrap'
+              whiteSpace: 'nowrap',
+              boxShadow: '0 8px 20px -6px var(--brand-glow)'
             }}
           >
             ➕ Add User
-          </button>
+          </motion.button>
         </div>
       </div>
 
-      <div className="glass-card" style={{ padding: 0, overflow: 'hidden' }}>
+      <motion.div 
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-card" 
+        style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-xl)' }}
+      >
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
-              <tr style={{ background: 'var(--bg-surface-hover)', borderBottom: '1px solid var(--border-default)' }}>
-                <th style={{ padding: 'var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600 }}>Email</th>
-                <th style={{ padding: 'var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600 }}>Role</th>
-                <th style={{ padding: 'var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600 }}>Status</th>
-                <th style={{ padding: 'var(--space-4)', color: 'var(--text-secondary)', fontWeight: 600 }}>Joined</th>
-                <th style={{ padding: 'var(--space-4)' }}></th>
+              <tr style={{ background: 'rgba(0, 0, 0, 0.2)', borderBottom: '1px solid var(--border-default)' }}>
+                <th style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>User Profile</th>
+                <th style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Role</th>
+                <th style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Status</th>
+                <th style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Joined</th>
+                <th style={{ padding: '16px 24px' }}></th>
               </tr>
             </thead>
             <tbody>
               {filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ padding: 'var(--space-8)', textAlign: 'center', color: 'var(--text-tertiary)' }}>
-                    No users found matching "{search}"
+                  <td colSpan={5} style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+                    <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>🤷</div>
+                    <p style={{ margin: 0 }}>No users found matching "{search}"</p>
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map(user => (
-                  <tr key={user.id} style={{ borderBottom: '1px solid var(--border-default)', transition: 'background 0.2s' }} className="hover-row">
-                    <td style={{ padding: 'var(--space-4)', fontWeight: 500 }}>
-                      <Link href={`/admin/users/${user.id}`} style={{ textDecoration: 'none', color: 'var(--text-primary)' }}>
-                        {user.email}
+                filteredUsers.map((user, index) => (
+                  <motion.tr 
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    key={user.id} 
+                    style={{ borderBottom: '1px solid var(--border-default)', transition: 'background 0.2s ease' }} 
+                    className="hover-row"
+                  >
+                    <td style={{ padding: '16px 24px' }}>
+                      <Link href={`/admin/users/${user.id}`} style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+                        <div style={{
+                          width: 36, height: 36, borderRadius: '50%', 
+                          background: user.role === 'admin' ? 'linear-gradient(135deg, var(--brand-primary), var(--brand-secondary))' : 'var(--bg-surface-hover)', 
+                          color: user.role === 'admin' ? '#fff' : 'var(--text-secondary)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontWeight: 700, fontSize: '1rem',
+                          border: user.role === 'admin' ? 'none' : '1px solid var(--border-default)'
+                        }}>
+                          {user.email?.[0].toUpperCase()}
+                        </div>
+                        <div>
+                          <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 600 }}>{user.display_name || 'User Account'}</p>
+                          <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{user.email}</p>
+                        </div>
                       </Link>
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
+                    <td style={{ padding: '16px 24px' }}>
                       <span style={{
-                        padding: '4px 8px',
-                        borderRadius: '12px',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        background: user.role === 'admin' ? 'var(--brand-light)' : 'var(--bg-surface-hover)',
-                        color: user.role === 'admin' ? 'var(--brand-primary)' : 'var(--text-secondary)'
+                        padding: '6px 12px',
+                        borderRadius: 'var(--radius-full)',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        letterSpacing: '0.02em',
+                        background: user.role === 'admin' ? 'rgba(147, 51, 234, 0.15)' : 'var(--bg-surface-hover)',
+                        color: user.role === 'admin' ? '#D8B4FE' : 'var(--text-secondary)',
+                        border: `1px solid ${user.role === 'admin' ? 'rgba(147, 51, 234, 0.3)' : 'var(--border-default)'}`
                       }}>
-                        {user.role === 'admin' ? '⭐ Admin' : '👤 User'}
+                        {user.role === 'admin' ? '👑 ADMIN' : '👤 USER'}
                       </span>
                     </td>
-                    <td style={{ padding: 'var(--space-4)' }}>
-                      <span style={{ color: user.is_active ? 'var(--success-main)' : 'var(--error-main)' }}>
-                        {user.is_active ? '● Active' : '○ Suspended'}
-                      </span>
+                    <td style={{ padding: '16px 24px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div style={{ 
+                          width: 8, height: 8, borderRadius: '50%', 
+                          background: user.is_active ? 'var(--success-main)' : 'var(--error-main)',
+                          boxShadow: `0 0 10px ${user.is_active ? 'var(--success-main)' : 'var(--error-main)'}`
+                        }} />
+                        <span style={{ color: user.is_active ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: 500, fontSize: '0.9rem' }}>
+                          {user.is_active ? 'Active' : 'Suspended'}
+                        </span>
+                      </div>
                     </td>
-                    <td style={{ padding: 'var(--space-4)', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
-                      {new Date(user.created_at).toLocaleDateString()}
+                    <td style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
+                      {new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                     </td>
-                    <td style={{ padding: 'var(--space-4)', textAlign: 'right' }}>
+                    <td style={{ padding: '16px 24px', textAlign: 'right' }}>
                       <Link 
                         href={`/admin/users/${user.id}`}
                         style={{
-                          background: 'var(--bg-surface-hover)',
+                          background: 'rgba(255,255,255,0.05)',
                           color: 'var(--text-primary)',
-                          padding: '6px 12px',
-                          borderRadius: 'var(--radius-md)',
+                          padding: '8px 16px',
+                          borderRadius: 'var(--radius-full)',
                           textDecoration: 'none',
-                          fontSize: '0.9rem',
-                          fontWeight: 500
+                          fontSize: '0.85rem',
+                          fontWeight: 600,
+                          transition: 'all 0.2s',
+                          border: '1px solid rgba(255,255,255,0.1)'
                         }}
+                        className="btn-glass"
                       >
-                        Details →
+                        Manage
                       </Link>
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))
               )}
             </tbody>
           </table>
         </div>
-      </div>
+      </motion.div>
 
       <AnimatePresence>
         {isModalOpen && (
@@ -170,66 +241,93 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
               exit={{ opacity: 0 }}
-              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+              style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)' }}
               onClick={() => setIsModalOpen(false)}
             />
             <motion.div 
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="glass-card"
-              style={{ position: 'relative', width: '100%', maxWidth: 450, padding: 'var(--space-6)', zIndex: 101, boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              style={{ 
+                position: 'relative', width: '100%', maxWidth: 440, padding: 0, zIndex: 101, 
+                background: 'var(--bg-surface-solid)', borderRadius: 'var(--radius-xl)', 
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+                border: '1px solid var(--border-default)',
+                overflow: 'hidden'
+              }}
             >
-              <button 
-                onClick={() => setIsModalOpen(false)}
-                style={{ position: 'absolute', top: 16, right: 16, background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--text-tertiary)' }}
-              >
-                ✕
-              </button>
-              <h2 style={{ fontSize: 'var(--text-xl)', marginBottom: 'var(--space-4)' }}>Create New User</h2>
-              <form action={handleCreate} ref={formRef} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}>
-                {error && <div style={{ color: 'var(--error-main)', fontSize: '0.9rem', background: 'var(--error-light)', padding: 8, borderRadius: 4 }}>{error}</div>}
+              <div style={{ background: 'var(--bg-surface-hover)', padding: '24px', borderBottom: '1px solid var(--border-default)' }}>
+                <button 
+                  onClick={() => setIsModalOpen(false)}
+                  style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.1)', border: 'none', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-secondary)', transition: 'background 0.2s' }}
+                  onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+                  onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                >
+                  ✕
+                </button>
+                <h2 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 24 }}>✨</span> Create User
+                </h2>
+                <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', margin: '4px 0 0 0' }}>
+                  User will be automatically verified and ready to login.
+                </p>
+              </div>
+
+              <form action={handleCreate} ref={formRef} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <AnimatePresence>
+                  {error && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} style={{ color: 'var(--error-main)', fontSize: '0.9rem', background: 'var(--error-light)', padding: '12px 16px', borderRadius: 'var(--radius-md)', fontWeight: 500 }}>
+                      {error}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', fontWeight: 500 }}>Email Address</label>
-                  <input name="email" type="email" required placeholder="admin@example.com" style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid var(--border-default)', background: 'var(--bg-surface-solid)', color: 'var(--text-primary)' }} />
+                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Email Address</label>
+                  <input name="email" type="email" required placeholder="name@example.com" style={{ width: '100%', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', outline: 'none', transition: 'border-color 0.2s' }} onFocus={(e) => e.target.style.borderColor = 'var(--brand-primary)'} onBlur={(e) => e.target.style.borderColor = 'var(--border-default)'} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', fontWeight: 500 }}>Password</label>
-                  <input name="password" type="password" required minLength={6} placeholder="••••••••" style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid var(--border-default)', background: 'var(--bg-surface-solid)', color: 'var(--text-primary)' }} />
+                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Secure Password</label>
+                  <input name="password" type="password" required minLength={6} placeholder="••••••••" style={{ width: '100%', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', outline: 'none', transition: 'border-color 0.2s' }} onFocus={(e) => e.target.style.borderColor = 'var(--brand-primary)'} onBlur={(e) => e.target.style.borderColor = 'var(--border-default)'} />
                 </div>
                 <div>
-                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.9rem', fontWeight: 500 }}>Role</label>
-                  <select name="role" style={{ width: '100%', padding: 10, borderRadius: 6, border: '1px solid var(--border-default)', background: 'var(--bg-surface-solid)', color: 'var(--text-primary)' }}>
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                  <label style={{ display: 'block', marginBottom: 8, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Access Role</label>
+                  <select name="role" style={{ width: '100%', padding: '12px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', outline: 'none', appearance: 'none', transition: 'border-color 0.2s' }} onFocus={(e) => e.target.style.borderColor = 'var(--brand-primary)'} onBlur={(e) => e.target.style.borderColor = 'var(--border-default)'}>
+                    <option value="user">Standard User</option>
+                    <option value="admin">Administrator (Full Access)</option>
                   </select>
                 </div>
                 
-                <button 
+                <motion.button 
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.98 }}
                   type="submit" 
                   disabled={isPending}
                   style={{
-                    marginTop: 'var(--space-2)',
-                    padding: 12,
-                    background: 'var(--brand-primary)',
+                    marginTop: 8,
+                    padding: '14px',
+                    background: 'linear-gradient(135deg, var(--brand-primary), var(--brand-secondary))',
                     color: 'white',
                     border: 'none',
-                    borderRadius: 6,
-                    fontWeight: 600,
+                    borderRadius: 'var(--radius-md)',
+                    fontWeight: 700,
+                    fontSize: '1rem',
                     cursor: isPending ? 'not-allowed' : 'pointer',
-                    opacity: isPending ? 0.7 : 1
+                    opacity: isPending ? 0.7 : 1,
+                    boxShadow: '0 8px 16px -4px var(--brand-glow)'
                   }}
                 >
-                  {isPending ? 'Creating...' : 'Create User'}
-                </button>
+                  {isPending ? 'Generating Account...' : 'Create Account Now'}
+                </motion.button>
               </form>
             </motion.div>
           </div>
         )}
       </AnimatePresence>
       <style dangerouslySetInnerHTML={{__html: `
-        .hover-row:hover { background-color: var(--bg-surface-hover); }
+        .hover-row:hover { background-color: var(--bg-surface-hover) !important; }
+        .btn-glass:hover { background-color: rgba(255,255,255,0.1) !important; }
       `}} />
     </div>
   );
