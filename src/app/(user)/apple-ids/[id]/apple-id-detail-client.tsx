@@ -95,13 +95,43 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
             <span>←</span> Back to Library
           </Link>
 
-          {/* Info Card (Top) */}
+          {/* Images Section (Top) */}
+          {appleId.images && appleId.images.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              style={{ marginBottom: 'var(--space-8)' }}
+            >
+              <h3 style={{ marginBottom: 'var(--space-4)', color: 'var(--text-primary)', fontSize: 'var(--text-xl)' }}>Previews & Available Games</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-6)' }}>Click an image to view it in full screen.</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
+                {appleId.images.map((img, i) => (
+                  <motion.div 
+                    key={i} 
+                    style={{ position: 'relative', width: '100%', borderRadius: 'var(--radius-xl)', overflow: 'hidden', cursor: 'zoom-in', border: '1px solid rgba(255,255,255,0.05)', backgroundColor: '#050505', boxShadow: '0 8px 30px rgba(0,0,0,0.4)', aspectRatio: 'auto' }}
+                    whileHover={{ scale: 1.01, boxShadow: '0 15px 40px rgba(0,0,0,0.6)' }}
+                    onClick={() => setLightboxImage(img)}
+                  >
+                    <div style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: '30px', color: 'white', fontSize: '13px', fontWeight: 500, backdropFilter: 'blur(8px)', zIndex: 10, display: 'flex', gap: '6px', alignItems: 'center', pointerEvents: 'none', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                      Click to Zoom
+                    </div>
+                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9, transition: 'opacity 0.3s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '1'} onMouseOut={(e) => e.currentTarget.style.opacity = '0.9'} loading="lazy" />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Info Card (Bottom) */}
           <motion.div 
             className="glass-card" 
             style={{ padding: 'var(--space-8)', marginBottom: 'var(--space-8)' }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
           >
             {/* Header info */}
             <div style={{ marginBottom: 'var(--space-6)' }}>
@@ -194,35 +224,6 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                </div>
              </div>
           </motion.div>
-
-          {/* Images Section (Bottom) */}
-          {appleId.images && appleId.images.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
-              <h3 style={{ marginBottom: 'var(--space-4)', color: 'var(--text-primary)', fontSize: 'var(--text-xl)' }}>Previews & Available Games</h3>
-              <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-6)' }}>Click an image to view it in full screen.</p>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
-                {appleId.images.map((img, i) => (
-                  <motion.div 
-                    key={i} 
-                    style={{ position: 'relative', width: '100%', borderRadius: 'var(--radius-xl)', overflow: 'hidden', cursor: 'zoom-in', border: '1px solid rgba(255,255,255,0.05)', backgroundColor: '#050505', boxShadow: '0 8px 30px rgba(0,0,0,0.4)', aspectRatio: 'auto' }}
-                    whileHover={{ scale: 1.01, boxShadow: '0 15px 40px rgba(0,0,0,0.6)' }}
-                    onClick={() => setLightboxImage(img)}
-                  >
-                    <div style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: '30px', color: 'white', fontSize: '13px', fontWeight: 500, backdropFilter: 'blur(8px)', zIndex: 10, display: 'flex', gap: '6px', alignItems: 'center', pointerEvents: 'none', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                      Click to Zoom
-                    </div>
-                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9, transition: 'opacity 0.3s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '1'} onMouseOut={(e) => e.currentTarget.style.opacity = '0.9'} loading="lazy" />
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          )}
 
         </div>
       </div>
