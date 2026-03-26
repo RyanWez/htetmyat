@@ -394,6 +394,13 @@ a:hover {
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+
+.modal-content::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Webkit */
 }
 
 .modal-header {
