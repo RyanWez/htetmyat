@@ -3,9 +3,11 @@
   top: var(--space-4);
   z-index: 50;
   height: max-content;
-  background: transparent;
-  backdrop-filter: none;
-  border: none;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
   transition: all var(--transition-base);
   pointer-events: none;
 }
@@ -30,6 +32,9 @@
 .logo {
   display: flex;
   align-items: center;
+  align-self: center;
+  flex: 0 0 auto;
+  width: max-content;
   gap: var(--space-2);
   text-decoration: none;
   color: var(--text-primary);
@@ -39,6 +44,7 @@
   border-radius: var(--radius-full);
   border: 1px solid var(--border-default);
   box-shadow: var(--shadow-sm);
+  outline: none;
 }
 
 .logo:hover {
@@ -82,6 +88,7 @@
   border-radius: var(--radius-full);
   transition: all var(--transition-fast);
   letter-spacing: 0.01em;
+  outline: none;
 }
 
 .navLink:hover {
@@ -100,6 +107,9 @@
 .actions {
   display: flex;
   align-items: center;
+  align-self: center;
+  flex: 0 0 auto;
+  width: max-content;
   gap: var(--space-3);
   background: var(--bg-surface-solid);
   padding: 6px 6px 6px 12px;
@@ -240,7 +250,7 @@
     gap: var(--space-2);
   }
 
-  .nav { 
+  .nav {
     display: none;
     flex-direction: column;
     position: absolute;
@@ -254,8 +264,8 @@
     box-shadow: var(--shadow-lg);
     z-index: 100;
   }
-  
-  .navOpen { 
+
+  .navOpen {
     display: flex;
     animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }

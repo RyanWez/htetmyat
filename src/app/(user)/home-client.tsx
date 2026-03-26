@@ -20,11 +20,7 @@ export default function HomeClient() {
 
   return (
     <div className={styles.page} ref={ref}>
-      {/* Dynamic Animated Background */}
-      <motion.div className={styles.pageBg} style={{ y: yBg, opacity: opacityBg }}>
-        <div className={styles.glow1} />
-        <div className={styles.glow2} />
-      </motion.div>
+      {/* Dynamic Animated Background has been removed to prevent visual clutter under the transparent header */}
 
       {/* Hero Section */}
       <motion.section
