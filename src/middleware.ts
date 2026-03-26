@@ -6,8 +6,12 @@ export default auth((req) => {
   const isLoggedIn = !!req.auth;
 
   // Public paths
-  const publicPaths = ['/login', '/api/auth'];
-  const isPublicPath = publicPaths.some((path) => pathname.startsWith(path));
+  const publicPaths = ['/login', '/api/auth', '/blog'];
+  
+  // Exact match for '/' (Home), startWith match for other public paths
+  const isPublicPath = 
+    pathname === '/' || 
+    publicPaths.some((path) => pathname.startsWith(path));
 
   if (isPublicPath) {
     if (isLoggedIn && pathname === '/login') {
