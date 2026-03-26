@@ -117,9 +117,9 @@ export default function UserDetailClient({ user }: { user: any }) {
               </div>
             </div>
           </div>
-          <div style={{ padding: '56px 32px 32px 32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 24 }}>
+          <div className="banner-content">
             <div>
-              <h1 style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h1 className="banner-content-title" style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12 }}>
                 {user.display_name || 'System User'}
                 <span style={{
                   padding: '4px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', verticalAlign: 'middle',
@@ -142,7 +142,7 @@ export default function UserDetailClient({ user }: { user: any }) {
         </div>
 
         {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 'var(--space-6)', marginBottom: 'var(--space-8)' }}>
+        <div className="stats-grid">
           {[
             { label: 'System ID', value: user.id.split('-')[0] + '••••', full: user.id, icon: '🆔' },
             { label: 'Member Since', value: new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }), icon: '📅' },
@@ -169,7 +169,7 @@ export default function UserDetailClient({ user }: { user: any }) {
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
           <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: '0 0 8px 0', color: 'var(--text-primary)' }}>Access & Security</h2>
           
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+          <div className="glass-card action-card">
             <div>
               <h3 style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0 0 4px 0' }}>Role Permissions</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>Elevate or restrict this user's administrative privileges.</p>
@@ -190,7 +190,7 @@ export default function UserDetailClient({ user }: { user: any }) {
             </select>
           </div>
 
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24 }}>
+          <div className="glass-card action-card">
             <div>
               <h3 style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0 0 4px 0' }}>Account Status</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>Temporarily suspend access without deleting the account.</p>
@@ -210,12 +210,12 @@ export default function UserDetailClient({ user }: { user: any }) {
             </button>
           </div>
 
-          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24, marginTop: 'var(--space-4)' }}>
+          <div className="glass-card action-card" style={{ marginTop: 'var(--space-4)' }}>
             <div>
               <h3 style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0 0 4px 0' }}>Reset Password</h3>
               <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>Set a new password for this user immediately without email verification.</p>
             </div>
-            <form onSubmit={handlePasswordReset} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+            <form onSubmit={handlePasswordReset} className="action-form">
               <input 
                 type="text" 
                 placeholder="New Password" 
@@ -238,7 +238,7 @@ export default function UserDetailClient({ user }: { user: any }) {
         </motion.div>
 
         {/* Danger Zone */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} style={{ background: 'var(--accent-danger-light)', border: '1px solid var(--border-hover)', borderRadius: 'var(--radius-xl)', padding: '32px' }}>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="danger-zone" style={{ background: 'var(--accent-danger-light)', border: '1px solid var(--border-hover)', borderRadius: 'var(--radius-xl)', padding: '32px' }}>
           <h3 style={{ color: 'var(--accent-danger)', fontWeight: 800, margin: '0 0 8px 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span>⚠️</span> Danger Zone
           </h3>
@@ -264,6 +264,23 @@ export default function UserDetailClient({ user }: { user: any }) {
 
       <style dangerouslySetInnerHTML={{__html: `
         .back-btn:hover { background: rgba(255,255,255,0.1) !important; color: var(--text-primary) !important; transform: translateX(-4px); }
+        
+        .banner-content { padding: 56px 32px 32px 32px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8); }
+        .action-card { padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+        .action-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        
+        @media (max-width: 640px) {
+          .banner-content { padding: 56px 20px 24px 20px; flex-direction: column; gap: 16px; }
+          .banner-content-title { font-size: 1.5rem !important; flex-wrap: wrap; }
+          .stats-grid { grid-template-columns: 1fr; margin-bottom: var(--space-6); }
+          .action-card { flex-direction: column; align-items: stretch; text-align: left; padding: 20px; gap: 16px; }
+          .action-form { flex-direction: column; align-items: stretch; }
+          .action-card button, .action-card select, .action-form input { width: 100%; box-sizing: border-box; }
+          .action-form button { margin-top: 8px; }
+          .danger-zone { padding: 24px !important; }
+          .danger-zone button { width: 100%; }
+        }
       `}} />
     </div>
   );

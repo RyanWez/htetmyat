@@ -60,7 +60,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
         )}
       </AnimatePresence>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-8)', flexWrap: 'wrap', gap: 'var(--space-4)' }}>
+      <div className="header-container">
         <div>
           <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(1.5rem, 4vw, 2.25rem)', fontWeight: 800, letterSpacing: '-0.03em', margin: 0 }}>
             User Management 
@@ -70,7 +70,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
           </p>
         </div>
         
-        <div style={{ display: 'flex', gap: 'var(--space-4)', width: '100%', maxWidth: 420 }}>
+        <div className="actions-container">
           <div style={{ position: 'relative', flex: 1 }}>
             <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-tertiary)' }}>
               🔍
@@ -131,7 +131,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
         className="glass-card" 
         style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-xl)' }}
       >
-        <div style={{ overflowX: 'auto' }}>
+        <div className="table-container" style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-default)' }}>
@@ -178,21 +178,25 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
                         </div>
                       </Link>
                     </td>
-                    <td style={{ padding: '16px 24px' }}>
+                    <td style={{ padding: '16px 24px', whiteSpace: 'nowrap' }}>
                       <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
                         padding: '6px 12px',
                         borderRadius: 'var(--radius-full)',
                         fontSize: '0.75rem',
                         fontWeight: 700,
                         letterSpacing: '0.02em',
+                        whiteSpace: 'nowrap',
                         background: user.role === 'admin' ? 'var(--brand-light)' : 'var(--bg-elevated)',
                         color: user.role === 'admin' ? 'var(--brand-primary)' : 'var(--text-secondary)',
                         border: `1px solid ${user.role === 'admin' ? 'var(--brand-primary)' : 'var(--border-default)'}`
                       }}>
-                        {user.role === 'admin' ? '👑 ADMIN' : '👤 USER'}
+                        {user.role === 'admin' ? <><span>👑</span><span>ADMIN</span></> : <><span>👤</span><span>USER</span></>}
                       </span>
                     </td>
-                    <td style={{ padding: '16px 24px' }}>
+                    <td style={{ padding: '16px 24px', whiteSpace: 'nowrap' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <div style={{ 
                           width: 8, height: 8, borderRadius: '50%', 
@@ -204,7 +208,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
                         </span>
                       </div>
                     </td>
-                    <td style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.9rem' }}>
+                    <td style={{ padding: '16px 24px', color: 'var(--text-tertiary)', fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
                       {new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
                     </td>
                     <td style={{ padding: '16px 24px', textAlign: 'right' }}>
@@ -236,7 +240,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
 
       <AnimatePresence>
         {isModalOpen && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}>
             <motion.div 
               initial={{ opacity: 0 }} 
               animate={{ opacity: 1 }} 
@@ -328,6 +332,18 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
       <style dangerouslySetInnerHTML={{__html: `
         .hover-row:hover { background-color: var(--bg-surface-hover) !important; }
         .btn-glass:hover { background-color: rgba(255,255,255,0.1) !important; }
+        
+        .header-container { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-8); flex-wrap: wrap; gap: var(--space-4); }
+        .actions-container { display: flex; gap: var(--space-4); width: 100%; max-width: 420px; }
+        
+        @media (max-width: 640px) {
+          .header-container { flex-direction: column; align-items: stretch; margin-bottom: var(--space-6); }
+          .actions-container { max-width: 100%; flex-direction: column; }
+          .actions-container > div { width: 100%; }
+          .actions-container button { width: 100%; justify-content: center; padding: 14px 20px !important; }
+          .table-container td, .table-container th { padding: 16px !important; }
+          .btn-glass { padding: 6px 12px !important; font-size: 0.75rem !important; }
+        }
       `}} />
     </div>
   );
