@@ -17,6 +17,15 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   const toast = useToast();
 
   useEffect(() => {
+    if (lightboxImage) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [lightboxImage]);
+
+  useEffect(() => {
     if (!id || id === 'undefined') {
       setLoading(false);
       return;
@@ -96,21 +105,32 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
           >
             {/* Header info */}
             <div style={{ marginBottom: 'var(--space-6)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '24px' }}>{getCountryFlag(appleId.country)}</span>
-                <h1 style={{ margin: 0, fontSize: 'var(--text-2xl)', fontWeight: 700, background: 'linear-gradient(45deg, var(--text-primary), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  {appleId.title || 'Premium Apple ID'}
-                </h1>
+              <h1 style={{ margin: '0 0 var(--space-4) 0', fontSize: 'var(--text-3xl)', fontWeight: 800, background: 'linear-gradient(45deg, var(--text-primary), var(--text-muted))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {appleId.title || 'Premium Apple ID'}
+              </h1>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: 'var(--space-6)', flexWrap: 'wrap' }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'var(--bg-card-hover)', borderRadius: '24px', fontSize: 'var(--text-sm)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', fontWeight: 500 }}>
+                  <span style={{ fontSize: '18px' }}>{getCountryFlag(appleId.country)}</span> Region: {appleId.country}
+                </span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', background: 'var(--color-success-bg, rgba(16, 185, 129, 0.1))', color: 'var(--color-success, #10b981)', borderRadius: '24px', fontSize: 'var(--text-sm)', border: '1px solid var(--color-success-border, rgba(16, 185, 129, 0.2))', fontWeight: 500 }}>
+                  <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-success, #10b981)' }}></span> Active
+                </span>
               </div>
               
               {appleId.description && (
-                <p style={{ color: 'var(--text-muted)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                  {appleId.description}
-                </p>
+                <div style={{ padding: 'var(--space-5)', background: 'var(--bg-card-hover)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-5)', border: '1px solid var(--border-color)' }}>
+                  <h4 style={{ margin: '0 0 10px 0', fontSize: 'var(--text-sm)', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Description & Games</h4>
+                  <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                    {appleId.description}
+                  </p>
+                </div>
               )}
+
               {appleId.notes && (
-                <div style={{ marginTop: '16px', display: 'flex', gap: '8px', padding: '12px', background: 'rgba(255, 171, 0, 0.1)', color: 'var(--color-warning)', borderRadius: '8px', borderLeft: '4px solid var(--color-warning)' }}>
-                  <span>📝</span> <span>{appleId.notes}</span>
+                <div style={{ display: 'flex', gap: '12px', padding: '16px', background: 'rgba(255, 171, 0, 0.08)', color: 'var(--color-warning)', borderRadius: 'var(--radius-lg)', borderLeft: '4px solid var(--color-warning)', alignItems: 'flex-start' }}>
+                  <span style={{ fontSize: '20px', lineHeight: 1 }}>📝</span> 
+                  <span style={{ lineHeight: 1.5, fontWeight: 500 }}>{appleId.notes}</span>
                 </div>
               )}
             </div>
@@ -172,15 +192,19 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
               <h3 style={{ marginBottom: 'var(--space-4)', color: 'var(--text-primary)', fontSize: 'var(--text-xl)' }}>Previews & Available Games</h3>
               <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-6)' }}>Click an image to view it in full screen.</p>
               
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-8)' }}>
                 {appleId.images.map((img, i) => (
                   <motion.div 
                     key={i} 
-                    style={{ width: '100%', borderRadius: 'var(--radius-lg)', overflow: 'hidden', cursor: 'zoom-in', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
-                    whileHover={{ y: -5, boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' }}
+                    style={{ position: 'relative', width: '100%', borderRadius: 'var(--radius-xl)', overflow: 'hidden', cursor: 'zoom-in', border: '1px solid rgba(255,255,255,0.05)', backgroundColor: '#050505', boxShadow: '0 8px 30px rgba(0,0,0,0.4)', aspectRatio: 'auto' }}
+                    whileHover={{ scale: 1.01, boxShadow: '0 15px 40px rgba(0,0,0,0.6)' }}
                     onClick={() => setLightboxImage(img)}
                   >
-                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} loading="lazy" />
+                    <div style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(0,0,0,0.6)', padding: '6px 14px', borderRadius: '30px', color: 'white', fontSize: '13px', fontWeight: 500, backdropFilter: 'blur(8px)', zIndex: 10, display: 'flex', gap: '6px', alignItems: 'center', pointerEvents: 'none', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+                      Click to Zoom
+                    </div>
+                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9, transition: 'opacity 0.3s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '1'} onMouseOut={(e) => e.currentTarget.style.opacity = '0.9'} loading="lazy" />
                   </motion.div>
                 ))}
               </div>
