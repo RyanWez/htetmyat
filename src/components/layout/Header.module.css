@@ -91,9 +91,15 @@
   outline: none;
 }
 
-.navLink:hover {
+.navLink:hover:not(.navLinkActive) {
   color: var(--text-primary);
   background: var(--bg-elevated);
+}
+
+.navLinkActive:hover {
+  background: var(--brand-hover) !important;
+  box-shadow: 0 4px 15px var(--brand-glow);
+  transform: translateY(-1px);
 }
 
 .navLinkActive {
