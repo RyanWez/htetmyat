@@ -4,14 +4,34 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut } from 'next-auth/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import AppleIcon from '@/components/AppleIcon';
 import styles from './AdminSidebar.module.css';
 
-const menuItems = [
+type SubItem = {
+  href: string;
+  label: string;
+  icon: React.ReactNode | string;
+};
+
+type MenuItem = {
+  href?: string;
+  label: string;
+  icon: React.ReactNode | string;
+  subItems?: SubItem[];
+};
+
+const menuItems: MenuItem[] = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
   { href: '/admin/apple-ids', label: 'Apple IDs', icon: <AppleIcon /> },
   { href: '/admin/posts', label: 'Blog Posts', icon: '📝' },
-  { href: '/admin/users', label: 'Users', icon: '👥' },
+  { 
+    label: 'User Management', 
+    icon: '👥',
+    subItems: [
+      { href: '/admin/users', label: 'User List', icon: '📋' },
+    ]
+  },
   { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
   { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
 ];
@@ -19,6 +39,27 @@ const menuItems = [
 export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+
+  // Open the parent menu if a child is active initially
+  useEffect(() => {
+    const newOpenMenus = { ...openMenus };
+    let hasChanges = false;
+    menuItems.forEach(item => {
+      if (item.subItems) {
+        const hasActiveChild = item.subItems.some(sub => pathname.startsWith(sub.href));
+        if (hasActiveChild && !newOpenMenus[item.label]) {
+          newOpenMenus[item.label] = true;
+          hasChanges = true;
+        }
+      }
+    });
+    if (hasChanges) setOpenMenus(newOpenMenus);
+  }, [pathname]);
+
+  const toggleSubMenu = (label: string) => {
+    setOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
+  };
 
   // Close sidebar on route change for mobile
   useEffect(() => {
@@ -91,14 +132,59 @@ export default function AdminSidebar() {
         {/* Navigation */}
         <nav className={styles.nav}>
           {menuItems.map((item) => {
+            if (item.subItems) {
+              const menuOpen = openMenus[item.label];
+              const isChildActive = item.subItems.some(sub => pathname.startsWith(sub.href));
+              
+              return (
+                <div key={item.label} className={styles.navGroup}>
+                  <button 
+                    onClick={() => toggleSubMenu(item.label)}
+                    className={`${styles.navItem} ${isChildActive ? styles.navGroupActive : ''}`}
+                  >
+                    <span className={styles.navIcon}>{item.icon}</span>
+                    <span className={styles.navLabel}>{item.label}</span>
+                    <span className={styles.chevron} style={{ transform: menuOpen ? 'rotate(180deg)' : 'rotate(0)' }}>
+                      ▼
+                    </span>
+                  </button>
+                  <AnimatePresence>
+                    {menuOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className={styles.subMenu}
+                      >
+                        {item.subItems.map(subItem => {
+                          const isSubActive = pathname === subItem.href || pathname.startsWith(`${subItem.href}/`);
+                          return (
+                            <Link
+                              key={subItem.href}
+                              href={subItem.href}
+                              className={`${styles.subNavItem} ${isSubActive ? styles.subNavItemActive : ''}`}
+                            >
+                              <span className={styles.navIcon}>{subItem.icon}</span>
+                              <span className={styles.navLabel}>{subItem.label}</span>
+                            </Link>
+                          );
+                        })}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            }
+
             const isActive =
               item.href === '/admin'
                 ? pathname === '/admin'
-                : pathname.startsWith(item.href);
+                : pathname.startsWith(item.href as string);
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href as string}
                 className={`${styles.navItem} ${isActive ? styles.navItemActive : ''}`}
               >
                 <span className={styles.navIcon}>{item.icon}</span>

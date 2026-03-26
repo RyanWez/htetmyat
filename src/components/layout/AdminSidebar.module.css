@@ -131,6 +131,63 @@
   letter-spacing: 0.01em;
 }
 
+/* Submenu Styles */
+.navGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.chevron {
+  font-size: 10px;
+  transition: transform 0.2s ease;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navGroupActive {
+  color: var(--text-primary);
+  background: var(--bg-surface-hover);
+}
+
+.subMenu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+  padding-left: 12px;
+  overflow: hidden;
+}
+
+.subNavItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px 16px 10px 12px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-fast);
+  border-left: 2px solid transparent;
+}
+
+.subNavItem:hover {
+  color: var(--brand-primary);
+  background: var(--brand-light);
+  border-left-color: var(--brand-primary);
+  transform: translateX(2px);
+}
+
+.subNavItemActive {
+  color: var(--brand-primary);
+  background: var(--brand-light);
+  border-left-color: var(--brand-primary);
+  font-weight: var(--font-semibold);
+}
+
 /* Divider */
 .divider {
   height: 1px;
