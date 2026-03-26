@@ -105,7 +105,9 @@ export async function fetchUserById(id: string) {
       } 
     };
   } catch (err: any) {
-    console.error('Error fetching user:', err);
+    if (err.code !== 'PGRST116') {
+      console.error('Error fetching user:', err);
+    }
     return { success: false, data: null, error: err.message || 'Failed to fetch user' };
   }
 }
@@ -149,6 +151,21 @@ export async function updateUserStatus(id: string, isActive: boolean) {
   } catch (err: any) {
     console.error('Error updating status:', err);
     return { success: false, error: err.message || 'Failed to update user status' };
+  }
+}
+
+export async function updateUserPassword(id: string, newPassword: string) {
+  try {
+    await verifyAdmin();
+    const supabase = await createServiceClient();
+
+    const { error } = await supabase.auth.admin.updateUserById(id, { password: newPassword });
+    if (error) throw error;
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Error updating password:', err);
+    return { success: false, error: err.message || 'Failed to update password' };
   }
 }
 

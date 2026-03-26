@@ -4,12 +4,14 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateUserRole, updateUserStatus, deleteUser } from '../actions';
+import { updateUserRole, updateUserStatus, deleteUser, updateUserPassword } from '../actions';
 
 export default function UserDetailClient({ user }: { user: any }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   const router = useRouter();
 
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -19,6 +21,26 @@ export default function UserDetailClient({ user }: { user: any }) {
       const res = await updateUserRole(user.id, newRole);
       if (res.success) setSuccess('Access privileges updated successfully');
       else setError(res.error || 'Failed to update access privileges');
+    });
+  };
+
+  const handlePasswordReset = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+    setError(''); setSuccess('');
+    setIsResetting(true);
+    startTransition(async () => {
+      const res = await updateUserPassword(user.id, newPassword);
+      setIsResetting(false);
+      if (res.success) {
+        setSuccess('Password updated successfully');
+        setNewPassword('');
+      } else {
+        setError(res.error || 'Failed to update password');
+      }
     });
   };
 
@@ -186,6 +208,32 @@ export default function UserDetailClient({ user }: { user: any }) {
             >
               {user.is_active ? 'Suspend Account' : 'Reactivate Account'}
             </button>
+          </div>
+
+          <div className="glass-card" style={{ padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 24, marginTop: 'var(--space-4)' }}>
+            <div>
+              <h3 style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0 0 4px 0' }}>Reset Password</h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>Set a new password for this user immediately without email verification.</p>
+            </div>
+            <form onSubmit={handlePasswordReset} style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              <input 
+                type="text" 
+                placeholder="New Password" 
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                disabled={isPending || isResetting}
+                style={{ padding: '10px 16px', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)', background: 'var(--bg-surface-solid)', color: 'var(--text-primary)', outline: 'none', transition: 'border-color 0.2s' }}
+                onFocus={(e) => e.target.style.borderColor = 'var(--brand-primary)'}
+                onBlur={(e) => e.target.style.borderColor = 'var(--border-default)'}
+              />
+              <button 
+                type="submit"
+                disabled={isPending || isResetting || !newPassword}
+                style={{ padding: '10px 20px', borderRadius: 'var(--radius-md)', border: 'none', background: 'var(--brand-gradient)', color: '#fff', fontWeight: 600, cursor: (isPending || isResetting || !newPassword) ? 'not-allowed' : 'pointer', opacity: (isPending || isResetting || !newPassword) ? 0.6 : 1, transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+              >
+                {isResetting ? 'Updating...' : 'Update Password'}
+              </button>
+            </form>
           </div>
         </motion.div>
 
