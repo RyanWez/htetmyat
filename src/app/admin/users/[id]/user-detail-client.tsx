@@ -54,7 +54,7 @@ export default function UserDetailClient({ user }: { user: any }) {
             display: 'inline-flex', alignItems: 'center', gap: 8,
             color: 'var(--text-tertiary)', textDecoration: 'none', 
             fontWeight: 600, fontSize: '0.9rem',
-            padding: '8px 16px', background: 'var(--bg-surface-hover)',
+            padding: '8px 16px', background: 'var(--bg-elevated)',
             borderRadius: 'var(--radius-full)', transition: 'all 0.2s'
           }}
           className="back-btn"
@@ -71,11 +71,11 @@ export default function UserDetailClient({ user }: { user: any }) {
             exit={{ opacity: 0, y: -10, scale: 0.98 }}
             style={{ 
               padding: '16px 20px', 
-              background: error ? 'var(--error-light)' : 'linear-gradient(135deg, var(--success-main) 0%, #10B981 100%)', 
-              color: error ? 'var(--error-main)' : '#fff', 
+              background: error ? 'var(--accent-danger-light)' : 'var(--accent-success-light)', 
+              color: error ? 'var(--accent-danger)' : 'var(--accent-success)', 
               borderRadius: 'var(--radius-lg)', 
               marginBottom: 'var(--space-6)',
-              boxShadow: error ? 'none' : '0 10px 25px -5px rgba(16, 185, 129, 0.4)',
+              boxShadow: error ? 'none' : 'var(--shadow-md)',
               display: 'flex', alignItems: 'center', gap: 12, fontWeight: 600
             }}
           >
@@ -88,9 +88,9 @@ export default function UserDetailClient({ user }: { user: any }) {
       <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         {/* Banner Card */}
         <div className="glass-card" style={{ padding: 0, overflow: 'hidden', border: '1px solid var(--border-default)', borderRadius: 'var(--radius-xl)', marginBottom: 'var(--space-8)' }}>
-          <div style={{ height: 120, background: 'linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-secondary) 100%)', position: 'relative' }}>
-            <div style={{ position: 'absolute', bottom: -40, left: 32, width: 90, height: 90, borderRadius: '50%', background: 'var(--bg-surface-solid)', padding: 6, boxShadow: '0 8px 16px rgba(0,0,0,0.5)' }}>
-              <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--bg-surface-hover)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-primary)', fontSize: 36, fontWeight: 800 }}>
+          <div style={{ height: 120, background: 'var(--brand-gradient)', position: 'relative' }}>
+            <div style={{ position: 'absolute', bottom: -40, left: 32, width: 90, height: 90, borderRadius: '50%', background: 'var(--bg-surface-solid)', padding: 6, boxShadow: 'var(--shadow-md)' }}>
+              <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-primary)', fontSize: 36, fontWeight: 800 }}>
                 {user.email?.[0].toUpperCase()}
               </div>
             </div>
@@ -101,17 +101,17 @@ export default function UserDetailClient({ user }: { user: any }) {
                 {user.display_name || 'System User'}
                 <span style={{
                   padding: '4px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', verticalAlign: 'middle',
-                  background: user.role === 'admin' ? 'rgba(147, 51, 234, 0.15)' : 'var(--bg-surface-hover)',
-                  color: user.role === 'admin' ? '#D8B4FE' : 'var(--text-secondary)',
-                  border: `1px solid ${user.role === 'admin' ? 'rgba(147, 51, 234, 0.3)' : 'var(--border-default)'}`
+                  background: user.role === 'admin' ? 'var(--brand-light)' : 'var(--bg-elevated)',
+                  color: user.role === 'admin' ? 'var(--brand-primary)' : 'var(--text-secondary)',
+                  border: `1px solid ${user.role === 'admin' ? 'var(--brand-primary)' : 'var(--border-default)'}`
                 }}>
                   {user.role}
                 </span>
               </h1>
               <p style={{ color: 'var(--text-tertiary)', margin: 0, fontSize: '1rem' }}>{user.email}</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-default)' }}>
-              <div style={{ width: 10, height: 10, borderRadius: '50%', background: user.is_active ? 'var(--success-main)' : 'var(--error-main)', boxShadow: `0 0 10px ${user.is_active ? 'var(--success-main)' : 'var(--error-main)'}` }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 16px', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-full)', border: '1px solid var(--border-default)' }}>
+              <div style={{ width: 10, height: 10, borderRadius: '50%', background: user.is_active ? 'var(--accent-success)' : 'var(--accent-danger)', boxShadow: `0 0 10px ${user.is_active ? 'var(--accent-success-light)' : 'var(--accent-danger-light)'}` }} />
               <span style={{ color: user.is_active ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: 600, fontSize: '0.9rem' }}>
                 {user.is_active ? 'Account Active' : 'Account Suspended'}
               </span>
@@ -132,7 +132,7 @@ export default function UserDetailClient({ user }: { user: any }) {
               className="glass-card" 
               style={{ padding: '24px', display: 'flex', alignItems: 'flex-start', gap: 16 }}
             >
-              <div style={{ fontSize: 28, background: 'var(--bg-surface-hover)', width: 48, height: 48, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ fontSize: 28, background: 'var(--bg-elevated)', width: 48, height: 48, borderRadius: 'var(--radius-lg)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 {stat.icon}
               </div>
               <div>
@@ -158,7 +158,7 @@ export default function UserDetailClient({ user }: { user: any }) {
               disabled={isPending}
               style={{ 
                 padding: '12px 20px', borderRadius: 'var(--radius-lg)', 
-                border: '1px solid var(--border-default)', background: 'rgba(0,0,0,0.2)', 
+                border: '1px solid var(--border-default)', background: 'var(--bg-surface-solid)', 
                 color: 'var(--text-primary)', fontWeight: 600, outline: 'none',
                 opacity: isPending ? 0.7 : 1, cursor: isPending ? 'wait' : 'pointer'
               }}
@@ -178,8 +178,8 @@ export default function UserDetailClient({ user }: { user: any }) {
               disabled={isPending}
               style={{ 
                 padding: '12px 24px', borderRadius: 'var(--radius-md)', border: 'none', 
-                background: user.is_active ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', 
-                color: user.is_active ? 'var(--error-main)' : 'var(--success-main)', 
+                background: user.is_active ? 'var(--accent-danger-light)' : 'var(--accent-success-light)', 
+                color: user.is_active ? 'var(--accent-danger)' : 'var(--accent-success)', 
                 fontWeight: 700, cursor: isPending ? 'wait' : 'pointer', opacity: isPending ? 0.7 : 1,
                 transition: 'all 0.2s', boxShadow: 'inset 0 0 0 1px currentColor'
               }}
@@ -190,11 +190,11 @@ export default function UserDetailClient({ user }: { user: any }) {
         </motion.div>
 
         {/* Danger Zone */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: 'var(--radius-xl)', padding: '32px' }}>
-          <h3 style={{ color: 'var(--error-main)', fontWeight: 800, margin: '0 0 8px 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: 8 }}>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} style={{ background: 'var(--accent-danger-light)', border: '1px solid var(--border-hover)', borderRadius: 'var(--radius-xl)', padding: '32px' }}>
+          <h3 style={{ color: 'var(--accent-danger)', fontWeight: 800, margin: '0 0 8px 0', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: 8 }}>
             <span>⚠️</span> Danger Zone
           </h3>
-          <p style={{ fontSize: '0.95rem', color: 'var(--text-tertiary)', margin: '0 0 24px 0', maxWidth: 600 }}>
+          <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', margin: '0 0 24px 0', maxWidth: 600 }}>
             Permanently delete this user and all of their associated data. This action cannot be undone and they will immediately lose access.
           </p>
           <button 
@@ -202,9 +202,9 @@ export default function UserDetailClient({ user }: { user: any }) {
             disabled={isPending}
             style={{ 
               padding: '12px 24px', borderRadius: 'var(--radius-lg)', 
-              background: 'var(--error-main)', color: '#fff', border: 'none',
+              background: 'var(--accent-danger)', color: '#fff', border: 'none',
               fontWeight: 700, cursor: isPending ? 'wait' : 'pointer', opacity: isPending ? 0.7 : 1,
-              boxShadow: '0 4px 12px rgba(239, 68, 68, 0.4)', transition: 'transform 0.2s',
+              boxShadow: '0 4px 12px var(--shadow-sm)', transition: 'transform 0.2s',
             }}
             onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
             onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
