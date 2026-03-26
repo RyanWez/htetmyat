@@ -22,7 +22,7 @@ export async function fetchAllAppleIds() {
     const { data, error } = await supabase
       .from('apple_ids')
       .select('*')
-      .order('created_at', { ascending: false });
+      .order('created_at', { ascending: true });
     
     if (error) throw error;
     return { success: true, data: data || [] };

@@ -59,7 +59,7 @@ export default function AppleIdsClient() {
 
         query = query
           .order('is_active', { ascending: false })
-          .order('created_at', { ascending: false });
+          .order('created_at', { ascending: true });
 
         if (searchQuery.trim()) {
           query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
@@ -110,7 +110,7 @@ export default function AppleIdsClient() {
 
       query = query
         .order('is_active', { ascending: false })
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: true });
 
       if (searchQuery.trim()) {
         query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
