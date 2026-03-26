@@ -7,9 +7,11 @@ import { createClient } from '@/lib/supabase/client';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag } from '@/lib/utils';
 import AppleIcon from '@/components/AppleIcon';
+import { useToast } from '@/components/ui/Toast';
 import styles from './apple-ids.module.css';
 
 export default function AppleIdsClient() {
+  const toast = useToast();
   const [appleIds, setAppleIds] = useState<AppleId[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -285,7 +287,18 @@ export default function AppleIdsClient() {
                   </motion.div>
 
                   {/* Clickable Card Link */}
-                  <Link href={`/apple-ids/${appleId.id}`} style={{ position: 'absolute', inset: 0, zIndex: 10 }} aria-label={`View Details for ${appleId.title}`} />
+                  {appleId.is_active ? (
+                    <Link href={`/apple-ids/${appleId.id}`} style={{ position: 'absolute', inset: 0, zIndex: 10 }} aria-label={`View Details for ${appleId.title}`} />
+                  ) : (
+                    <div 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toast.error('Locked', 'ID Lock ကျနေပါတယ်။');
+                      }}
+                      style={{ position: 'absolute', inset: 0, zIndex: 10 }} 
+                      aria-label={`View Details for ${appleId.title} (Locked)`} 
+                    />
+                  )}
               </motion.div>
             ))}
           </div>
