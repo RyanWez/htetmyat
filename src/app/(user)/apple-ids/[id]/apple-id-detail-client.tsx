@@ -13,7 +13,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   const [appleId, setAppleId] = useState<AppleId | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const toast = useToast();
 
   useEffect(() => {
@@ -54,17 +54,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     }
   };
 
-  const nextImage = () => {
-    if (appleId?.images && appleId.images.length > 0) {
-      setActiveImageIndex((prev) => (prev + 1) % appleId.images.length);
-    }
-  };
-
-  const prevImage = () => {
-    if (appleId?.images && appleId.images.length > 0) {
-      setActiveImageIndex((prev) => (prev - 1 + appleId.images.length) % appleId.images.length);
-    }
-  };
+  // Images are now stacked, no need for prevImage/nextImage sliders
 
   if (loading) {
     return (
@@ -88,82 +78,22 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   }
 
   return (
-    <div style={{ padding: 'var(--space-8) 0' }}>
-      <div className="container" style={{ maxWidth: '800px' }}>
-        
-        <Link href="/apple-ids" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: 'var(--space-6)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>
-          <span>←</span> Back to Library
-        </Link>
+    <>
+      <div style={{ padding: 'var(--space-8) 0' }}>
+        <div className="container" style={{ maxWidth: '800px' }}>
+          
+          <Link href="/apple-ids" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: 'var(--space-6)', transition: 'color 0.2s' }} onMouseOver={(e) => e.currentTarget.style.color = 'var(--text-primary)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted)'}>
+            <span>←</span> Back to Library
+          </Link>
 
-        <motion.div 
-          className="glass-card" 
-          style={{ padding: 0, overflow: 'hidden' }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          {/* Gallery Section */}
-          <div style={{ backgroundColor: 'var(--bg-card)', position: 'relative', height: '350px', display: 'flex', flexDirection: 'column' }}>
-            {appleId.images && appleId.images.length > 0 ? (
-              <>
-                <div style={{ position: 'relative', flex: 1, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
-                  <AnimatePresence mode="wait">
-                    <motion.img
-                      key={activeImageIndex}
-                      src={appleId.images[activeImageIndex]}
-                      alt={`${appleId.title} preview ${activeImageIndex + 1}`}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.3 }}
-                      style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain' }}
-                    />
-                  </AnimatePresence>
-                  
-                  {appleId.images.length > 1 && (
-                    <>
-                      <button onClick={prevImage} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-                        ❮
-                      </button>
-                      <button onClick={nextImage} style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', width: '40px', height: '40px', borderRadius: '50%', cursor: 'pointer', zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px' }}>
-                        ❯
-                      </button>
-                    </>
-                  )}
-                </div>
-                {/* Thumbnails */}
-                {appleId.images.length > 1 && (
-                  <div style={{ display: 'flex', gap: '8px', padding: '12px', background: 'var(--bg-card)', overflowX: 'auto' }}>
-                    {appleId.images.map((img, i) => (
-                      <button 
-                        key={i}
-                        onClick={() => setActiveImageIndex(i)}
-                        style={{ 
-                          border: activeImageIndex === i ? '2px solid var(--color-primary)' : '2px solid transparent',
-                          borderRadius: '8px',
-                          overflow: 'hidden',
-                          width: '60px',
-                          height: '60px',
-                          padding: 0,
-                          cursor: 'pointer',
-                          opacity: activeImageIndex === i ? 1 : 0.6,
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        <img src={img} alt={`thumb ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </button>
-                    ))}
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.2 }}>
-                <AppleIcon />
-              </div>
-            )}
-          </div>
-
-          <div style={{ padding: 'var(--space-8)' }}>
+          {/* Info Card (Top) */}
+          <motion.div 
+            className="glass-card" 
+            style={{ padding: 'var(--space-8)', marginBottom: 'var(--space-8)' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+          >
             {/* Header info */}
             <div style={{ marginBottom: 'var(--space-6)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -230,10 +160,73 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                  <strong>အရေးကြီး အသိပေးချက်:</strong> ဤ Apple ID များကို App Store မှ ဆော့ဖ်ဝဲ (Apps/Games) ဒေါင်းရန်အတွက်သာ အသုံးပြုပါ။ Settings ထဲမှ iCloud နေရာတွင် လုံးဝ (လုံးဝ) ဝင်ရောက်ခြင်း မလုပ်ပါနှင့်။ Password အား ပြောင်းလဲရန် ကြိုးစားခြင်း မပြုလုပ်ပါနှင့်။
                </div>
              </div>
+          </motion.div>
 
-          </div>
-        </motion.div>
+          {/* Images Section (Bottom) */}
+          {appleId.images && appleId.images.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
+            >
+              <h3 style={{ marginBottom: 'var(--space-4)', color: 'var(--text-primary)', fontSize: 'var(--text-xl)' }}>Previews & Available Games</h3>
+              <p style={{ color: 'var(--text-muted)', marginBottom: 'var(--space-6)' }}>Click an image to view it in full screen.</p>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+                {appleId.images.map((img, i) => (
+                  <motion.div 
+                    key={i} 
+                    style={{ width: '100%', borderRadius: 'var(--radius-lg)', overflow: 'hidden', cursor: 'zoom-in', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)' }}
+                    whileHover={{ y: -5, boxShadow: '0 10px 30px -10px rgba(0,0,0,0.5)' }}
+                    onClick={() => setLightboxImage(img)}
+                  >
+                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block' }} loading="lazy" />
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+        </div>
       </div>
-    </div>
+
+      {/* Lightbox / Fullscreen Image Viewer Modal */}
+      <AnimatePresence>
+        {lightboxImage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            style={{ position: 'fixed', inset: 0, zIndex: 9999, backgroundColor: 'rgba(0,0,0,0.9)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 'var(--space-4)' }}
+            onClick={() => setLightboxImage(null)}
+          >
+            {/* Close Button */}
+            <button 
+              style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px', fontSize: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, transition: 'background 0.2s' }}
+              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
+              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+              onClick={() => setLightboxImage(null)}
+            >
+              ✕
+            </button>
+
+            {/* Lightbox Image */}
+            <motion.img 
+              src={lightboxImage} 
+              alt="Fullscreen expanded preview" 
+              style={{ maxWidth: '100%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '8px', cursor: 'zoom-out' }}
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setLightboxImage(null);
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
