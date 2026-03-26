@@ -12,19 +12,35 @@ import styles from './apple-ids.module.css';
 export default function AppleIdsClient() {
   const [appleIds, setAppleIds] = useState<AppleId[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [availableCountries, setAvailableCountries] = useState<string[]>([]);
+  const [dbRevision, setDbRevision] = useState(0);
 
+  const PAGE_SIZE = 12;
+
+  // Realtime channel setup (only runs once)
   useEffect(() => {
-    fetchAppleIds();
-
     const supabase = createClient();
+    
+    // Fetch unique countries once for the filter tabs
+    supabase.from('apple_ids').select('country').eq('is_active', true).then(({ data }) => {
+      if (data) {
+        const unique = Array.from(new Set(data.map(d => d.country)));
+        setAvailableCountries(unique);
+      }
+    });
+
     const channel = supabase
       .channel('public:apple_ids')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'apple_ids' },
-        (payload) => {
-          fetchAppleIds();
+        () => {
+          setDbRevision(prev => prev + 1); // Trigger refetch on DB change
         }
       )
       .subscribe();
@@ -34,28 +50,87 @@ export default function AppleIdsClient() {
     };
   }, []);
 
-  const fetchAppleIds = async () => {
+  // Main data fetching effect (reacts to filters, search, and db updates)
+  useEffect(() => {
+    const fetchAppleIds = async () => {
+      setLoading(true);
+      try {
+        const supabase = createClient();
+        let query = supabase
+          .from('apple_ids')
+          .select('*', { count: 'exact' })
+          .eq('is_active', true)
+          .order('created_at', { ascending: false });
+
+        if (filter !== 'all') {
+          query = query.eq('country', filter);
+        }
+
+        if (searchQuery.trim()) {
+          query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+        }
+
+        // Always fetch page 1 on filter/search changes
+        const { data, count, error } = await query.range(0, PAGE_SIZE - 1);
+
+        if (error) throw error;
+        setAppleIds(data || []);
+        
+        // Check if there are more items to load
+        setHasMore((data?.length || 0) === PAGE_SIZE && count !== null && count > PAGE_SIZE);
+        setPage(2);
+      } catch (err) {
+        console.error('Error fetching apple ids:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => {
+      fetchAppleIds();
+    }, 400); // 400ms debounce for typing
+
+    return () => clearTimeout(debounceTimer);
+  }, [filter, searchQuery, dbRevision]);
+
+  // Load More logic
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    
     try {
+      const from = (page - 1) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
+      
       const supabase = createClient();
-      const { data, error } = await supabase
+      let query = supabase
         .from('apple_ids')
-        .select('*')
+        .select('*', { count: 'exact' })
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
+      if (filter !== 'all') {
+        query = query.eq('country', filter);
+      }
+      if (searchQuery.trim()) {
+        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      }
+
+      const { data, count, error } = await query.range(from, to);
+
       if (error) throw error;
-      setAppleIds(data || []);
+      
+      setAppleIds(prev => [...prev, ...(data || [])]);
+      setHasMore(count !== null && (to + 1) < count);
+      setPage(prev => prev + 1);
     } catch (err) {
-      console.error('Error fetching apple ids:', err);
+      console.error('Error loading more apple ids:', err);
     } finally {
-      setLoading(false);
+      setLoadingMore(false);
     }
   };
 
-  const countries = [...new Set(appleIds.map((a) => a.country))];
-  const filtered = filter === 'all'
-    ? appleIds
-    : appleIds.filter((a) => a.country === filter);
+  const filtered = appleIds; // The list is already filtered by DB
 
   return (
     <div className={styles.page}>
@@ -73,23 +148,39 @@ export default function AppleIdsClient() {
           </p>
         </motion.div>
 
-        {/* Filters */}
-        <div className={styles.filters}>
-          <button
-            className={`${styles.filterBtn} ${filter === 'all' ? styles.filterActive : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </button>
-          {countries.map((country) => (
+        {/* Filters & Search Bar */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          
+          <div className={styles.filters} style={{ margin: 0 }}>
             <button
-              key={country}
-              className={`${styles.filterBtn} ${filter === country ? styles.filterActive : ''}`}
-              onClick={() => setFilter(country)}
+              className={`${styles.filterBtn} ${filter === 'all' ? styles.filterActive : ''}`}
+              onClick={() => setFilter('all')}
             >
-              {getCountryFlag(country)} {country}
+              All
             </button>
-          ))}
+            {availableCountries.map((country) => (
+              <button
+                key={country}
+                className={`${styles.filterBtn} ${filter === country ? styles.filterActive : ''}`}
+                onClick={() => setFilter(country)}
+              >
+                {getCountryFlag(country)} {country}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ position: 'relative', width: '100%', maxWidth: '300px' }}>
+            <span style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', opacity: 0.5 }}>🔍</span>
+            <input 
+              type="text" 
+              placeholder="Search games or names..." 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ width: '100%', padding: '12px 16px 12px 42px', borderRadius: '100px', border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.3)', color: '#fff', fontSize: '15px', outline: 'none', transition: 'border 0.3s' }}
+              onFocus={(e) => e.currentTarget.style.border = '1px solid rgba(59, 130, 246, 0.5)'}
+              onBlur={(e) => e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'}
+            />
+          </div>
         </div>
 
         {/* Loading */}
@@ -194,6 +285,21 @@ export default function AppleIdsClient() {
                   <Link href={`/apple-ids/${appleId.id}`} style={{ position: 'absolute', inset: 0, zIndex: 10 }} aria-label={`View Details for ${appleId.title}`} />
               </motion.div>
             ))}
+          </div>
+        )}
+
+        {/* Load More Button */}
+        {!loading && hasMore && filtered.length > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '32px' }}>
+            <button 
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+              style={{ background: 'rgba(59, 130, 246, 0.1)', color: '#60a5fa', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '12px 32px', borderRadius: '100px', cursor: loadingMore ? 'not-allowed' : 'pointer', fontWeight: 600, fontSize: '15px', transition: 'all 0.2s', opacity: loadingMore ? 0.7 : 1 }}
+              onMouseOver={(e) => { if(!loadingMore) e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)' }}
+              onMouseOut={(e) => { if(!loadingMore) e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)' }}
+            >
+              {loadingMore ? 'Loading...' : 'Load More Options ↓'}
+            </button>
           </div>
         )}
 
