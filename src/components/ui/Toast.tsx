@@ -71,7 +71,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 
   const addToast = useCallback((variant: ToastVariant, title: string, message?: string) => {
     const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-    setToasts((prev) => [...prev.slice(-4), { id, variant, title, message }]);
+    setToasts((prev) => [{ id, variant, title, message }, ...prev.slice(0, 3)]);
 
     const timer = setTimeout(() => removeToast(id), 3000);
     timersRef.current.set(id, timer);
@@ -112,7 +112,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                   <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
                 </svg>
               </button>
-              {!toast.exiting && <div className={styles.toastProgress} />}
+
             </div>
           ))}
         </div>,
