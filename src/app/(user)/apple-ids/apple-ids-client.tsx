@@ -95,8 +95,12 @@ export default function AppleIdsClient() {
         {/* Loading */}
         {loading && (
           <div className={styles.grid}>
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className={`skeleton ${styles.skeletonCard}`} />
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div 
+                key={i} 
+                className="skeleton" 
+                style={{ height: '440px', borderRadius: '24px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.05)' }} 
+              />
             ))}
           </div>
         )}
@@ -116,7 +120,7 @@ export default function AppleIdsClient() {
                   hover: { opacity: 1, y: -6 }
                 }}
                 transition={{ duration: 0.3, delay: index * 0.05 }}
-                style={{ padding: 0, overflow: 'hidden', height: '340px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f172a', cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
+                style={{ padding: 0, overflow: 'hidden', height: '440px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f172a', cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
               >
                   {/* Background Image */}
                   <motion.div style={{ position: 'absolute', inset: 0 }} variants={{ hidden: { scale: 1 }, visible: { scale: 1 }, hover: { scale: 1.08 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
@@ -202,10 +206,12 @@ export default function AppleIdsClient() {
           </div>
         )}
 
-        {/* Warning */}
-        <div className={styles.warning}>
-          <span>⚠️</span>
-          <p>ဤ Apple ID များကို ဆော့ဖ်ဝဲ download ရန်သာ အသုံးပြုပါ။ Password မပြောင်းပါနှင့်။</p>
+        {/* Warning (Pill Shaped & Centered) */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px', marginBottom: '20px', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '12px 28px', borderRadius: '50px', color: '#fbbf24', fontSize: '15px', width: 'max-content', maxWidth: '100%', backdropFilter: 'blur(10px)', boxShadow: '0 4px 20px rgba(245, 158, 11, 0.1)' }}>
+            <span style={{ fontSize: '18px' }}>⚠️</span>
+            <span style={{ fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.2px' }}>ဤ Apple ID များကို ဆော့ဖ်ဝဲ download ရန်သာ အသုံးပြုပါ။ Password မပြောင်းပါနှင့်။</span>
+          </div>
         </div>
       </div>
     </div>
