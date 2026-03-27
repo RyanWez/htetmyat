@@ -8,9 +8,8 @@ export const metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminUserDetailPage({ params }: { params: { id: string } }) {
-  const resolvedParams = await params;
-  const id = resolvedParams.id;
+export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const { data: user, success, error } = await fetchUserById(id);
 
   if (!success || !user) {

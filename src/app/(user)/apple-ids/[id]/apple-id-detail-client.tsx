@@ -41,7 +41,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
         .select('*')
         .eq('id', id)
         .eq('is_active', true)
-        .single();
+        .maybeSingle();
         
       if (error) throw error;
       setAppleId(data);
