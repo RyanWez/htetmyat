@@ -134,7 +134,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                         src={img} 
                         alt={`${appleId.title} preview ${i + 1}`} 
                         fill 
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                        sizes="(max-width: 800px) 100vw, 800px"
                         style={{ objectFit: 'contain', opacity: 0.9, transition: 'opacity 0.3s' }} 
                         loading="lazy" 
                       />
