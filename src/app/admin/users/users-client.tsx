@@ -22,10 +22,31 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
   const [successMsg, setSuccessMsg] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
+  // Filter based on search input
   const filteredUsers = initialUsers.filter(u => 
     u.email?.toLowerCase().includes(search.toLowerCase()) ||
     u.display_name?.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Sort logic: Admin users always first, then chronologically (oldest first, newest at bottom)
+  const sortedUsers = [...filteredUsers].sort((a, b) => {
+    // 1. Admin users always at the top
+    if (a.role === 'admin' && b.role !== 'admin') return -1;
+    if (a.role !== 'admin' && b.role === 'admin') return 1;
+
+    // 2. Earliest added user first, latest added user at bottom (ascending order)
+    const dateA = new Date(a.created_at || 0).getTime();
+    const dateB = new Date(b.created_at || 0).getTime();
+    return dateA - dateB;
+  });
+
+  // Pagination calculation
+  const totalPages = Math.ceil(sortedUsers.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   async function handleCreate(formData: FormData) {
     setError('');
@@ -88,7 +109,10 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
               type="text"
               placeholder="Search by email..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1); // Reset to page 1 on search
+              }}
               style={{
                 width: '100%',
                 padding: '12px 16px 12px 42px',
@@ -152,7 +176,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
               </tr>
             </thead>
             <tbody>
-              {filteredUsers.length === 0 ? (
+              {paginatedUsers.length === 0 ? (
                 <tr>
                   <td colSpan={5} style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
                     <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>🤷</div>
@@ -160,7 +184,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
                   </td>
                 </tr>
               ) : (
-                filteredUsers.map((user, index) => (
+                paginatedUsers.map((user, index) => (
                   <motion.tr 
                     initial={{ opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -245,6 +269,73 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
             </tbody>
           </table>
         </div>
+
+        {/* Pagination section */}
+        {totalPages > 1 && (
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center', 
+            padding: '16px 24px', 
+            borderTop: '1px solid var(--border-default)', 
+            background: 'var(--bg-elevated)',
+            flexWrap: 'wrap',
+            gap: '16px'
+          }}>
+            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', fontWeight: 500 }}>
+              Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, sortedUsers.length)} of {sortedUsers.length} users
+            </span>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  background: currentPage === 1 ? 'transparent' : 'var(--bg-surface-solid)',
+                  color: currentPage === 1 ? 'var(--text-tertiary)' : 'var(--text-primary)',
+                  border: '1px solid var(--border-default)',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === 1 ? 0.5 : 1,
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  boxShadow: currentPage === 1 ? 'none' : 'var(--shadow-sm)'
+                }}
+                className={currentPage === 1 ? "" : "btn-glass"}
+              >
+                ← Previous
+              </button>
+              
+              <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', padding: '0 8px', fontWeight: 500 }}>
+                    Page <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{currentPage}</strong> of <strong style={{ color: 'var(--text-primary)', fontWeight: 700 }}>{totalPages}</strong>
+                  </span>
+              </div>
+              
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '8px 16px',
+                  borderRadius: 'var(--radius-md)',
+                  background: currentPage === totalPages ? 'transparent' : 'var(--bg-surface-solid)',
+                  color: currentPage === totalPages ? 'var(--text-tertiary)' : 'var(--text-primary)',
+                  border: '1px solid var(--border-default)',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                  opacity: currentPage === totalPages ? 0.5 : 1,
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  transition: 'all 0.2s ease',
+                  boxShadow: currentPage === totalPages ? 'none' : 'var(--shadow-sm)'
+                }}
+                className={currentPage === totalPages ? "" : "btn-glass"}
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+        )}
       </motion.div>
 
       <AnimatePresence>
