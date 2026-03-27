@@ -23,7 +23,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
   const formRef = useRef<HTMLFormElement>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Filter based on search input
   const filteredUsers = initialUsers.filter(u => 
@@ -44,9 +44,9 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
   });
 
   // Pagination calculation
-  const totalPages = Math.ceil(sortedUsers.length / ITEMS_PER_PAGE);
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(sortedUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedUsers = sortedUsers.slice(startIndex, startIndex + itemsPerPage);
 
   async function handleCreate(formData: FormData) {
     setError('');
@@ -271,7 +271,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
         </div>
 
         {/* Pagination section */}
-        {totalPages > 1 && (
+        {sortedUsers.length > 0 && (
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -282,9 +282,45 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
             flexWrap: 'wrap',
             gap: '16px'
           }}>
-            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', fontWeight: 500 }}>
-              Showing {startIndex + 1} to {Math.min(startIndex + ITEMS_PER_PAGE, sortedUsers.length)} of {sortedUsers.length} users
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
+              <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', fontWeight: 500 }}>
+                Showing {startIndex + 1} to {Math.min(startIndex + itemsPerPage, sortedUsers.length)} of {sortedUsers.length} users
+              </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Rows per page:</span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                    setItemsPerPage(Number(e.target.value));
+                    setCurrentPage(1);
+                  }}
+                  style={{
+                    padding: '6px 28px 6px 12px',
+                    borderRadius: 'var(--radius-md)',
+                    border: '1px solid var(--border-default)',
+                    background: 'var(--bg-surface-solid)',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    appearance: 'none',
+                    backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23888%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")',
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 10px top 50%',
+                    backgroundSize: '10px auto',
+                    transition: 'border-color 0.2s, box-shadow 0.2s',
+                    boxShadow: 'var(--shadow-sm)'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--text-secondary)'}
+                  onMouseOut={(e) => e.currentTarget.style.borderColor = 'var(--border-default)'}
+                >
+                  <option value={10}>10</option>
+                  <option value={20}>20</option>
+                  <option value={50}>50</option>
+                </select>
+              </div>
+            </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
