@@ -13,8 +13,16 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   const [appleId, setAppleId] = useState<AppleId | null>(null);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const toast = useToast();
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 640);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     if (lightboxImage) {
@@ -56,14 +64,16 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     const success = await copyToClipboard(text);
     if (success) {
       setCopiedId(copyId);
-      toast.success(label ? `${label} copied to clipboard!` : 'Copied to clipboard!');
+      if (!isMobile) {
+        toast.success(label ? `${label} copied to clipboard!` : 'Copied to clipboard!');
+      } else {
+        toast.success('Copied!');
+      }
       setTimeout(() => setCopiedId(null), 2000);
     } else {
       toast.error('Failed to copy', 'Please copy manually.');
     }
   };
-
-  // Images are now stacked, no need for prevImage/nextImage sliders
 
   if (loading) {
     return (
@@ -95,7 +105,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
             <span>←</span> Back to Library
           </Link>
 
-          {/* Images Section (Top) */}
+          {/* Previews Section */}
           {appleId.images && appleId.images.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -118,14 +128,14 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
                       Click to Zoom
                     </div>
-                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9, transition: 'opacity 0.3s' }} onMouseOver={(e) => e.currentTarget.style.opacity = '1'} onMouseOut={(e) => e.currentTarget.style.opacity = '0.9'} loading="lazy" />
+                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9, transition: 'opacity 0.3s' }} loading="lazy" />
                   </motion.div>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* Info Card (Bottom) */}
+          {/* Main Info Card */}
           <motion.div 
             className="glass-card" 
             style={{ padding: 'var(--space-8)', marginBottom: 'var(--space-8)' }}
@@ -143,8 +153,8 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', padding: '6px 14px', background: 'var(--bg-card-hover)', borderRadius: '24px', fontSize: 'var(--text-sm)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', fontWeight: 500 }}>
                   <span style={{ fontSize: '18px' }}>{getCountryFlag(appleId.country)}</span> Region: {appleId.country}
                 </span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', background: 'var(--color-success-bg, rgba(16, 185, 129, 0.1))', color: 'var(--color-success, #10b981)', borderRadius: '24px', fontSize: 'var(--text-sm)', border: '1px solid var(--color-success-border, rgba(16, 185, 129, 0.2))', fontWeight: 500 }}>
-                  <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: 'var(--color-success, #10b981)' }}></span> Active
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '6px 14px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', borderRadius: '24px', fontSize: 'var(--text-sm)', border: '1px solid rgba(16, 185, 129, 0.2)', fontWeight: 500 }}>
+                  <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#10b981' }}></span> Active
                 </span>
               </div>
               
@@ -158,7 +168,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
               )}
 
               {appleId.notes && (
-                <div style={{ display: 'flex', gap: '12px', padding: '16px', background: 'rgba(255, 171, 0, 0.08)', color: 'var(--color-warning)', borderRadius: 'var(--radius-lg)', borderLeft: '4px solid var(--color-warning)', alignItems: 'flex-start' }}>
+                <div style={{ display: 'flex', gap: '12px', padding: '16px', background: 'rgba(255, 171, 0, 0.08)', color: '#ffab00', borderRadius: 'var(--radius-lg)', borderLeft: '4px solid #ffab00', alignItems: 'flex-start' }}>
                   <span style={{ fontSize: '20px', lineHeight: 1 }}>📝</span> 
                   <span style={{ lineHeight: 1.5, fontWeight: 500 }}>{appleId.notes}</span>
                 </div>
@@ -175,7 +185,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
               style={{ marginTop: 'var(--space-10)', position: 'relative', width: '100%' }}
             >
               
-              {/* The Floating Container - Fluid padding and radius */}
+              {/* Floating Container */}
               <div style={{ 
                 width: '100%',
                 maxWidth: '640px', 
@@ -203,13 +213,13 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                 </div>
 
                 {/* Email Row */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative', zIndex: 1, minWidth: 0 }}>
                   <label style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, paddingLeft: '20px', opacity: 0.7 }}>Apple ID Email</label>
-                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                    {/* Value Pill - Fluid sizing */}
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'nowrap', alignItems: 'center', minWidth: 0 }}>
+                    {/* Value Pill */}
                     <div style={{ 
                       flex: 1, 
-                      minWidth: 'min(100%, 260px)', 
+                      minWidth: 0, 
                       display: 'flex', 
                       alignItems: 'center', 
                       padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 28px)', 
@@ -217,8 +227,19 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       border: '1.5px solid rgba(59, 130, 246, 0.3)', 
                       borderRadius: '100px', 
                       boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.03)',
+                      overflow: 'hidden'
                     }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(13px, 3.5vw, 15px)', color: '#60a5fa', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <span style={{ 
+                        fontFamily: 'var(--font-mono)', 
+                        fontSize: 'clamp(13px, 3.5vw, 15px)', 
+                        color: '#60a5fa', 
+                        fontWeight: 700, 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis', 
+                        whiteSpace: 'nowrap',
+                        width: '100%',
+                        display: 'block'
+                      }}>
                         {appleId.email}
                       </span>
                     </div>
@@ -228,34 +249,38 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleCopy(appleId.email, 'email', 'Email')}
                       style={{ 
-                        padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)', 
+                        padding: isMobile ? '0' : 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)', 
                         background: copiedId === 'email' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(59, 130, 246, 0.2)', 
                         color: copiedId === 'email' ? '#34d399' : '#60a5fa', 
                         border: copiedId === 'email' ? '1.5px solid rgba(16, 185, 129, 0.5)' : '1.5px solid rgba(59, 130, 246, 0.5)', 
-                        borderRadius: '100px', 
+                        borderRadius: isMobile ? '50%' : '100px', 
                         fontWeight: 800, 
                         fontSize: '13px', 
                         cursor: 'pointer', 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: '8px', 
-                        boxShadow: '0 8px 15px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1)' 
+                        justifyContent: 'center',
+                        gap: isMobile ? '0' : '8px', 
+                        boxShadow: '0 8px 15px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1)',
+                        flexShrink: 0,
+                        width: isMobile ? '56px' : 'auto',
+                        height: isMobile ? '56px' : 'auto'
                       }}
                     >
-                      <span style={{ fontSize: '16px' }}>{copiedId === 'email' ? '✅' : '📋'}</span>
-                      {copiedId === 'email' ? 'Copied' : 'Copy Email'}
+                      <span style={{ fontSize: '18px' }}>{copiedId === 'email' ? '✅' : '📋'}</span>
+                      {!isMobile && (copiedId === 'email' ? 'Copied' : 'Copy Email')}
                     </motion.button>
                   </div>
                 </div>
 
                 {/* Password Row */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative', zIndex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', position: 'relative', zIndex: 1, minWidth: 0 }}>
                   <label style={{ fontSize: '10px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, paddingLeft: '20px', opacity: 0.7 }}>Password</label>
-                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                    {/* Value Pill - Fluid sizing */}
+                  <div style={{ display: 'flex', gap: '10px', width: '100%', flexWrap: 'nowrap', alignItems: 'center', minWidth: 0 }}>
+                    {/* Value Pill */}
                     <div style={{ 
                       flex: 1, 
-                      minWidth: 'min(100%, 260px)', 
+                      minWidth: 0, 
                       display: 'flex', 
                       alignItems: 'center', 
                       padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 28px)', 
@@ -263,8 +288,20 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       border: '1.5px solid rgba(251, 191, 36, 0.3)', 
                       borderRadius: '100px', 
                       boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.03)',
+                      overflow: 'hidden'
                     }}>
-                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: 'clamp(14px, 3.8vw, 16px)', color: '#fbbf24', fontWeight: 700, letterSpacing: '1.5px' }}>
+                      <span style={{ 
+                        fontFamily: 'var(--font-mono)', 
+                        fontSize: 'clamp(14px, 3.8vw, 16px)', 
+                        color: '#fbbf24', 
+                        fontWeight: 700, 
+                        letterSpacing: '1.5px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        width: '100%',
+                        display: 'block'
+                      }}>
                         {appleId.password}
                       </span>
                     </div>
@@ -274,22 +311,26 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => handleCopy(appleId.password, 'password', 'Password')}
                       style={{ 
-                        padding: 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)', 
+                        padding: isMobile ? '0' : 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)', 
                         background: copiedId === 'password' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.2)', 
                         color: copiedId === 'password' ? '#34d399' : '#fbbf24', 
                         border: copiedId === 'password' ? '1.5px solid rgba(16, 185, 129, 0.5)' : '1.5px solid rgba(245, 158, 11, 0.5)', 
-                        borderRadius: '100px', 
+                        borderRadius: isMobile ? '50%' : '100px', 
                         fontWeight: 800, 
                         fontSize: '13px', 
                         cursor: 'pointer', 
                         display: 'flex', 
                         alignItems: 'center', 
-                        gap: '8px', 
-                        boxShadow: '0 8px 15px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1)' 
+                        justifyContent: 'center',
+                        gap: isMobile ? '0' : '8px', 
+                        boxShadow: '0 8px 15px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1)',
+                        flexShrink: 0,
+                        width: isMobile ? '56px' : 'auto',
+                        height: isMobile ? '56px' : 'auto'
                       }}
                     >
-                      <span style={{ fontSize: '16px' }}>{copiedId === 'password' ? '✅' : '🔑'}</span>
-                      {copiedId === 'password' ? 'Copied' : 'Copy Password'}
+                      <span style={{ fontSize: '18px' }}>{copiedId === 'password' ? '✅' : '🔑'}</span>
+                      {!isMobile && (copiedId === 'password' ? 'Copied' : 'Copy Password')}
                     </motion.button>
                   </div>
                 </div>
@@ -322,8 +363,6 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
             {/* Close Button */}
             <button 
               style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '50%', width: '48px', height: '48px', fontSize: '24px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10000, transition: 'background 0.2s' }}
-              onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.2)'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
               onClick={() => setLightboxImage(null)}
             >
               ✕
