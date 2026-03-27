@@ -263,14 +263,9 @@ export default function AppleIdsClient() {
                         </div>
 
                         {/* Title */}
-                        <h3 style={{ color: '#ffffff', margin: '0 0 4px 0', fontSize: '26px', fontWeight: 800, lineHeight: 1.2, textShadow: '0 4px 20px rgba(0,0,0,0.8)', letterSpacing: '-0.5px' }}>
+                        <h3 style={{ color: '#ffffff', margin: '0 0 16px 0', fontSize: '26px', fontWeight: 800, lineHeight: 1.2, textShadow: '0 4px 20px rgba(0,0,0,0.8)', letterSpacing: '-0.5px' }}>
                           {appleId.title || 'Premium Apple ID'}
                         </h3>
-                        
-                        {/* Subtitle / Email snippet */}
-                        <p style={{ color: '#9ca3af', fontSize: '14px', margin: '0 0 16px 0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                           {appleId.email}
-                        </p>
 
                         <motion.div 
                           variants={{ hidden: { opacity: 0, height: 0, marginTop: 0 }, visible: { opacity: 0, height: 0, marginTop: 0 }, hover: { opacity: 1, height: 'auto', marginTop: 4 } }}
