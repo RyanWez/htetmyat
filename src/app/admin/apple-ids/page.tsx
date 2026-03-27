@@ -380,7 +380,7 @@ export default function AdminAppleIds() {
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
                     {form.images.map((img, i) => (
                       <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                        <Image src={img} alt={`Preview ${i}`} fill style={{ objectFit: 'cover', borderRadius: '8px' }} />
+                        <Image src={img} alt={`Preview ${i}`} fill sizes="80px" style={{ objectFit: 'cover', borderRadius: '8px' }} />
                         <button 
                           className="btn-icon" 
                           style={{ position: 'absolute', top: '-5px', right: '-5px', backgroundColor: 'var(--color-danger)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}

@@ -134,6 +134,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                         src={img} 
                         alt={`${appleId.title} preview ${i + 1}`} 
                         fill 
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         style={{ objectFit: 'contain', opacity: 0.9, transition: 'opacity 0.3s' }} 
                         loading="lazy" 
                       />
@@ -383,6 +384,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                 src={lightboxImage} 
                 alt="Fullscreen expanded preview" 
                 fill
+                sizes="100vw"
                 style={{ objectFit: 'contain', borderRadius: '8px', cursor: 'zoom-out' }}
                 onClick={(e) => {
                   e.stopPropagation();
