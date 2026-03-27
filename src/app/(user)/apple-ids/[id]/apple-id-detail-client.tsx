@@ -167,50 +167,114 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
 
             <div style={{ height: '1px', background: 'var(--border-color)', margin: 'var(--space-6) 0' }} />
 
-            {/* Credentials Section (Redesigned as a Secure Vault with Responsive Pills) */}
-            <div style={{ marginTop: 'var(--space-6)', padding: 'var(--space-6)', background: 'linear-gradient(145deg, #111827 0%, #0f172a 100%)', borderRadius: '32px', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 10px 30px -10px rgba(59, 130, 246, 0.15)', position: 'relative', overflow: 'hidden' }}>
-              {/* Decorative background glow */}
-              <div style={{ position: 'absolute', top: '-50%', left: '-10%', width: '120%', height: '200%', background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.1) 0%, transparent 50%)', pointerEvents: 'none' }} />
+            {/* Credentials Section - 3D iOS Inspired Design */}
+            <div style={{ marginTop: 'var(--space-8)', position: 'relative' }}>
               
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: 'var(--space-5)', position: 'relative', zIndex: 1, paddingLeft: '8px' }}>
-                <span style={{ fontSize: '20px' }}>🔐</span>
-                <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', color: '#fff', fontWeight: 600 }}>Secure Credentials</h3>
-              </div>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', position: 'relative', zIndex: 1 }}>
+              <div style={{ maxWidth: '540px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '28px' }}>
                 
-                {/* Email Modern Field */}
-                <div style={{ position: 'relative', padding: '16px 20px', background: 'rgba(0,0,0,0.3)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '6px' }}>Apple ID Email</div>
-                  <div style={{ paddingRight: '50px', fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)', fontSize: '17px', color: '#60a5fa', fontWeight: 600, letterSpacing: '0.5px', wordBreak: 'break-all' }}>
-                    {appleId.email}
-                  </div>
-                  <button 
-                    onClick={() => handleCopy(appleId.email, 'email', 'Email')}
-                    style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', background: copiedId === 'email' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(59, 130, 246, 0.15)', color: copiedId === 'email' ? '#10b981' : '#60a5fa', border: copiedId === 'email' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(59, 130, 246, 0.4)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', fontSize: '18px' }}
-                    title="Copy Email"
-                    onMouseOver={(e) => { if (copiedId !== 'email') { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.25)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)'; } }}
-                    onMouseOut={(e) => { if (copiedId !== 'email') { e.currentTarget.style.background = 'rgba(59, 130, 246, 0.15)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; } }}
-                  >
-                     {copiedId === 'email' ? '✅' : '📋'}
-                  </button>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px', justifyContent: 'center' }}>
+                  <span style={{ fontSize: '20px' }}>🔐</span>
+                  <h3 style={{ margin: 0, fontSize: 'var(--text-lg)', color: '#fff', fontWeight: 800, letterSpacing: '0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.5)' }}>Secure Credentials</h3>
                 </div>
 
-                {/* Password Modern Field */}
-                <div style={{ position: 'relative', padding: '16px 20px', background: 'rgba(0,0,0,0.3)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                  <div style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '1.5px', fontWeight: 700, marginBottom: '6px' }}>Password</div>
-                  <div style={{ paddingRight: '50px', fontFamily: 'var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace)', fontSize: '17px', color: '#fbbf24', fontWeight: 600, letterSpacing: '2.5px', wordBreak: 'break-all' }}>
-                    {appleId.password}
+                {/* Email Row */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, paddingLeft: '24px', opacity: 0.8 }}>Apple ID Email</label>
+                  <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    {/* Value Pill (Embossed 3D Look) */}
+                    <div style={{ 
+                      flex: 1, 
+                      minWidth: '280px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      padding: '16px 28px', 
+                      background: 'rgba(15, 23, 42, 0.6)', 
+                      border: '1.5px solid rgba(59, 130, 246, 0.2)', 
+                      borderRadius: '100px', 
+                      backdropFilter: 'blur(20px)', 
+                      boxShadow: '0 8px 20px -5px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05), inset 0 -2px 10px rgba(0,0,0,0.4)',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '15px', color: '#60a5fa', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: '0 0 15px rgba(96, 165, 250, 0.3)' }}>
+                        {appleId.email}
+                      </span>
+                    </div>
+                    {/* Copy Pill (Embossed 3D Look) */}
+                    <motion.button 
+                      whileHover={{ scale: 1.05, y: -2, boxShadow: '0 12px 25px -5px rgba(0,0,0,0.7)' }}
+                      whileTap={{ scale: 0.95, y: 0 }}
+                      onClick={() => handleCopy(appleId.email, 'email', 'Email')}
+                      style={{ 
+                        padding: '16px 32px', 
+                        background: copiedId === 'email' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(59, 130, 246, 0.12)', 
+                        color: copiedId === 'email' ? '#34d399' : '#60a5fa', 
+                        border: copiedId === 'email' ? '1.5px solid rgba(16, 185, 129, 0.4)' : '1.5px solid rgba(59, 130, 246, 0.4)', 
+                        borderRadius: '100px', 
+                        fontWeight: 800, 
+                        fontSize: '14px', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '10px', 
+                        backdropFilter: 'blur(20px)',
+                        boxShadow: '0 8px 20px -5px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 8px rgba(0,0,0,0.3)',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>{copiedId === 'email' ? '✅' : '📋'}</span>
+                      {copiedId === 'email' ? 'Copied' : 'Copy Email'}
+                    </motion.button>
                   </div>
-                  <button 
-                    onClick={() => handleCopy(appleId.password, 'password', 'Password')}
-                    style={{ position: 'absolute', top: '50%', right: '14px', transform: 'translateY(-50%)', background: copiedId === 'password' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.15)', color: copiedId === 'password' ? '#10b981' : '#fbbf24', border: copiedId === 'password' ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid rgba(245, 158, 11, 0.4)', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s', fontSize: '18px' }}
-                    title="Copy Password"
-                    onMouseOver={(e) => { if (copiedId !== 'password') { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.25)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)'; } }}
-                    onMouseOut={(e) => { if (copiedId !== 'password') { e.currentTarget.style.background = 'rgba(245, 158, 11, 0.15)'; e.currentTarget.style.transform = 'translateY(-50%) scale(1)'; } }}
-                  >
-                     {copiedId === 'password' ? '✅' : '🔑'}
-                  </button>
+                </div>
+
+                {/* Password Row */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <label style={{ fontSize: '11px', color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, paddingLeft: '24px', opacity: 0.8 }}>Password</label>
+                  <div style={{ display: 'flex', gap: '12px', width: '100%', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    {/* Value Pill (Embossed 3D Look) */}
+                    <div style={{ 
+                      flex: 1, 
+                      minWidth: '280px', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      padding: '16px 28px', 
+                      background: 'rgba(15, 23, 42, 0.6)', 
+                      border: '1.5px solid rgba(251, 191, 36, 0.2)', 
+                      borderRadius: '100px', 
+                      backdropFilter: 'blur(20px)', 
+                      boxShadow: '0 8px 20px -5px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.05), inset 0 -2px 10px rgba(0,0,0,0.4)',
+                      transition: 'all 0.3s ease'
+                    }}>
+                      <span style={{ fontFamily: 'var(--font-mono)', fontSize: '16px', color: '#fbbf24', fontWeight: 700, letterSpacing: '1.5px', textShadow: '0 0 15px rgba(251, 191, 36, 0.3)' }}>
+                        {appleId.password}
+                      </span>
+                    </div>
+                    {/* Copy Pill (Embossed 3D Look) */}
+                    <motion.button 
+                      whileHover={{ scale: 1.05, y: -2, boxShadow: '0 12px 25px -5px rgba(0,0,0,0.7)' }}
+                      whileTap={{ scale: 0.95, y: 0 }}
+                      onClick={() => handleCopy(appleId.password, 'password', 'Password')}
+                      style={{ 
+                        padding: '16px 32px', 
+                        background: copiedId === 'password' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.12)', 
+                        color: copiedId === 'password' ? '#34d399' : '#fbbf24', 
+                        border: copiedId === 'password' ? '1.5px solid rgba(16, 185, 129, 0.4)' : '1.5px solid rgba(245, 158, 11, 0.4)', 
+                        borderRadius: '100px', 
+                        fontWeight: 800, 
+                        fontSize: '14px', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '10px', 
+                        backdropFilter: 'blur(20px)',
+                        boxShadow: '0 8px 20px -5px rgba(0,0,0,0.6), inset 0 2px 4px rgba(255,255,255,0.1), inset 0 -2px 8px rgba(0,0,0,0.3)',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)' 
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>{copiedId === 'password' ? '✅' : '🔑'}</span>
+                      {copiedId === 'password' ? 'Copied' : 'Copy Password'}
+                    </motion.button>
+                  </div>
                 </div>
 
               </div>
