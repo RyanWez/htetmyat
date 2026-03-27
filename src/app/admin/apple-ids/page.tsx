@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag } from '@/lib/utils';
@@ -17,7 +18,6 @@ export default function AdminAppleIds() {
   const [editing, setEditing] = useState<AppleId | null>(null);
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [saving, setSaving] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const toast = useToast();
   const { confirm } = useConfirm();
   const [form, setForm] = useState({
@@ -113,7 +113,6 @@ export default function AdminAppleIds() {
       variant: 'danger',
     });
     if (!confirmed) return;
-    setDeletingId(id);
     try {
       const { deleteAppleId } = await import('./actions');
       const result = await deleteAppleId(id);
@@ -125,8 +124,6 @@ export default function AdminAppleIds() {
     } catch (err) {
       console.error(err);
       toast.error('Failed to delete Apple ID');
-    } finally {
-      setDeletingId(null);
     }
   };
 
@@ -148,9 +145,10 @@ export default function AdminAppleIds() {
       }
       setForm({ ...form, images: newImages });
       toast.success('Images uploaded successfully');
-    } catch (err: any) {
-      console.error(err);
-      toast.error('Failed to upload images', err.message);
+    } catch (err) {
+      const error = err as Error;
+      console.error(error);
+      toast.error('Failed to upload images', error.message);
     } finally {
       setUploadingImages(false);
       e.target.value = '';
@@ -382,7 +380,7 @@ export default function AdminAppleIds() {
                   <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginTop: '10px' }}>
                     {form.images.map((img, i) => (
                       <div key={i} style={{ position: 'relative', width: '80px', height: '80px' }}>
-                        <img src={img} alt={`Preview ${i}`} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }} />
+                        <Image src={img} alt={`Preview ${i}`} fill style={{ objectFit: 'cover', borderRadius: '8px' }} />
                         <button 
                           className="btn-icon" 
                           style={{ position: 'absolute', top: '-5px', right: '-5px', backgroundColor: 'var(--color-danger)', color: 'white', border: 'none', borderRadius: '50%', width: '20px', height: '20px', cursor: 'pointer', fontSize: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}

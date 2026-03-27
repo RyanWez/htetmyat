@@ -40,9 +40,14 @@ export default function AdminSidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({});
+  const [prevPathname, setPrevPathname] = useState(pathname);
 
-  // Open the parent menu if a child is active initially
-  useEffect(() => {
+  // Synchronize state with pathname during render (React 18+ recommended pattern for derived state)
+  if (pathname !== prevPathname) {
+    setPrevPathname(pathname);
+    setIsOpen(false);
+    
+    // Auto-open menus for active children
     const newOpenMenus = { ...openMenus };
     let hasChanges = false;
     menuItems.forEach(item => {
@@ -55,16 +60,13 @@ export default function AdminSidebar() {
       }
     });
     if (hasChanges) setOpenMenus(newOpenMenus);
-  }, [pathname]);
+  }
 
   const toggleSubMenu = (label: string) => {
     setOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
   };
 
-  // Close sidebar on route change for mobile
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+
 
   // Lock body scroll when sidebar is open on mobile
   useEffect(() => {

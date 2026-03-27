@@ -116,8 +116,9 @@ export async function uploadAppleIdImage(formData: FormData) {
       .getPublicUrl(fileName);
       
     return { success: true, url: publicUrl };
-  } catch (err: any) {
-    console.error('Upload Error:', err);
-    return { success: false, error: err.message || 'Failed to upload image' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Upload Error:', error);
+    return { success: false, error: error.message || 'Failed to upload image' };
   }
 }

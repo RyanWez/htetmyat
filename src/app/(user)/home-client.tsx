@@ -2,7 +2,7 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion} from 'framer-motion';
 import { useRef } from 'react';
 import AppleIcon from '@/components/AppleIcon';
 import styles from './home.module.css';
@@ -10,14 +10,6 @@ import styles from './home.module.css';
 export default function HomeClient() {
   const { data: session } = useSession();
   const ref = useRef(null);
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"]
-  });
-  
-  const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacityBg = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-
   return (
     <div className={styles.page} ref={ref}>
       {/* Dynamic Animated Background has been removed to prevent visual clutter under the transparent header */}

@@ -123,7 +123,7 @@ export default function LoginPage() {
         </form>
 
         <div className={styles.contactAdminWrapper}>
-          <p className={styles.contactText}>Don't have an account or lost access?</p>
+          <p className={styles.contactText}>Don&apos;t have an account or lost access?</p>
           <motion.a
             href="https://t.me/H_M_A_2026"
             target="_blank"

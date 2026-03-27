@@ -25,9 +25,10 @@ export async function fetchAllUsers() {
     if (error) throw error;
 
     return { success: true, data: profiles || [], count: count || 0 };
-  } catch (err: any) {
-    console.error('Error fetching users:', err);
-    return { success: false, data: [], error: err.message || 'Failed to fetch users' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error fetching users:', error);
+    return { success: false, data: [], error: error.message || 'Failed to fetch users' };
   }
 }
 
@@ -74,9 +75,10 @@ export async function createUserAction(formData: FormData) {
 
     revalidatePath('/admin/users');
     return { success: true };
-  } catch (err: any) {
-    console.error('Error creating user:', err);
-    return { success: false, error: err.message || 'Failed to create user' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error creating user:', error);
+    return { success: false, error: error.message || 'Failed to create user' };
   }
 }
 
@@ -104,11 +106,12 @@ export async function fetchUserById(id: string) {
         last_sign_in_at: auth?.user?.last_sign_in_at 
       } 
     };
-  } catch (err: any) {
-    if (err.code !== 'PGRST116') {
-      console.error('Error fetching user:', err);
+  } catch (err) {
+    const error = err as Error;
+    if ((error as { code?: string }).code !== 'PGRST116') {
+      console.error('Error fetching user:', error);
     }
-    return { success: false, data: null, error: err.message || 'Failed to fetch user' };
+    return { success: false, data: null, error: error.message || 'Failed to fetch user' };
   }
 }
 
@@ -125,9 +128,10 @@ export async function updateUserRole(id: string, role: string) {
     revalidatePath(`/admin/users/${id}`);
     revalidatePath('/admin/users');
     return { success: true };
-  } catch (err: any) {
-    console.error('Error updating role:', err);
-    return { success: false, error: err.message || 'Failed to update user role' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error updating role:', error);
+    return { success: false, error: error.message || 'Failed to update user role' };
   }
 }
 
@@ -148,9 +152,10 @@ export async function updateUserStatus(id: string, isActive: boolean) {
     revalidatePath(`/admin/users/${id}`);
     revalidatePath('/admin/users');
     return { success: true };
-  } catch (err: any) {
-    console.error('Error updating status:', err);
-    return { success: false, error: err.message || 'Failed to update user status' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error updating status:', error);
+    return { success: false, error: error.message || 'Failed to update user status' };
   }
 }
 
@@ -163,9 +168,10 @@ export async function updateUserPassword(id: string, newPassword: string) {
     if (error) throw error;
 
     return { success: true };
-  } catch (err: any) {
-    console.error('Error updating password:', err);
-    return { success: false, error: err.message || 'Failed to update password' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error updating password:', error);
+    return { success: false, error: error.message || 'Failed to update password' };
   }
 }
 
@@ -181,8 +187,9 @@ export async function deleteUser(id: string) {
 
     revalidatePath('/admin/users');
     return { success: true };
-  } catch (err: any) {
-    console.error('Error deleting user:', err);
-    return { success: false, error: err.message || 'Failed to delete user' };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error deleting user:', error);
+    return { success: false, error: error.message || 'Failed to delete user' };
   }
 }

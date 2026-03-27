@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
@@ -239,10 +240,11 @@ export default function AppleIdsClient() {
                   {/* Background Image */}
                   <motion.div style={{ position: 'absolute', inset: 0 }} variants={{ hidden: { scale: 1 }, visible: { scale: 1 }, hover: { scale: 1.08 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
                     {appleId.images && appleId.images.length > 0 ? (
-                      <img 
+                      <Image 
                         src={appleId.images[0]} 
                         alt={appleId.title || 'Apple ID'} 
-                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        fill
+                        style={{ objectFit: 'cover' }}
                       />
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.2 }}>

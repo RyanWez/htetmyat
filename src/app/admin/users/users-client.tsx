@@ -5,7 +5,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { createUserAction } from './actions';
 
-export default function UsersClient({ initialUsers, totalCount }: { initialUsers: any[], totalCount: number }) {
+interface User {
+  id: string;
+  email: string;
+  display_name?: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export default function UsersClient({ initialUsers, totalCount }: { initialUsers: User[], totalCount: number }) {
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -147,7 +156,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
                 <tr>
                   <td colSpan={5} style={{ padding: '48px 24px', textAlign: 'center', color: 'var(--text-tertiary)' }}>
                     <div style={{ fontSize: 32, marginBottom: 12, opacity: 0.5 }}>🤷</div>
-                    <p style={{ margin: 0 }}>No users found matching "{search}"</p>
+                    <p style={{ margin: 0 }}>No users found matching &quot;{search}&quot;</p>
                   </td>
                 </tr>
               ) : (

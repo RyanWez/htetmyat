@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
 import { AppleId } from '@/lib/supabase/types';
@@ -33,15 +34,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     return () => { document.body.style.overflow = ''; };
   }, [lightboxImage]);
 
-  useEffect(() => {
-    if (!id || id === 'undefined') {
-      setLoading(false);
-      return;
-    }
-    fetchAppleId();
-  }, [id]);
-
-  const fetchAppleId = async () => {
+  const fetchAppleId = useCallback(async () => {
     try {
       const supabase = createClient();
       const { data, error } = await supabase
@@ -58,7 +51,15 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (!id || id === 'undefined') {
+      setLoading(false);
+      return;
+    }
+    fetchAppleId();
+  }, [id, fetchAppleId]);
 
   const handleCopy = async (text: string, copyId: string, label?: string) => {
     const success = await copyToClipboard(text);
@@ -128,7 +129,15 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
                       Click to Zoom
                     </div>
-                    <img src={img} alt={`${appleId.title} preview ${i + 1}`} style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9, transition: 'opacity 0.3s' }} loading="lazy" />
+                    <div style={{ position: 'relative', width: '100%', height: 'auto', minHeight: '400px' }}>
+                      <Image 
+                        src={img} 
+                        alt={`${appleId.title} preview ${i + 1}`} 
+                        fill 
+                        style={{ objectFit: 'contain', opacity: 0.9, transition: 'opacity 0.3s' }} 
+                        loading="lazy" 
+                      />
+                    </div>
                   </motion.div>
                 ))}
               </div>
@@ -369,19 +378,18 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
             </button>
 
             {/* Lightbox Image */}
-            <motion.img 
-              src={lightboxImage} 
-              alt="Fullscreen expanded preview" 
-              style={{ maxWidth: '100%', maxHeight: '90vh', objectFit: 'contain', borderRadius: '8px', cursor: 'zoom-out' }}
-              initial={{ scale: 0.9, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setLightboxImage(null);
-              }}
-            />
+            <div style={{ position: 'relative', maxWidth: '100%', maxHeight: '90vh', width: '100%', height: '90vh' }}>
+              <Image 
+                src={lightboxImage} 
+                alt="Fullscreen expanded preview" 
+                fill
+                style={{ objectFit: 'contain', borderRadius: '8px', cursor: 'zoom-out' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxImage(null);
+                }}
+              />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

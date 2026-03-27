@@ -8,8 +8,8 @@ interface AppleIconProps {
 export default function AppleIcon({ className = '' }: AppleIconProps) {
   return (
     <span className={`${styles.iconWrapper} ${className}`}>
-      <img src="/images/apple-dark.png" alt="Apple" className={styles.lightIcon} />
-      <img src="/images/apple-light.png" alt="Apple" className={styles.darkIcon} />
+      <Image src="/images/apple-dark.png" alt="Apple" width={24} height={24} className={styles.lightIcon} />
+      <Image src="/images/apple-light.png" alt="Apple" width={24} height={24} className={styles.darkIcon} />
     </span>
   );
 }

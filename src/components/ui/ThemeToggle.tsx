@@ -7,15 +7,23 @@ export default function ThemeToggle() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
+  // Client-side initialization during render to avoid cascading effects
+  if (typeof window !== 'undefined' && !mounted) {
     const stored = localStorage.getItem('hma-theme') as 'light' | 'dark' | null;
     const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     const initial = stored || preferred;
-    setTheme(initial);
-    document.documentElement.setAttribute('data-theme', initial);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    
+    // Update states synchronously during render if needed
+    if (initial !== theme) setTheme(initial);
+    setMounted(true);
+  }
+
+  // Update document attribute whenever theme changes
+  useEffect(() => {
+    if (mounted) {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+  }, [theme, mounted]);
 
   const toggle = () => {
     const next = theme === 'light' ? 'dark' : 'light';

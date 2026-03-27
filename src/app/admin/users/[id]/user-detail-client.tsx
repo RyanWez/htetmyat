@@ -6,7 +6,17 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateUserRole, updateUserStatus, deleteUser, updateUserPassword } from '../actions';
 
-export default function UserDetailClient({ user }: { user: any }) {
+interface User {
+  id: string;
+  email: string;
+  display_name?: string;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  last_sign_in_at?: string;
+}
+
+export default function UserDetailClient({ user }: { user: User }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -172,7 +182,7 @@ export default function UserDetailClient({ user }: { user: any }) {
           <div className="glass-card action-card">
             <div>
               <h3 style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0 0 4px 0' }}>Role Permissions</h3>
-              <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>Elevate or restrict this user's administrative privileges.</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>Elevate or restrict this user&apos;s administrative privileges.</p>
             </div>
             <select 
               value={user.role} 

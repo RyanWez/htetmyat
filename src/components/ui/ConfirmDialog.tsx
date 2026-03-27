@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import { createContext, useContext, useState, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 import styles from './ConfirmDialog.module.css';
@@ -50,7 +50,9 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
 
   const resolveRef = useRef<((value: boolean) => void) | null>(null);
 
-  useEffect(() => { setMounted(true); }, []);
+  if (typeof window !== 'undefined' && !mounted) {
+    setMounted(true);
+  }
 
   const confirm = useCallback((options: ConfirmOptions): Promise<boolean> => {
     return new Promise((resolve) => {
