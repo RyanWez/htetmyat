@@ -21,6 +21,15 @@ export default function AppleIdsClient() {
   const [hasMore, setHasMore] = useState(false);
   const [dbRevision, setDbRevision] = useState(0);
 
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkResize = () => setIsMobile(window.innerWidth < 768);
+    checkResize();
+    window.addEventListener('resize', checkResize);
+    return () => window.removeEventListener('resize', checkResize);
+  }, []);
+
   const PAGE_SIZE = 12;
 
   // Realtime channel setup (only runs once)
@@ -208,15 +217,24 @@ export default function AppleIdsClient() {
               <motion.div
                 key={appleId.id}
                 initial="hidden"
-                animate="visible"
+                whileInView="visible"
                 whileHover="hover"
+                viewport={{ once: true, margin: "-60px" }}
                 variants={{ 
-                  hidden: { opacity: 0, y: 12 }, 
-                  visible: { opacity: 1, y: 0 },
-                  hover: { opacity: 1, y: -6 }
+                  hidden: { opacity: 0, scale: 0.96, y: 40 }, 
+                  visible: { 
+                    opacity: 1, 
+                    scale: 1, 
+                    y: 0,
+                    transition: {
+                      duration: 0.6,
+                      ease: [0.22, 1, 0.36, 1], // Premium cubic-bezier for smooth reveal
+                      delay: isMobile ? 0 : (index % 3) * 0.1 // Stagger by column on desktop
+                    }
+                  },
+                  hover: { y: -10, transition: { duration: 0.4, ease: "easeOut" } }
                 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-                style={{ padding: 0, overflow: 'hidden', height: '440px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f172a', cursor: 'pointer', boxShadow: '0 4px 20px rgba(0,0,0,0.3)' }}
+                style={{ padding: 0, overflow: 'hidden', height: '440px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.08)', backgroundColor: '#0f172a', cursor: 'pointer', boxShadow: '0 8px 30px rgba(0,0,0,0.4)' }}
               >
                   {/* Background Image */}
                   <motion.div style={{ position: 'absolute', inset: 0 }} variants={{ hidden: { scale: 1 }, visible: { scale: 1 }, hover: { scale: 1.08 } }} transition={{ duration: 0.6, ease: "easeOut" }}>
