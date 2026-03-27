@@ -348,7 +348,7 @@ export default function AppleIdsClient() {
         <div style={{ display: 'flex', justifyContent: 'center', marginTop: '40px', marginBottom: '20px', width: '100%' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'rgba(245, 158, 11, 0.15)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '12px 28px', borderRadius: '50px', color: '#fbbf24', fontSize: '15px', width: 'max-content', maxWidth: '100%', backdropFilter: 'blur(10px)', boxShadow: '0 4px 20px rgba(245, 158, 11, 0.1)' }}>
             <span style={{ fontSize: '18px' }}>⚠️</span>
-            <span style={{ fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.2px' }}>ဤ Apple ID များကို ဆော့ဖ်ဝဲ download ရန်သာ အသုံးပြုပါ။ Password မပြောင်းပါနှင့်။</span>
+            <span style={{ fontWeight: 500, lineHeight: 1.5, letterSpacing: '0.2px' }}>ဤ Apple ID များကို ဆော့ဖ်ဝဲ download ရန်သာ အသုံးပြုပါ။</span>
           </div>
         </div>
       </div>

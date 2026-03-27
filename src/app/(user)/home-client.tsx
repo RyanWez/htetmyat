@@ -138,7 +138,7 @@ export default function HomeClient() {
           <div className={styles.warning}>
             <div className={styles.warningIcon}>⚠️</div>
             <p>
-              ဤ Apple ID များကို ဆော့ဖ်ဝဲ download ရန်သာ အသုံးပြုပါ။ Settings အထဲမှ iCloud နေရာတွင် ဝင်မထားပါနှင့်။ App Store ကနေသာ ဝင်ပါ။ Password လုံးဝ (လုံးဝ) မပြောင်းပါနှင့်။ ပြောင်းလဲပါက Account Lock ကျသွားပါမည်။
+              ဤ Apple ID များကို ဆော့ဖ်ဝဲ download ရန်သာ အသုံးပြုပါ။ Settings အထဲမှ iCloud နေရာတွင် ဝင်မထားပါနှင့်။ App Store ကနေသာ ဝင်ပါ။
             </p>
           </div>
         </div>
