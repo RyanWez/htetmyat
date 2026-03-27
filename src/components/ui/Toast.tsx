@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import styles from './Toast.module.css';
 
@@ -60,9 +60,11 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const timersRef = useRef<Map<string, NodeJS.Timeout>>(new Map());
 
-  if (typeof window !== 'undefined' && !mounted) {
-    setMounted(true);
-  }
+  useEffect(() => {
+    // Avoid hydration mismatch by waiting for browser environment
+    const timer = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.map((t) => (t.id === id ? { ...t, exiting: true } : t)));
