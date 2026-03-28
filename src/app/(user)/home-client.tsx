@@ -2,21 +2,48 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useRef, useEffect } from 'react';
 import AppleIcon from '@/components/AppleIcon';
 import styles from './home.module.css';
 
+function RollingDigit({ char, delay }: { char: string, delay: number }) {
+  const num = parseInt(char, 10);
+  
+  if (isNaN(num)) {
+    return <span style={{ display: 'inline-flex', height: '1.2em', alignItems: 'center' }}>{char}</span>;
+  }
+
+  // 0-9 repeated twice for a full spin effect
+  const numbers = Array.from({ length: 20 }, (_, i) => i % 10);
+
+  return (
+    <div style={{ height: '1.2em', overflow: 'hidden', position: 'relative', display: 'inline-block', lineHeight: '1.2em' }}>
+      <motion.div
+        initial={{ y: 0 }}
+        animate={{ y: `-${(num + 10) * 5}%` }}
+        transition={{ duration: 1.8, delay, ease: [0.22, 1, 0.36, 1] }}
+        style={{ display: 'flex', flexDirection: 'column' }}
+      >
+        {numbers.map((n, i) => (
+          <span key={i} style={{ height: '1.2em', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {n}
+          </span>
+        ))}
+      </motion.div>
+    </div>
+  );
+}
+
 function AnimatedCounter({ value }: { value: number }) {
-  const count = useMotionValue(0);
-  const rounded = useTransform(count, Math.round);
-
-  useEffect(() => {
-    const animation = animate(count, value, { duration: 2, ease: [0.16, 1, 0.3, 1] });
-    return animation.stop;
-  }, [value, count]);
-
-  return <motion.span>{rounded}</motion.span>;
+  const chars = value.toString().split('');
+  return (
+    <div style={{ display: 'inline-flex', overflow: 'hidden', alignItems: 'center' }}>
+      {chars.map((char, i) => (
+        <RollingDigit key={i} char={char} delay={i * 0.15} />
+      ))}
+    </div>
+  );
 }
 
 export default function HomeClient({ totalCount }: { totalCount: number }) {
