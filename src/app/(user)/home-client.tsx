@@ -2,12 +2,24 @@
 
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { motion} from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useMotionValue, useTransform, animate } from 'framer-motion';
+import { useRef, useEffect } from 'react';
 import AppleIcon from '@/components/AppleIcon';
 import styles from './home.module.css';
 
-export default function HomeClient() {
+function AnimatedCounter({ value }: { value: number }) {
+  const count = useMotionValue(0);
+  const rounded = useTransform(count, Math.round);
+
+  useEffect(() => {
+    const animation = animate(count, value, { duration: 2, ease: [0.16, 1, 0.3, 1] });
+    return animation.stop;
+  }, [value, count]);
+
+  return <motion.span>{rounded}</motion.span>;
+}
+
+export default function HomeClient({ totalCount }: { totalCount: number }) {
   const { data: session } = useSession();
   const ref = useRef(null);
   return (
@@ -61,8 +73,8 @@ export default function HomeClient() {
           <div className={styles.statItem}>
             <div className={styles.statIcon}><AppleIcon /></div>
             <div>
-              <div className={styles.statValue}>12+</div>
-              <div className={styles.statLabel}>Active IDs</div>
+              <div className={styles.statValue}><AnimatedCounter value={totalCount} />+</div>
+              <div className={styles.statLabel}>Total Account</div>
             </div>
           </div>
           <div className={styles.statDivider} />

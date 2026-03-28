@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import HomeClient from './home-client';
+import { createClient } from '@/lib/supabase/server';
 
 export const metadata: Metadata = {
   title: 'HMA — Premium Free Apple IDs',
@@ -7,6 +8,13 @@ export const metadata: Metadata = {
   keywords: ['apple ids', 'free apple id', 'ios', 'app store account'],
 };
 
-export default function HomePage() {
-  return <HomeClient />;
+export default async function HomePage() {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from('apple_ids')
+    .select('*', { count: 'exact', head: true });
+
+  const totalCount = count || 0;
+
+  return <HomeClient totalCount={totalCount} />;
 }
