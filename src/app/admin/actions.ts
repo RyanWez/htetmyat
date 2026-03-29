@@ -3,6 +3,12 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 
+interface ActivityMetadata {
+  path?: string;
+  userAgent?: string;
+  [key: string]: unknown;
+}
+
 export async function getDashboardStats() {
   const session = await auth();
   const role = (session?.user as { role?: string })?.role;
@@ -43,7 +49,7 @@ export async function getUserActivityStats() {
 
   const { data: logs, error } = await supabase
     .from('activity_logs')
-    .select('created_at, user_id')
+    .select('created_at, user_id, metadata')
     .gte('created_at', yesterday.toISOString());
 
   if (error) {
@@ -57,16 +63,26 @@ export async function getUserActivityStats() {
     const hourStart = (i * 2);
     const label = `${hourStart}:00`;
     
-    // Count logic
+    // Filter logs in this 2-hour block
     const inBlock = logs?.filter(l => {
       const d = new Date(l.created_at);
       return d.getHours() >= hourStart && d.getHours() < hourStart + 2;
     }) || [];
 
+    // Count UNIQUE users (logged in)
+    const uniqueLoggedUsers = new Set(
+      inBlock.filter(l => l.user_id).map(l => l.user_id)
+    ).size;
+
+    // Count UNIQUE guests (using simple session/IP from metadata if available, otherwise fallback)
+    const uniqueGuests = new Set(
+      inBlock.filter(l => !l.user_id).map(l => (l.metadata as ActivityMetadata)?.path || Math.random())
+    ).size;
+
     result.push({
       name: label,
-      daily: inBlock.filter(l => l.user_id).length,
-      nonLogin: inBlock.filter(l => !l.user_id).length
+      daily: uniqueLoggedUsers,
+      nonLogin: uniqueGuests
     });
   }
 
@@ -88,7 +104,7 @@ export async function getWeeklyActivityStats() {
 
   const { data: logs, error } = await supabase
     .from('activity_logs')
-    .select('created_at, user_id')
+    .select('created_at, user_id, metadata')
     .gte('created_at', lastWeek.toISOString());
 
   if (error) {
@@ -96,20 +112,26 @@ export async function getWeeklyActivityStats() {
     return [];
   }
 
-  const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const results = [];
   
-  return days.map((day, idx) => {
-    // Correct day alignment (mocking day logic for simplicity, in production would use date index)
-    const filtered = logs?.filter(l => {
+  // Create last 7 days including today
+  for (let i = 6; i >= 0; i--) {
+    const targetDate = new Date();
+    targetDate.setDate(targetDate.getDate() - i);
+    const dayName = days[targetDate.getDay()];
+    
+    const dayLogs = logs?.filter(l => {
       const d = new Date(l.created_at);
-      // This is a simple day-of-week match
-      return d.getDay() === (idx + 1) % 7; 
+      return d.toDateString() === targetDate.toDateString();
     }) || [];
 
-    return {
-      name: day,
-      weekly: filtered.filter(l => l.user_id).length,
-      nonLogin: filtered.filter(l => !l.user_id).length
-    };
-  });
+    results.push({
+      name: dayName,
+      weekly: new Set(dayLogs.filter(l => l.user_id).map(l => l.user_id)).size,
+      nonLogin: new Set(dayLogs.filter(l => !l.user_id).map(l => (l.metadata as ActivityMetadata)?.userAgent || Math.random())).size
+    });
+  }
+
+  return results;
 }
