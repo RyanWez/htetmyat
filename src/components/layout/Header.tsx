@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
@@ -8,7 +8,7 @@ import Image from 'next/image';
 import styles from './Header.module.css';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
-export default function Header() {
+function HeaderContent() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -20,6 +20,7 @@ export default function Header() {
     { href: '/apple-ids', label: 'Apple IDs' },
     { href: '/blog', label: 'Blog' },
   ];
+  
   const isAdmin = session?.user?.role === 'admin';
 
   useEffect(() => {
@@ -35,125 +36,168 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
-        {/* Logo */}
+        {/* Left: Logo */}
         <Link href="/" className={styles.logo}>
           <span className={styles.logoIcon}>◉</span>
           <span className={styles.logoText}>HMA</span>
         </Link>
 
-        {/* Desktop Nav */}
+        {/* Middle: Navigation */}
         <nav className={`${styles.nav} ${mobileMenuOpen ? styles.navOpen : ''}`}>
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`${styles.navLink} ${pathname === link.href ? styles.navLinkActive : ''}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {link.label}
-            </Link>
-          ))}
-          {isAdmin && (
-            <Link
-              href="/admin"
-              className={`${styles.navLink} ${pathname.startsWith('/admin') ? styles.navLinkActive : ''}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Admin
-            </Link>
-          )}
-
-          {/* Mobile-only Account Links */}
-          {session?.user && (
-            <div className={styles.mobileOnly}>
-              <div className={styles.mobileDivider} />
+          <div className={styles.navLinks}>
+            {navLinks.map((link) => (
               <Link
-                href="/profile"
-                className={`${styles.navLink} ${pathname === '/profile' ? styles.navLinkActive : ''}`}
+                key={link.href}
+                href={link.href}
+                className={`${styles.navLink} ${pathname === link.href ? styles.navLinkActive : ''}`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Profile
+                {link.label}
               </Link>
-              <button
-                className={styles.mobileSignOut}
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  signOut({ callbackUrl: '/login' });
-                }}
+            ))}
+            {isAdmin && (
+              <Link
+                href="/admin"
+                className={`${styles.navLink} ${pathname.startsWith('/admin') ? styles.navLinkActive : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
               >
-                Sign Out
-              </button>
+                Admin
+              </Link>
+            )}
+          </div>
+
+          {/* Mobile-Only Content (Inside Hamburger) */}
+          <div className={styles.mobileExtra}>
+            <div className={styles.mobileDivider} />
+            
+            <div className={styles.mobileRow}>
+              <span className={styles.mobileLabel}>Appearance</span>
+              <ThemeToggle />
             </div>
-          )}
+
+            {session?.user && (
+              <>
+                <div className={styles.mobileDivider} />
+                <Link
+                  href="/profile"
+                  className={styles.mobileAccountLink}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <span className={styles.mobileIcon}>👤</span> Profile Settings
+                </Link>
+                <button
+                  className={styles.mobileSignOutBtn}
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    signOut({ callbackUrl: '/login' });
+                  }}
+                >
+                  Sign Out
+                </button>
+              </>
+            )}
+          </div>
         </nav>
 
-        {/* Right Side */}
+        {/* Right: Actions */}
         <div className={styles.actions}>
-          <ThemeToggle />
+          {/* Desktop-Only Theme Toggle */}
+          <div className={styles.desktopOnly}>
+            <ThemeToggle />
+          </div>
 
           {session?.user && (
-            <div className={styles.userMenu} ref={dropdownRef}>
-              <button
-                className={styles.avatarBtn}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                aria-label="User Menu"
-              >
-                <div className={styles.avatar} style={{ position: 'relative' }}>
+            <>
+              {/* Desktop User Dropdown */}
+              <div className={`${styles.userDropdown} ${styles.desktopOnly}`} ref={dropdownRef}>
+                <button
+                  className={styles.avatarBtn}
+                  onClick={() => setDropdownOpen(!dropdownOpen)}
+                  aria-haspopup="true"
+                  aria-expanded={dropdownOpen}
+                >
+                  <div className={styles.avatar}>
+                    {session.user.image ? (
+                      <Image 
+                        src={session.user.image} 
+                        alt={session.user.name || 'User'} 
+                        fill
+                        sizes="40px"
+                        unoptimized={session.user.image.toLowerCase().includes('.gif')}
+                        style={{ objectFit: 'cover' }}
+                      />
+                    ) : (
+                      session.user.name?.[0]?.toUpperCase() || '?'
+                    )}
+                  </div>
+                </button>
+
+                {dropdownOpen && (
+                  <div className={styles.dropdownMenu}>
+                    <div className={styles.dropdownHeader}>
+                      <span className={styles.userName}>{session.user.name}</span>
+                      <span className={styles.userEmail}>{session.user.email}</span>
+                    </div>
+                    <div className={styles.dropdownDivider} />
+                    <Link href="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
+                      Profile
+                    </Link>
+                    {isAdmin && (
+                      <Link href="/admin" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
+                        Admin Panel
+                      </Link>
+                    )}
+                    <div className={styles.dropdownDivider} />
+                    <button
+                      className={styles.dropdownItem}
+                      onClick={() => signOut({ callbackUrl: '/login' })}
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Mobile-Only Top Profile Icon */}
+              <Link href="/profile" className={styles.mobileOnlyAvatar} onClick={() => setMobileMenuOpen(false)}>
+                <div className={styles.avatarSmall}>
                   {session.user.image ? (
                     <Image 
                       src={session.user.image} 
                       alt={session.user.name || 'User'} 
                       fill
-                      sizes="40px"
-                      priority
+                      sizes="32px"
                       unoptimized={session.user.image.toLowerCase().includes('.gif')}
-                      style={{ objectFit: 'cover', borderRadius: '50%' }}
+                      style={{ objectFit: 'cover' }}
                     />
                   ) : (
                     session.user.name?.[0]?.toUpperCase() || '?'
                   )}
                 </div>
-              </button>
-
-              {dropdownOpen && (
-                <div className={styles.dropdown}>
-                  <div className={styles.dropdownHeader}>
-                    <span className={styles.dropdownName}>{session.user.name}</span>
-                    <span className={styles.dropdownEmail}>{session.user.email}</span>
-                  </div>
-                  <div className={styles.dropdownDivider} />
-                  <Link href="/profile" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
-                    Profile
-                  </Link>
-                  {isAdmin && (
-                    <Link href="/admin" className={styles.dropdownItem} onClick={() => setDropdownOpen(false)}>
-                      Admin Panel
-                    </Link>
-                  )}
-                  <div className={styles.dropdownDivider} />
-                  <button
-                    className={styles.dropdownItem}
-                    onClick={() => signOut({ callbackUrl: '/login' })}
-                  >
-                    Sign Out
-                  </button>
-                </div>
-              )}
-            </div>
+              </Link>
+            </>
           )}
 
-          {/* Mobile Hamburger */}
+          {/* Hamburger (Mobile) */}
           <button
             className={styles.hamburger}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle Menu"
+            aria-label={mobileMenuOpen ? "Close Menu" : "Open Menu"}
           >
-            <span />
-            <span />
-            <span />
+            <span className={mobileMenuOpen ? styles.hamTop : ''} />
+            <span className={mobileMenuOpen ? styles.hamMid : ''} />
+            <span className={mobileMenuOpen ? styles.hamBot : ''} />
           </button>
         </div>
       </div>
     </header>
+  );
+}
+
+export default function Header() {
+  return (
+    <Suspense fallback={null}>
+      <HeaderContent />
+    </Suspense>
   );
 }
