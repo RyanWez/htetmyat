@@ -3,12 +3,28 @@
   min-height: 100vh;
 }
 
+.page {
+  /* Removed max-width to allow content to expand and center properly */
+  width: 100%;
+  margin: 0 auto;
+}
+
 .adminContent {
   flex: 1;
   margin-left: var(--sidebar-width);
   padding: var(--space-8);
-  max-width: calc(100% - var(--sidebar-width));
+  /* Changed to allow full width and centering */
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   position: relative;
+}
+
+/* Container to handle the actual max-width of the content while remaining centered */
+.adminContent > * {
+  width: 100%;
+  max-width: var(--content-max);
 }
 
 @media (max-width: 1024px) {

@@ -65,7 +65,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
   }
 
   return (
-    <div style={{ maxWidth: 1040, position: 'relative', margin: '0 auto' }}>
+    <div style={{ width: '100%', position: 'relative' }}>
       <AnimatePresence>
         {successMsg && (
           <motion.div 

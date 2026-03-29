@@ -1,5 +1,6 @@
 .page {
-  max-width: 960px;
+  /* No fixed max-width here, controlled by parent layout */
+  width: 100%;
 }
 
 .headerRow {
