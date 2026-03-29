@@ -371,6 +371,30 @@
 
   .mobileIcon { font-size: 1.2rem; }
 
+  .mobileInstallBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px;
+    background: var(--brand-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--radius-xl);
+    font-weight: var(--font-bold);
+    font-size: var(--text-sm);
+    margin-top: var(--space-4);
+    cursor: pointer;
+    box-shadow: 0 4px 12px var(--brand-glow);
+    transition: all var(--transition-fast);
+  }
+
+  .mobileInstallBtn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+  }
+
   .mobileSignOutBtn {
     width: 100%;
     padding: 14px;
