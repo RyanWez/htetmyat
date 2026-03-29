@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { updateDisplayName, changePassword } from './actions';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import AvatarUpload from '@/components/admin/AvatarUpload';
+import Image from 'next/image';
 
 interface ProfileData {
   id: string;
@@ -174,21 +176,41 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
           }}
         >
           <div style={{ height: 120, background: 'var(--brand-gradient)', position: 'relative' }}>
-            <div style={{
-              position: 'absolute', bottom: -40, left: 32,
-              width: 90, height: 90, borderRadius: '50%',
-              background: 'var(--bg-surface-solid)', padding: 6,
-              boxShadow: 'var(--shadow-md)',
-            }}>
+          <div style={{
+            position: 'absolute', bottom: -40, left: 32,
+            width: 100, height: 100, borderRadius: '50%',
+            background: 'var(--bg-surface-solid)', padding: 6,
+            boxShadow: 'var(--shadow-lg)',
+            zIndex: 10,
+            overflow: 'hidden'
+          }}>
+            {isAdmin ? (
+               <AvatarUpload currentUrl={profile.avatar_url} size={88} showLabel={false} />
+            ) : (
               <div style={{
                 width: '100%', height: '100%', borderRadius: '50%',
                 background: 'var(--bg-elevated)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 color: 'var(--brand-primary)', fontSize: 36, fontWeight: 800,
+                overflow: 'hidden'
               }}>
-                {profile.email?.[0].toUpperCase()}
+                {profile.avatar_url ? (
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <Image 
+                      src={profile.avatar_url} 
+                      alt="Avatar" 
+                      fill
+                      sizes="100px"
+                      unoptimized={profile.avatar_url.toLowerCase().includes('.gif')}
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
+                ) : (
+                  profile.email?.[0].toUpperCase()
+                )}
               </div>
-            </div>
+            )}
+          </div>
           </div>
           <div className="profile-banner-content">
             <div>

@@ -1,17 +1,44 @@
-export default function AdminSettingsPage() {
+import { auth } from '@/lib/auth';
+import AvatarUpload from '@/components/admin/AvatarUpload';
+
+export default async function AdminSettingsPage() {
+  const session = await auth();
+  const currentAvatar = session?.user?.image || null;
+
   return (
     <div className="admin-page-container">
       <div className="section-header">
-        <h1>Global Settings</h1>
-        <p className="subtitle">Configure application-wide settings and preferences.</p>
+        <h1>Admin Settings</h1>
+        <p className="subtitle">Manage your profile, account security, and dashboard preferences.</p>
       </div>
       
-      <div className="glass-card" style={{ padding: '2rem', textAlign: 'center' }}>
-        <h2>Coming Soon</h2>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '1rem' }}>
-          This module is currently under development. Please check back later.
-        </p>
+      <div className="admin-settings-layout" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 'var(--space-8)', marginTop: 'var(--space-4)' }}>
+        {/* Profile Card */}
+        <div className="glass-card" style={{ padding: '2.5rem 2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <h2 style={{ marginBottom: '1.5rem', alignSelf: 'flex-start' }}>Public Profile</h2>
+          <AvatarUpload currentUrl={currentAvatar} />
+          
+          <div style={{ width: '100%', marginTop: '2rem', padding: '1.5rem', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+              <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Full Name</span>
+              <span style={{ fontWeight: 600 }}>{session?.user?.name}</span>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+              <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Email Address</span>
+              <span style={{ fontWeight: 600 }}>{session?.user?.email}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Other Settings (Placeholder) */}
+        <div className="glass-card" style={{ padding: '2.5rem 2rem' }}>
+          <h2 style={{ marginBottom: '1.5rem' }}>Account Security</h2>
+          <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-inset)', borderRadius: 'var(--radius-lg)', color: 'var(--text-tertiary)', border: '2px dashed var(--border-default)' }}>
+            <p>Password & TFA coming soon.</p>
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+

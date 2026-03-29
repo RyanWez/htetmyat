@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import styles from './Header.module.css';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
@@ -61,6 +62,29 @@ export default function Header() {
               Admin
             </Link>
           )}
+
+          {/* Mobile-only Account Links */}
+          {session?.user && (
+            <div className={styles.mobileOnly}>
+              <div className={styles.mobileDivider} />
+              <Link
+                href="/profile"
+                className={`${styles.navLink} ${pathname === '/profile' ? styles.navLinkActive : ''}`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Profile
+              </Link>
+              <button
+                className={styles.mobileSignOut}
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut({ callbackUrl: '/login' });
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          )}
         </nav>
 
         {/* Right Side */}
@@ -74,8 +98,20 @@ export default function Header() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 aria-label="User Menu"
               >
-                <div className={styles.avatar}>
-                  {session.user.name?.[0]?.toUpperCase() || '?'}
+                <div className={styles.avatar} style={{ position: 'relative' }}>
+                  {session.user.image ? (
+                    <Image 
+                      src={session.user.image} 
+                      alt={session.user.name || 'User'} 
+                      fill
+                      sizes="40px"
+                      priority
+                      unoptimized={session.user.image.toLowerCase().includes('.gif')}
+                      style={{ objectFit: 'cover', borderRadius: '50%' }}
+                    />
+                  ) : (
+                    session.user.name?.[0]?.toUpperCase() || '?'
+                  )}
                 </div>
               </button>
 

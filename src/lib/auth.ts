@@ -107,14 +107,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             );
             const { data: profile } = await serviceClient
               .from('profiles')
-              .select('is_active')
+              .select('is_active, avatar_url')
               .eq('id', token.id)
               .single();
 
-            if (profile && profile.is_active === false) {
-              token.isBanned = true;
-            } else {
-              token.isBanned = false;
+            if (profile) {
+              token.isBanned = !profile.is_active;
+              token.picture = profile.avatar_url; // Update picture in token
             }
           } catch {
             // On error, don't change ban status to avoid false positives
@@ -125,11 +124,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return token;
     },
-    async session({ session, token }) {
-      if (session.user) {
+    session({ session, token }) {
+      if (token.id && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as 'admin' | 'user';
         session.user.isBanned = token.isBanned as boolean;
+        session.user.image = (token.picture as string) || null;
       }
       return session;
     },
