@@ -33,6 +33,35 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
+  // Cooldown calculation for display name (admin always exempt)
+  const COOLDOWN_DAYS = 7;
+  const isAdmin = profile.role === 'admin';
+
+  const getCooldownRemaining = useCallback(() => {
+    if (isAdmin || !profile.display_name_changed_at) return null;
+    const lastChanged = new Date(profile.display_name_changed_at);
+    const now = new Date();
+    const diffMs = now.getTime() - lastChanged.getTime();
+    const cooldownMs = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
+    const remainingMs = cooldownMs - diffMs;
+    if (remainingMs <= 0) return null;
+    const days = Math.floor(remainingMs / (24 * 60 * 60 * 1000));
+    const hours = Math.floor((remainingMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+    return { days, hours, totalMs: remainingMs };
+  }, [isAdmin, profile.display_name_changed_at]);
+
+  const [cooldown, setCooldown] = useState(getCooldownRemaining);
+
+  // Update cooldown every minute
+  useEffect(() => {
+    setCooldown(getCooldownRemaining());
+    const interval = setInterval(() => {
+      const remaining = getCooldownRemaining();
+      setCooldown(remaining);
+    }, 60000); // update every minute
+    return () => clearInterval(interval);
+  }, [getCooldownRemaining]);
+
   const clearMessages = useCallback(() => { setError(''); setSuccess(''); }, []);
 
   // Auto-dismiss messages after 3 seconds
@@ -299,7 +328,23 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
                 This is the name visible throughout the platform.
               </p>
             </div>
-            {isEditingName ? (
+            {cooldown ? (
+              /* Cooldown active — show remaining time */
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 16px', borderRadius: 'var(--radius-full)',
+                background: 'var(--accent-info-light)',
+                border: '1px solid var(--accent-info)',
+                color: 'var(--accent-info)',
+                fontSize: '0.85rem', fontWeight: 600,
+              }}>
+                <span style={{ fontSize: 16 }}>⏳</span>
+                {cooldown.days > 0
+                  ? `${cooldown.days} day${cooldown.days > 1 ? 's' : ''}, ${cooldown.hours} hour${cooldown.hours !== 1 ? 's' : ''}`
+                  : `${cooldown.hours} hour${cooldown.hours !== 1 ? 's' : ''}`
+                } remaining
+              </div>
+            ) : isEditingName ? (
               <div className="profile-action-form">
                 <input
                   type="text"

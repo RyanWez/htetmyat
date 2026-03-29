@@ -92,7 +92,10 @@ export async function updateDisplayName(displayName: string) {
     return { success: true };
   } catch (err) {
     const error = err as Error;
-    console.error('Error updating display name:', error);
+    // Only log unexpected errors, not rate-limit business logic
+    if (!error.message?.includes('once every 7 days')) {
+      console.error('Error updating display name:', error);
+    }
     return { success: false, error: error.message || 'Failed to update display name' };
   }
 }
