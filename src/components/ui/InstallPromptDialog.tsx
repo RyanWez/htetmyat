@@ -47,10 +47,9 @@ export default function InstallPromptDialog({ isOpen, onClose }: InstallPromptDi
   if (!shouldRender) return null;
 
   return (
-    <div className={`${styles.overlay} ${isOpen ? styles.fadeIn : styles.fadeOut}`} onClick={onClose}>
+    <div className={`${styles.overlay} ${isOpen ? styles.fadeIn : styles.fadeOut}`}>
       <div 
         className={`${styles.dialog} ${isOpen ? styles.slideUp : styles.slideDown}`} 
-        onClick={(e) => e.stopPropagation()}
       >
         <div className={styles.glowBg} />
         
