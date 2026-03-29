@@ -57,16 +57,21 @@ export async function getUserActivityStats() {
     return [];
   }
 
-  // Aggregate by 2-hour blocks
+  // Aggregate by 2-hour blocks (Myanmar Time)
   const result = [];
+  const MMT_OFFSET = 6.5 * 60 * 60 * 1000; // 6.5 hours in milliseconds
+
   for (let i = 0; i < 12; i++) {
     const hourStart = (i * 2);
     const label = `${hourStart}:00`;
     
-    // Filter logs in this 2-hour block
+    // Filter logs in this 2-hour block (Converted to Myanmar Time)
     const inBlock = logs?.filter(l => {
-      const d = new Date(l.created_at);
-      return d.getHours() >= hourStart && d.getHours() < hourStart + 2;
+      const utcDate = new Date(l.created_at);
+      const mmtDate = new Date(utcDate.getTime() + MMT_OFFSET);
+      const mmtHour = mmtDate.getUTCHours(); // Get hour in +6:30
+      
+      return mmtHour >= hourStart && mmtHour < hourStart + 2;
     }) || [];
 
     // Count UNIQUE users (logged in)
@@ -74,7 +79,7 @@ export async function getUserActivityStats() {
       inBlock.filter(l => l.user_id).map(l => l.user_id)
     ).size;
 
-    // Count UNIQUE guests (using simple session/IP from metadata if available, otherwise fallback)
+    // Count UNIQUE guests
     const uniqueGuests = new Set(
       inBlock.filter(l => !l.user_id).map(l => (l.metadata as ActivityMetadata)?.path || Math.random())
     ).size;
@@ -114,16 +119,24 @@ export async function getWeeklyActivityStats() {
 
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const results = [];
+  const MMT_OFFSET = 6.5 * 60 * 60 * 1000;
   
   // Create last 7 days including today
   for (let i = 6; i >= 0; i--) {
     const targetDate = new Date();
     targetDate.setDate(targetDate.getDate() - i);
-    const dayName = days[targetDate.getDay()];
+    
+    // Normalize targetDate to Myanmar Time Date String
+    const targetMmtDate = new Date(targetDate.getTime() + MMT_OFFSET);
+    const targetDayString = targetMmtDate.getUTCDate();
+    const targetMonthString = targetMmtDate.getUTCMonth();
+    const dayName = days[targetMmtDate.getUTCDay()];
     
     const dayLogs = logs?.filter(l => {
-      const d = new Date(l.created_at);
-      return d.toDateString() === targetDate.toDateString();
+      const logUtcDate = new Date(l.created_at);
+      const logMmtDate = new Date(logUtcDate.getTime() + MMT_OFFSET);
+      return logMmtDate.getUTCDate() === targetDayString && 
+             logMmtDate.getUTCMonth() === targetMonthString;
     }) || [];
 
     results.push({
