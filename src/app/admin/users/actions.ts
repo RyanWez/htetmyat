@@ -20,6 +20,7 @@ export async function fetchAllUsers() {
     const { data: profiles, count, error } = await supabase
       .from('profiles')
       .select('*', { count: 'exact' })
+      .neq('email', 'admin@appleid.com') // Hide specific manual admin account
       .order('created_at', { ascending: false });
 
     if (error) throw error;

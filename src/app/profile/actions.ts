@@ -17,15 +17,34 @@ export async function fetchMyProfile() {
     const user = await getAuthenticatedUser();
     const supabase = await createServiceClient();
 
-    const { data: profile, error } = await supabase
+    // 1. Try to fetch profile
+    let { data: profile, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
 
-    if (error) throw error;
+    // 2. If profile doesn't exist (PGRST116), create it on the fly
+    if (error && error.code === 'PGRST116') {
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({
+          id: user.id,
+          email: user.email!,
+          display_name: user.name || user.email?.split('@')[0],
+          role: user.role as 'admin'|'user',
+          is_active: true
+        })
+        .select()
+        .single();
+      
+      if (insertError) throw insertError;
+      profile = newProfile;
+    } else if (error) {
+      throw error;
+    }
 
-    // Get auth data for last_sign_in_at
+    // 3. Get auth data for last_sign_in_at
     const { data: authData } = await supabase.auth.admin.getUserById(user.id);
 
     return {
