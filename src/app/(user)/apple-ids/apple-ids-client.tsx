@@ -64,8 +64,9 @@ export default function AppleIdsClient() {
           .order('is_active', { ascending: false })
           .order('created_at', { ascending: true });
 
-        if (searchQuery.trim()) {
-          query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+        const safeQuery = searchQuery.trim().replace(/[%_\\]/g, '\\$&');
+        if (safeQuery) {
+          query = query.or(`title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`);
         }
 
         // Always fetch page 1 on filter/search changes
@@ -115,8 +116,9 @@ export default function AppleIdsClient() {
         .order('is_active', { ascending: false })
         .order('created_at', { ascending: true });
 
-      if (searchQuery.trim()) {
-        query = query.or(`title.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`);
+      const safeQuery = searchQuery.trim().replace(/[%_\\]/g, '\\$&');
+      if (safeQuery) {
+        query = query.or(`title.ilike.%${safeQuery}%,description.ilike.%${safeQuery}%`);
       }
 
       const { data, count, error } = await query.range(from, to);
