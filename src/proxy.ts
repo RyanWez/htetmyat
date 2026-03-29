@@ -22,7 +22,7 @@ export default auth((req) => {
   }
 
   // Public paths
-  const publicPaths = ['/login', '/api/auth', '/blog'];
+  const publicPaths = ['/login', '/api/auth', '/blog', '/apple-ids'];
   
   // Exact match for '/' (Home), startWith match for other public paths
   const isPublicPath = 
@@ -55,7 +55,7 @@ export default auth((req) => {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)',
   ],
 };
 

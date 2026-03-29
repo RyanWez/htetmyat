@@ -7,6 +7,19 @@ export const metadata: Metadata = {
   title: 'HMA — Free Apple IDs',
   description: 'Free Apple IDs, Managed & Updated Daily. Download your favorite iOS apps with shared Apple accounts.',
   keywords: ['Apple ID', 'free', 'iOS', 'apps', 'download'],
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'HMA',
+  },
+  formatDetection: {
+    telephone: false,
+  },
+};
+
+export const viewport = {
+  themeColor: '#0a0a0a',
 };
 
 export default function RootLayout({

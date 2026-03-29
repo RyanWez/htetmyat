@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
 import AppleIdDetailClient from './apple-id-detail-client';
 
 export const metadata = {
@@ -7,6 +9,12 @@ export const metadata = {
 
 // Next.js 15+ dynamic route prop types
 export default async function AppleIdDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const session = await auth();
   const { id } = await params;
+  
+  if (!session) {
+    redirect(`/login?callbackUrl=/apple-ids/${id}`);
+  }
+
   return <AppleIdDetailClient id={id} />;
 }

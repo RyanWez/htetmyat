@@ -1,0 +1,28 @@
+{
+  "name": "HMA - Free Apple IDs",
+  "short_name": "HMA",
+  "description": "Free Apple IDs, Managed & Updated Daily",
+  "start_url": "/?source=pwa",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "icons": [
+    {
+      "src": "/images/apple-light.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/apple-light.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/images/apple-light.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
