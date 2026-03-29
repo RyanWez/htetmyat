@@ -92,6 +92,27 @@
   box-shadow: 0 4px 12px var(--brand-glow);
 }
 
+.loginBtn {
+  padding: 6px 16px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-bold);
+  color: white;
+  background: var(--brand-gradient);
+  border-radius: var(--radius-full);
+  text-decoration: none;
+  transition: all var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent;
+}
+
+.loginBtn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.1);
+  box-shadow: 0 4px 12px var(--brand-glow);
+}
+
 /* Mobile Extra (Hidden on Desktop) */
 .mobileExtra {
   display: none;

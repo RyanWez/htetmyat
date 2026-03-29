@@ -106,6 +106,12 @@ function HeaderContent() {
             <ThemeToggle />
           </div>
 
+          {!session?.user && (
+            <Link href="/login" className={styles.loginBtn}>
+              Login
+            </Link>
+          )}
+
           {session?.user && (
             <>
               {/* Desktop User Dropdown */}
