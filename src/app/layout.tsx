@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Providers from '@/components/Providers';
+import ActivityTracker from '@/components/ActivityTracker';
 
 export const metadata: Metadata = {
   title: 'HMA — Free Apple IDs',
@@ -32,7 +33,10 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          <ActivityTracker />
+          {children}
+        </Providers>
       </body>
     </html>
   );
