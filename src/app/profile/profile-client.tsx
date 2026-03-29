@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
+import { useState, useTransition, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateDisplayName, changePassword } from './actions';
 import { signOut } from 'next-auth/react';
@@ -39,30 +39,27 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
   const COOLDOWN_DAYS = 7;
   const isAdmin = profile.role === 'admin';
 
-  const getCooldownRemaining = useCallback(() => {
-    if (isAdmin || !profile.display_name_changed_at) return null;
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    const timer = setTimeout(() => setNow(Date.now()), 0);
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, []);
+
+  const cooldown = useMemo(() => {
+    if (!now || isAdmin || !profile.display_name_changed_at) return null;
     const lastChanged = new Date(profile.display_name_changed_at);
-    const now = new Date();
-    const diffMs = now.getTime() - lastChanged.getTime();
+    const diffMs = now - lastChanged.getTime();
     const cooldownMs = COOLDOWN_DAYS * 24 * 60 * 60 * 1000;
     const remainingMs = cooldownMs - diffMs;
     if (remainingMs <= 0) return null;
     const days = Math.floor(remainingMs / (24 * 60 * 60 * 1000));
     const hours = Math.floor((remainingMs % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
     return { days, hours, totalMs: remainingMs };
-  }, [isAdmin, profile.display_name_changed_at]);
-
-  const [cooldown, setCooldown] = useState(getCooldownRemaining);
-
-  // Update cooldown every minute
-  useEffect(() => {
-    setCooldown(getCooldownRemaining());
-    const interval = setInterval(() => {
-      const remaining = getCooldownRemaining();
-      setCooldown(remaining);
-    }, 60000); // update every minute
-    return () => clearInterval(interval);
-  }, [getCooldownRemaining]);
+  }, [isAdmin, profile.display_name_changed_at, now, COOLDOWN_DAYS]);
 
   const clearMessages = useCallback(() => { setError(''); setSuccess(''); }, []);
 

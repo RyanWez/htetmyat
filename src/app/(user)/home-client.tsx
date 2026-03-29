@@ -3,7 +3,7 @@
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import AppleIcon from '@/components/AppleIcon';
 import styles from './home.module.css';
 
