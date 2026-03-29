@@ -201,11 +201,11 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                 maxWidth: '640px', 
                 margin: '0 auto', 
                 padding: 'clamp(24px, 8vw, 48px) clamp(16px, 5vw, 40px)', 
-                background: 'rgba(15, 23, 42, 0.45)', 
+                background: 'var(--bg-elevated)', 
                 backdropFilter: 'blur(20px)',
                 borderRadius: 'clamp(24px, 6vw, 48px)', 
-                border: '1px solid rgba(255, 255, 255, 0.08)', 
-                boxShadow: '0 25px 60px -15px rgba(0,0,0,0.6), inset 0 0 1px 1px rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-default)', 
+                boxShadow: 'var(--shadow-lg)',
                 display: 'flex', 
                 flexDirection: 'column', 
                 gap: 'clamp(20px, 5vw, 32px)',
@@ -214,12 +214,12 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
               }}>
                 
                 {/* Glow decorations */}
-                <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(59, 130, 246, 0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
-                <div style={{ position: 'absolute', bottom: '-100px', right: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(251, 191, 36, 0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', top: '-100px', left: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, var(--brand-glow) 0%, transparent 70%)', pointerEvents: 'none' }} />
+                <div style={{ position: 'absolute', bottom: '-100px', right: '-100px', width: '300px', height: '300px', background: 'radial-gradient(circle, var(--accent-warning-light) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
                   <span style={{ fontSize: 'clamp(20px, 4vw, 24px)' }}>🔐</span>
-                  <h3 style={{ margin: 0, fontSize: 'clamp(18px, 4.5vw, 22px)', color: '#fff', fontWeight: 800, letterSpacing: '0.5px', textShadow: '0 2px 10px rgba(0,0,0,0.5)', textAlign: 'center' }}>Secure Credentials</h3>
+                  <h3 style={{ margin: 0, fontSize: 'clamp(18px, 4.5vw, 22px)', color: 'var(--text-primary)', fontWeight: 800, letterSpacing: '0.5px', textShadow: '0 1px 2px var(--shadow-sm)', textAlign: 'center' }}>Secure Credentials</h3>
                 </div>
 
                 {/* Email Row */}
@@ -233,16 +233,16 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       display: 'flex', 
                       alignItems: 'center', 
                       padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 28px)', 
-                      background: 'rgba(5, 10, 20, 0.65)', 
-                      border: '1.5px solid rgba(59, 130, 246, 0.3)', 
+                      background: 'var(--bg-inset)', 
+                      border: '1.5px solid var(--border-default)', 
                       borderRadius: '100px', 
-                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.03)',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
                       overflow: 'hidden'
                     }}>
                       <span style={{ 
                         fontFamily: 'var(--font-mono)', 
                         fontSize: 'clamp(13px, 3.5vw, 15px)', 
-                        color: '#60a5fa', 
+                        color: 'var(--brand-primary)', 
                         fontWeight: 700, 
                         overflow: 'hidden', 
                         textOverflow: 'ellipsis', 
@@ -260,9 +260,9 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       onClick={() => handleCopy(appleId.email, 'email', 'Email')}
                       style={{ 
                         padding: isMobile ? '0' : 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)', 
-                        background: copiedId === 'email' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(59, 130, 246, 0.2)', 
-                        color: copiedId === 'email' ? '#34d399' : '#60a5fa', 
-                        border: copiedId === 'email' ? '1.5px solid rgba(16, 185, 129, 0.5)' : '1.5px solid rgba(59, 130, 246, 0.5)', 
+                        background: copiedId === 'email' ? 'var(--accent-success-light)' : 'var(--brand-light)', 
+                        color: copiedId === 'email' ? 'var(--accent-success)' : 'var(--brand-primary)', 
+                        border: copiedId === 'email' ? '1.5px solid var(--accent-success)' : '1px solid var(--border-default)', 
                         borderRadius: isMobile ? '50%' : '100px', 
                         fontWeight: 800, 
                         fontSize: '13px', 
@@ -271,7 +271,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                         alignItems: 'center', 
                         justifyContent: 'center',
                         gap: isMobile ? '0' : '8px', 
-                        boxShadow: '0 8px 15px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1)',
+                        boxShadow: 'var(--shadow-sm)',
                         flexShrink: 0,
                         width: isMobile ? '56px' : 'auto',
                         height: isMobile ? '56px' : 'auto'
@@ -294,16 +294,16 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       display: 'flex', 
                       alignItems: 'center', 
                       padding: 'clamp(12px, 3vw, 16px) clamp(16px, 4vw, 28px)', 
-                      background: 'rgba(5, 10, 20, 0.65)', 
-                      border: '1.5px solid rgba(251, 191, 36, 0.3)', 
+                      background: 'var(--bg-inset)', 
+                      border: '1.5px solid var(--border-default)', 
                       borderRadius: '100px', 
-                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5), 0 2px 0 rgba(255,255,255,0.03)',
+                      boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.1)',
                       overflow: 'hidden'
                     }}>
                       <span style={{ 
                         fontFamily: 'var(--font-mono)', 
                         fontSize: 'clamp(14px, 3.8vw, 16px)', 
-                        color: '#fbbf24', 
+                        color: 'var(--accent-warning)', 
                         fontWeight: 700, 
                         letterSpacing: '1.5px',
                         overflow: 'hidden',
@@ -322,9 +322,9 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                       onClick={() => handleCopy(appleId.password, 'password', 'Password')}
                       style={{ 
                         padding: isMobile ? '0' : 'clamp(12px, 3vw, 16px) clamp(20px, 5vw, 32px)', 
-                        background: copiedId === 'password' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(245, 158, 11, 0.2)', 
-                        color: copiedId === 'password' ? '#34d399' : '#fbbf24', 
-                        border: copiedId === 'password' ? '1.5px solid rgba(16, 185, 129, 0.5)' : '1.5px solid rgba(245, 158, 11, 0.5)', 
+                        background: copiedId === 'password' ? 'var(--accent-success-light)' : 'var(--accent-warning-light)', 
+                        color: copiedId === 'password' ? 'var(--accent-success)' : 'var(--accent-warning)', 
+                        border: copiedId === 'password' ? '1.5px solid var(--accent-success)' : '1px solid var(--border-default)', 
                         borderRadius: isMobile ? '50%' : '100px', 
                         fontWeight: 800, 
                         fontSize: '13px', 
@@ -333,7 +333,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                         alignItems: 'center', 
                         justifyContent: 'center',
                         gap: isMobile ? '0' : '8px', 
-                        boxShadow: '0 8px 15px rgba(0,0,0,0.4), inset 0 2px 2px rgba(255,255,255,0.1)',
+                        boxShadow: 'var(--shadow-sm)',
                         flexShrink: 0,
                         width: isMobile ? '56px' : 'auto',
                         height: isMobile ? '56px' : 'auto'
