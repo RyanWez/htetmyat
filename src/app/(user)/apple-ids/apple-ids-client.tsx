@@ -33,23 +33,14 @@ export default function AppleIdsClient() {
 
   const PAGE_SIZE = 12;
 
-  // Realtime channel setup (only runs once)
+  // Polling setup (replaces Realtime to avoid 200 connections limit)
   useEffect(() => {
-    const supabase = createClient();
-
-    const channel = supabase
-      .channel('public:apple_ids')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'apple_ids' },
-        () => {
-          setDbRevision(prev => prev + 1); // Trigger refetch on DB change
-        }
-      )
-      .subscribe();
+    const interval = setInterval(() => {
+      setDbRevision(prev => prev + 1); // Trigger refetch on interval
+    }, 60000); // Poll every 60 seconds
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(interval);
     };
   }, []);
 
@@ -244,6 +235,7 @@ export default function AppleIdsClient() {
                         src={appleId.images[0]} 
                         alt={appleId.title || 'Apple ID'} 
                         fill
+                        priority={index < 3} // Next.js Performance Optimization (LCP Fix)
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                         style={{ objectFit: 'cover' }}
                       />

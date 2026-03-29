@@ -5,19 +5,19 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ThemeToggle from '@/components/ui/ThemeToggle';
+import { useToast } from '@/components/ui/Toast';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
+  const toast = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     setLoading(true);
 
     try {
@@ -28,13 +28,13 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        setError('Invalid email or password');
+        toast.error('Login Failed', 'အကောင့်မရှိတာ (သို့) Password မှားနေပါတယ်');
       } else {
         router.push('/');
         router.refresh();
       }
     } catch {
-      setError('Something went wrong. Please try again.');
+      toast.error('Error', 'စနစ်ချို့ယွင်းမှုဖြစ်ပေါ်နေပါတယ်။ ခဏနေမှပြန်ကြိုးစားကြည့်ပါ။');
     } finally {
       setLoading(false);
     }
@@ -61,15 +61,7 @@ export default function LoginPage() {
         <h1 className={styles.title}>Welcome Back</h1>
         <p className={styles.subtitle}>Sign in to access premium Apple IDs</p>
 
-        {error && (
-          <motion.div 
-            className={styles.error}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-          >
-            <span>⚠️</span> {error}
-          </motion.div>
-        )}
+
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>

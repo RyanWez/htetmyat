@@ -30,7 +30,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           });
 
           if (error || !data.user) {
-            console.error('Supabase auth error:', error?.message);
+            // console.error removed to prevent terminal clutter on invalid logins
             return null;
           }
 
