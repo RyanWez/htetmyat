@@ -97,7 +97,6 @@ export async function getWeeklyActivityStats() {
   }
 
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  const today = new Date();
   
   return days.map((day, idx) => {
     // Correct day alignment (mocking day logic for simplicity, in production would use date index)

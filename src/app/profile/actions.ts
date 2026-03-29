@@ -18,11 +18,14 @@ export async function fetchMyProfile() {
     const supabase = await createServiceClient();
 
     // 1. Try to fetch profile
-    let { data: profile, error } = await supabase
+    const result = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
+
+    let profile = result.data;
+    const error = result.error;
 
     // 2. If profile doesn't exist (PGRST116), create it on the fly
     if (error && error.code === 'PGRST116') {

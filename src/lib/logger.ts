@@ -6,7 +6,7 @@ import { auth } from './auth';
  * @param action The action performed (e.g. 'page_view', 'login', 'download')
  * @param metadata Additional JSON data related to the action
  */
-export async function logActivity(action: string, metadata: any = {}) {
+export async function logActivity(action: string, metadata: Record<string, unknown> = {}) {
   try {
     const session = await auth();
     const supabase = await createServiceClient();

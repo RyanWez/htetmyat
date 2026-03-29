@@ -14,7 +14,7 @@ export default function ActivityTracker() {
         // Importing server action here for simplicity
         const { logActivityAction } = await import('@/app/actions/tracking');
         await logActivityAction('page_view', { path: pathname });
-      } catch (e) {
+      } catch {
         // Ignore failures in background tracking
       }
     };
