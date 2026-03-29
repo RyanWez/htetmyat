@@ -51,9 +51,34 @@ export async function updateDisplayName(displayName: string) {
     if (!trimmed) throw new Error('Display name cannot be empty');
     if (trimmed.length > 50) throw new Error('Display name must be 50 characters or less');
 
+    // Check role — Admin is always exempt from rate limiting
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, display_name_changed_at')
+      .eq('id', user.id)
+      .single();
+
+    if (profile && profile.role !== 'admin' && profile.display_name_changed_at) {
+      const lastChanged = new Date(profile.display_name_changed_at);
+      const now = new Date();
+      const diffMs = now.getTime() - lastChanged.getTime();
+      const diffDays = diffMs / (1000 * 60 * 60 * 24);
+      const COOLDOWN_DAYS = 7;
+
+      if (diffDays < COOLDOWN_DAYS) {
+        const remainingDays = Math.ceil(COOLDOWN_DAYS - diffDays);
+        throw new Error(
+          `You can only change your display name once every 7 days. Please wait ${remainingDays} more day${remainingDays > 1 ? 's' : ''}.`
+        );
+      }
+    }
+
     const { error } = await supabase
       .from('profiles')
-      .update({ display_name: trimmed })
+      .update({
+        display_name: trimmed,
+        display_name_changed_at: new Date().toISOString(),
+      })
       .eq('id', user.id);
 
     if (error) throw error;

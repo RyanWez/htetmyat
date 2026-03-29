@@ -33,6 +33,7 @@ export interface Profile {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  display_name_changed_at: string | null;
 }
 
 export interface Database {

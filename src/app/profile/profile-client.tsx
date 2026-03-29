@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateDisplayName, changePassword } from './actions';
 import { signOut } from 'next-auth/react';
@@ -14,6 +14,7 @@ interface ProfileData {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  display_name_changed_at: string | null;
   last_sign_in_at?: string;
 }
 
@@ -32,7 +33,17 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
-  const clearMessages = () => { setError(''); setSuccess(''); };
+  const clearMessages = useCallback(() => { setError(''); setSuccess(''); }, []);
+
+  // Auto-dismiss messages after 3 seconds
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => {
+    if (error || success) {
+      if (dismissTimer.current) clearTimeout(dismissTimer.current);
+      dismissTimer.current = setTimeout(clearMessages, 3000);
+    }
+    return () => { if (dismissTimer.current) clearTimeout(dismissTimer.current); };
+  }, [error, success, clearMessages]);
 
   const handleUpdateName = () => {
     clearMessages();
