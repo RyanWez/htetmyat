@@ -3,6 +3,9 @@ import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 
 
+// Check interval for is_active status (30 seconds)
+const ACTIVE_CHECK_INTERVAL_MS = 30 * 1000;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
   providers: [
@@ -29,9 +32,32 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             password: credentials.password as string,
           });
 
-          if (error || !data.user) {
-            // console.error removed to prevent terminal clutter on invalid logins
+          // Detect Supabase ban error (user_banned)
+          if (error) {
+            if (error.message?.toLowerCase().includes('banned')) {
+              // Throw a specific error so we can detect it upstream
+              throw new Error('ACCOUNT_SUSPENDED');
+            }
             return null;
+          }
+
+          if (!data.user) {
+            return null;
+          }
+
+          // Double-check: verify profile is_active status
+          const serviceClient = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.SUPABASE_SERVICE_ROLE_KEY!
+          );
+          const { data: profile } = await serviceClient
+            .from('profiles')
+            .select('is_active')
+            .eq('id', data.user.id)
+            .single();
+
+          if (profile && profile.is_active === false) {
+            throw new Error('ACCOUNT_SUSPENDED');
           }
 
           // Determine role: check env ADMIN_EMAIL first, then user metadata
@@ -49,6 +75,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             image: data.user.user_metadata?.avatar_url || null,
           };
         } catch (err) {
+          // Re-throw ACCOUNT_SUSPENDED so NextAuth propagates it
+          if (err instanceof Error && err.message === 'ACCOUNT_SUSPENDED') {
+            throw err;
+          }
           console.error('Auth error:', err);
           return null;
         }
@@ -60,21 +90,56 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.role = user.role;
         token.id = user.id;
+        token.isBanned = false;
+        token.lastActiveCheck = Date.now();
       }
+
+      // Periodic check: verify the user is still active in the database
+      if (token.id && !user) {
+        const now = Date.now();
+        const lastCheck = (token.lastActiveCheck as number) || 0;
+
+        if (now - lastCheck > ACTIVE_CHECK_INTERVAL_MS) {
+          try {
+            const serviceClient = createClient(
+              process.env.NEXT_PUBLIC_SUPABASE_URL!,
+              process.env.SUPABASE_SERVICE_ROLE_KEY!
+            );
+            const { data: profile } = await serviceClient
+              .from('profiles')
+              .select('is_active')
+              .eq('id', token.id)
+              .single();
+
+            if (profile && profile.is_active === false) {
+              token.isBanned = true;
+            } else {
+              token.isBanned = false;
+            }
+          } catch {
+            // On error, don't change ban status to avoid false positives
+          }
+          token.lastActiveCheck = now;
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as 'admin' | 'user';
+        session.user.isBanned = token.isBanned as boolean;
       }
       return session;
     },
   },
   pages: {
     signIn: '/login',
+    error: '/login',
   },
   session: {
     strategy: 'jwt',
   },
 });
+

@@ -5,6 +5,22 @@ export default auth((req) => {
   const { pathname } = req.nextUrl;
   const isLoggedIn = !!req.auth;
 
+  // ── Ban enforcement: kick banned users immediately ──
+  // Skip redirect for /api/auth to let NextAuth handle its own session/signout logic without getting HTML back
+  if (isLoggedIn && req.auth?.user?.isBanned && pathname !== '/login' && !pathname.startsWith('/api/auth')) {
+    const loginUrl = new URL('/login', req.url);
+    loginUrl.searchParams.set('reason', 'suspended');
+    const response = NextResponse.redirect(loginUrl);
+
+    // Clear all auth-related cookies to force session invalidation
+    const cookieNames = ['authjs.session-token', '__Secure-authjs.session-token', 'authjs.callback-url', '__Secure-authjs.callback-url', 'authjs.csrf-token', '__Secure-authjs.csrf-token'];
+    for (const name of cookieNames) {
+      response.cookies.set(name, '', { maxAge: 0, path: '/' });
+    }
+
+    return response;
+  }
+
   // Public paths
   const publicPaths = ['/login', '/api/auth', '/blog'];
   
@@ -14,7 +30,8 @@ export default auth((req) => {
     publicPaths.some((path) => pathname.startsWith(path));
 
   if (isPublicPath) {
-    if (isLoggedIn && pathname === '/login') {
+    // If logged in but NOT banned, don't allow visiting /login
+    if (isLoggedIn && pathname === '/login' && !req.auth?.user?.isBanned) {
       return NextResponse.redirect(new URL('/', req.url));
     }
     return NextResponse.next();
@@ -41,3 +58,4 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };
+

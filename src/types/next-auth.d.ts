@@ -5,6 +5,7 @@ declare module 'next-auth' {
     user: {
       id: string;
       role: 'admin' | 'user';
+      isBanned?: boolean;
     } & DefaultSession['user'];
   }
 
@@ -17,5 +18,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     role: 'admin' | 'user';
     id: string;
+    isBanned?: boolean;
+    lastActiveCheck?: number;
   }
 }

@@ -1,26 +1,59 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useToast } from '@/components/ui/Toast';
+import { checkAccountStatus } from './actions';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const toast = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const suspendedToastShown = useRef(false);
+
+  // Show suspended toast when redirected from middleware
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'suspended' && !suspendedToastShown.current) {
+      suspendedToastShown.current = true;
+      // Small delay so toast renders after page mount
+      const timer = setTimeout(() => {
+        toast.error(
+          '🚫 အကောင့် ရပ်ထားပါသည်',
+          'သင့်အကောင့်ကို Admin မှ ရပ်ဆိုင်းထားပါသည်။ အကူအညီလိုပါက Admin ထံ ဆက်သွယ်ပါ။'
+        );
+        // Clean the URL without reloading
+        router.replace('/login', { scroll: false });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, toast, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Step 1: Check account status before attempting login
+      const statusCheck = await checkAccountStatus(email);
+      if (statusCheck.isSuspended) {
+        toast.error(
+          '🚫 အကောင့် ရပ်ထားပါသည်',
+          'သင့်အကောင့်ကို Admin မှ ရပ်ဆိုင်းထားပါသည်။ အကူအညီလိုပါက Admin ထံ ဆက်သွယ်ပါ။'
+        );
+        setLoading(false);
+        return;
+      }
+
+      // Step 2: Proceed with login
       const result = await signIn('credentials', {
         email,
         password,
@@ -28,7 +61,15 @@ export default function LoginPage() {
       });
 
       if (result?.error) {
-        toast.error('Login Failed', 'အကောင့်မရှိတာ (သို့) Password မှားနေပါတယ်');
+        // Check if the error is about suspension
+        if (result.error.includes('ACCOUNT_SUSPENDED') || result.code === 'ACCOUNT_SUSPENDED') {
+          toast.error(
+            '🚫 အကောင့် ရပ်ထားပါသည်',
+            'သင့်အကောင့်ကို Admin မှ ရပ်ဆိုင်းထားပါသည်။ အကူအညီလိုပါက Admin ထံ ဆက်သွယ်ပါ။'
+          );
+        } else {
+          toast.error('Login Failed', 'အကောင့်မရှိတာ (သို့) Password မှားနေပါတယ်');
+        }
       } else {
         router.push('/');
         router.refresh();
@@ -146,3 +187,4 @@ export default function LoginPage() {
     </div>
   );
 }
+
