@@ -22,6 +22,12 @@ export default function AvatarUpload({ currentUrl, size = 140, showLabel = true 
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Check File Size (5MB Limit)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File too large', 'ပုံအရွယ်အစားသည် 5MB ထက် မကျော်ရပါ။');
+      return;
+    }
+
     // Local Preview
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
