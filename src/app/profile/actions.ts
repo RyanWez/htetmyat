@@ -1,0 +1,119 @@
+'use server';
+
+import { createServiceClient } from '@/lib/supabase/server';
+import { auth } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
+
+async function getAuthenticatedUser() {
+  const session = await auth();
+  if (!session?.user?.id) {
+    throw new Error('Unauthorized: You must be logged in');
+  }
+  return session.user;
+}
+
+export async function fetchMyProfile() {
+  try {
+    const user = await getAuthenticatedUser();
+    const supabase = await createServiceClient();
+
+    const { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+
+    if (error) throw error;
+
+    // Get auth data for last_sign_in_at
+    const { data: authData } = await supabase.auth.admin.getUserById(user.id);
+
+    return {
+      success: true,
+      data: {
+        ...profile,
+        last_sign_in_at: authData?.user?.last_sign_in_at,
+      },
+    };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error fetching profile:', error);
+    return { success: false, data: null, error: error.message || 'Failed to fetch profile' };
+  }
+}
+
+export async function updateDisplayName(displayName: string) {
+  try {
+    const user = await getAuthenticatedUser();
+    const supabase = await createServiceClient();
+
+    const trimmed = displayName.trim();
+    if (!trimmed) throw new Error('Display name cannot be empty');
+    if (trimmed.length > 50) throw new Error('Display name must be 50 characters or less');
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ display_name: trimmed })
+      .eq('id', user.id);
+
+    if (error) throw error;
+
+    // Also update auth user metadata
+    await supabase.auth.admin.updateUserById(user.id, {
+      user_metadata: { display_name: trimmed },
+    });
+
+    revalidatePath('/profile');
+    return { success: true };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error updating display name:', error);
+    return { success: false, error: error.message || 'Failed to update display name' };
+  }
+}
+
+export async function changePassword(currentPassword: string, newPassword: string) {
+  try {
+    const user = await getAuthenticatedUser();
+    
+    if (!currentPassword || !newPassword) {
+      throw new Error('Both current and new passwords are required');
+    }
+    if (newPassword.length < 6) {
+      throw new Error('New password must be at least 6 characters');
+    }
+    if (currentPassword === newPassword) {
+      throw new Error('New password must be different from current password');
+    }
+
+    // Verify current password by attempting to sign in
+    const { createClient } = await import('@supabase/supabase-js');
+    const verifyClient = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+
+    const { error: verifyError } = await verifyClient.auth.signInWithPassword({
+      email: user.email!,
+      password: currentPassword,
+    });
+
+    if (verifyError) {
+      throw new Error('Current password is incorrect');
+    }
+
+    // Update password using service client
+    const supabase = await createServiceClient();
+    const { error } = await supabase.auth.admin.updateUserById(user.id!, {
+      password: newPassword,
+    });
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error changing password:', error);
+    return { success: false, error: error.message || 'Failed to change password' };
+  }
+}
