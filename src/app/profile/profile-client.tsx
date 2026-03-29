@@ -4,6 +4,7 @@ import { useState, useTransition, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { updateDisplayName, changePassword } from './actions';
 import { signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 interface ProfileData {
   id: string;
@@ -19,6 +20,7 @@ interface ProfileData {
 }
 
 export default function ProfileClient({ profile }: { profile: ProfileData }) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -85,6 +87,7 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
       if (res.success) {
         setSuccess('Display name updated successfully');
         setIsEditingName(false);
+        router.refresh(); // Force server data to sync with UI
       } else {
         setError(res.error || 'Failed to update display name');
       }
