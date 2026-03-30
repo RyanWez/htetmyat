@@ -1,22 +1,56 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { createClient } from '@/lib/supabase/client';
+
 import { AppleId } from '@/lib/supabase/types';
 import { getCountryFlag, copyToClipboard } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 import Link from 'next/link';
 import AppleIcon from '@/components/AppleIcon';
+import { addComment, getAppleIdData } from './actions';
+import { useSession } from 'next-auth/react';
+
+interface Profile {
+  display_name: string;
+  avatar_url: string;
+}
+
+interface Comment {
+  id: string;
+  comment_text: string;
+  created_at: string;
+  user_id: string;
+  parent_id: string | null;
+  profiles: Profile;
+}
 
 export default function AppleIdDetailClient({ id }: { id: string }) {
+  const { data: session } = useSession();
+  const currentUser = session?.user;
+  
   const [appleId, setAppleId] = useState<AppleId | null>(null);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [replyingTo, setReplyingTo] = useState<{ id: string, name: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const toast = useToast();
+
+  useEffect(() => {
+    if (replyingTo && textareaRef.current) {
+      const currentVal = textareaRef.current.value;
+      const mention = `@${replyingTo.name} `;
+      if (!currentVal.startsWith(mention)) {
+        textareaRef.current.value = mention;
+      }
+      textareaRef.current.focus();
+    }
+  }, [replyingTo]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
@@ -36,16 +70,9 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
 
   const fetchAppleId = useCallback(async () => {
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('apple_ids')
-        .select('*')
-        .eq('id', id)
-        .eq('is_active', true)
-        .maybeSingle();
-        
-      if (error) throw error;
-      setAppleId(data);
+      const { appleId: appleData, comments: commentsData } = await getAppleIdData(id);
+      setAppleId(appleData);
+      setComments((commentsData as Comment[]) || []);
     } catch (err) {
       console.error('Error fetching apple id details:', err);
     } finally {
@@ -60,6 +87,82 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     }
     fetchAppleId();
   }, [id, fetchAppleId]);
+
+  const handleCommentSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    setIsSubmitting(true);
+    const formData = new FormData(form);
+    try {
+      await addComment(formData);
+      toast.success('Comment posted!', 'မှတ်ချက်ထည့်သွင်းမှု အောင်မြင်ပါသည်။');
+      form.reset();
+      setReplyingTo(null);
+      await fetchAppleId();
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'မှတ်ချက်ထည့်သွင်းခြင်း မအောင်မြင်ပါ။';
+      toast.error('Error', errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Helper to flatly fetch all descendants of a comment
+  const getThreadComments = (parentId: string): Comment[] => {
+    const thread: Comment[] = [];
+    const collect = (id: string) => {
+      const children = comments.filter(c => c.parent_id === id);
+      children.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      for (const child of children) {
+        thread.push(child);
+        collect(child.id);
+      }
+    };
+    collect(parentId);
+    // Finally, sort entire thread by date to ensure proper timeline
+    return thread.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  };
+
+  const renderSingleComment = (comment: Comment, isReply: boolean = false) => {
+    return (
+      <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+        {/* Avatar */}
+        <div style={{ width: isReply ? '32px' : '40px', height: isReply ? '32px' : '40px', borderRadius: '50%', backgroundColor: 'var(--bg-inset)', overflow: 'hidden', flexShrink: 0, position: 'relative', border: '1px solid var(--border-color)', marginTop: '2px' }}>
+          {comment.profiles?.avatar_url ? (
+             <Image src={comment.profiles.avatar_url} alt={comment.profiles.display_name || 'User'} fill sizes={isReply ? "32px" : "40px"} style={{ objectFit: 'cover' }} />
+          ) : (
+             <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: isReply ? '14px' : '18px' }}>👤</div>
+          )}
+        </div>
+        
+        {/* Content */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ background: isReply ? 'var(--bg-card)' : 'var(--bg-card-hover)', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '100%', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: isReply ? '13px' : '14px' }}>{comment.profiles?.display_name || 'Anonymous User'}</span>
+            </div>
+            <p style={{ margin: 0, fontSize: isReply ? '13.5px' : '14px', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5, wordBreak: 'break-word' }}>
+              {comment.comment_text}
+            </p>
+          </div>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '6px', marginLeft: '12px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(comment.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
+            {currentUser && (
+              <button 
+                onClick={() => setReplyingTo({ id: comment.id, name: comment.profiles?.display_name || 'Anonymous User' })}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0, transition: 'color 0.2s' }}
+                onMouseOver={e => e.currentTarget.style.color = 'var(--brand-primary)'}
+                onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
+              >
+                Reply
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const handleCopy = async (text: string, copyId: string, label?: string) => {
     const success = await copyToClipboard(text);
@@ -348,13 +451,159 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
               </div>
             </motion.div>
 
-             {/* Usage Warning */}
+              {/* Usage Warning */}
              <div style={{ marginTop: 'var(--space-6)', padding: 'var(--space-4)', background: 'rgba(255, 60, 60, 0.05)', borderRadius: 'var(--radius-lg)', border: '1px dashed rgba(255, 60, 60, 0.3)', display: 'flex', gap: '12px' }}>
                <span style={{ fontSize: '20px' }}>⚠️</span>
                <div style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', lineHeight: 1.5 }}>
                  <strong>အရေးကြီး အသိပေးချက်:</strong> ဤ Apple ID များကို App Store မှ ဆော့ဖ်ဝဲ (Apps/Games) ဒေါင်းရန်အတွက်သာ အသုံးပြုပါ။ Settings ထဲမှ iCloud နေရာတွင် လုံးဝ (လုံးဝ) ဝင်ရောက်ခြင်း မလုပ်ပါနှင့်။
                </div>
              </div>
+          </motion.div>
+
+          {/* Comments Section */}
+          <motion.div
+            className="glass-card"
+            style={{ padding: 'var(--space-8)', marginBottom: 'var(--space-8)' }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            <h3 style={{ fontSize: 'var(--text-xl)', color: 'var(--text-primary)', marginBottom: 'var(--space-6)', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: '1px solid var(--border-color)', paddingBottom: '16px' }}>
+              💬 Comments 
+            </h3>
+
+            {/* Comment Form */}
+            {currentUser ? (
+              <div style={{ marginBottom: 'var(--space-8)' }}>
+                {replyingTo && (
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-inset)', padding: '8px 16px', borderRadius: '12px 12px 0 0', border: '1px solid var(--border-color)', borderBottom: 'none' }}>
+                    <span style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                      Replying to <strong>{replyingTo.name}</strong>
+                    </span>
+                    <button type="button" onClick={() => setReplyingTo(null)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '4px' }}>✕</button>
+                  </div>
+                )}
+                <form 
+                  onSubmit={handleCommentSubmit} 
+                  style={{ 
+                    display: 'flex', 
+                    gap: '12px', 
+                    alignItems: 'flex-start',
+                    background: 'var(--bg-card)',
+                    padding: '16px',
+                    borderRadius: replyingTo ? '0 0 12px 12px' : '12px',
+                    border: '1px solid var(--border-color)'
+                  }}
+                >
+                  <input type="hidden" name="apple_id" value={id} />
+                  {replyingTo && <input type="hidden" name="parent_id" value={replyingTo.id} />}
+                  
+                  {/* Current user avatar placeholder */}
+                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', backgroundColor: 'var(--brand-glow)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontWeight: 'bold', overflow: 'hidden', position: 'relative' }}>
+                    {currentUser.image ? (
+                       <Image src={currentUser.image} alt={currentUser.name || 'User'} fill sizes="40px" style={{ objectFit: 'cover' }} />
+                    ) : (
+                       currentUser.name?.charAt(0).toUpperCase() || currentUser.email?.charAt(0).toUpperCase() || 'U'
+                    )}
+                  </div>
+                  
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
+                    <textarea 
+                      ref={textareaRef}
+                      name="comment_text" 
+                      placeholder={replyingTo ? "Write a reply..." : "Write a comment..."}
+                      rows={2}
+                      required
+                      style={{ 
+                        width: '100%', 
+                        padding: '12px', 
+                        borderRadius: '12px', 
+                        background: 'var(--bg-inset)', 
+                        border: 'none', 
+                        color: 'var(--text-primary)',
+                        fontFamily: 'inherit',
+                        resize: 'vertical',
+                        outline: 'none',
+                        minHeight: '44px'
+                      }}
+                    ></textarea>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <button 
+                        type="submit" 
+                        disabled={isSubmitting}
+                        style={{ 
+                          background: 'var(--brand-primary)', 
+                          color: '#fff', 
+                          padding: '8px 20px', 
+                          borderRadius: '20px', 
+                          border: 'none',
+                          fontWeight: 600,
+                          fontSize: '14px',
+                          cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                          opacity: isSubmitting ? 0.7 : 1,
+                          transition: 'opacity 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        {isSubmitting ? 'Posting...' : 'Post Comment'}
+                      </button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <div style={{ textAlign: 'center', padding: 'var(--space-6)', background: 'var(--bg-inset)', borderRadius: 'var(--radius-lg)', marginBottom: 'var(--space-8)', border: '1px solid var(--border-default)' }}>
+                <p style={{ color: 'var(--text-muted)', marginBottom: '16px' }}>မှတ်ချက်ပေးရန် သို့မဟုတ် စာပြန်ရန် လော့ဂ်အင် ဝင်ပါ။</p>
+                <Link href="/login" style={{ background: 'var(--brand-primary)', color: '#fff', padding: '8px 24px', borderRadius: '40px', textDecoration: 'none', fontWeight: 600, display: 'inline-block' }}>
+                  Log In
+                </Link>
+              </div>
+            )}
+
+            {/* Existing Comments */}
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '32px',
+              maxHeight: '500px',
+              overflowY: 'auto',
+              paddingRight: '8px',
+              scrollbarWidth: 'thin',
+              scrollbarColor: 'var(--border-color) transparent'
+            }}>
+              {comments.length === 0 ? (
+                <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: 'var(--space-4) 0' }}>မှတ်ချက် မရှိသေးပါ။ ပထမဆုံး မှတ်ချက်ပေးပါ။</p>
+              ) : (
+                comments.filter(c => c.parent_id === null).map((parentComment) => {
+                  const threadComments = getThreadComments(parentComment.id);
+                  return (
+                    <div key={parentComment.id} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {/* Parent Comment */}
+                      {renderSingleComment(parentComment, false)}
+                      
+                      {/* Replies */}
+                      {threadComments.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', paddingLeft: '52px', position: 'relative' }}>
+                           {/* Decorative Vertical Line connecting replies */}
+                           <div style={{ position: 'absolute', left: '25px', top: '0', bottom: '16px', width: '2px', background: 'var(--border-color)', borderRadius: '2px', opacity: 0.7 }} />
+                           
+                           {threadComments.map((reply, index) => (
+                             <div key={reply.id} style={{ position: 'relative' }}>
+                               {/* Decorative Curve Line for each reply */}
+                               <div style={{ position: 'absolute', left: '-27px', top: '16px', width: '16px', height: '2px', background: 'var(--border-color)', borderRadius: '2px', opacity: 0.7 }} />
+                               {renderSingleComment(reply, true)}
+                             </div>
+                           ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </motion.div>
 
         </div>
