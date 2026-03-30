@@ -16,6 +16,7 @@ interface Profile {
   display_name: string;
   avatar_url: string;
   role: string;
+  name_theme?: string;
 }
 
 interface Comment {
@@ -136,6 +137,10 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   };
 
   const renderSingleComment = (comment: Comment, isReply: boolean = false) => {
+    const themeClass = comment.profiles?.name_theme && comment.profiles.name_theme !== 'none' 
+      ? `name-theme-${comment.profiles.name_theme}` 
+      : '';
+
     return (
       <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
         {/* Avatar */}
@@ -151,7 +156,9 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ background: isReply ? 'var(--bg-card)' : 'var(--bg-card-hover)', padding: '10px 14px', borderRadius: '16px', display: 'inline-block', maxWidth: '100%', border: '1px solid var(--border-color)', boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
-              <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: isReply ? '13px' : '14px' }}>{comment.profiles?.display_name || 'Anonymous User'}</span>
+              <span className={themeClass} style={{ fontWeight: 600, color: themeClass ? undefined : 'var(--text-primary)', fontSize: isReply ? '13px' : '14px' }}>
+                {comment.profiles?.display_name || 'Anonymous User'}
+              </span>
             </div>
             <p style={{ margin: 0, fontSize: isReply ? '13.5px' : '14px', color: 'var(--text-secondary)', whiteSpace: 'pre-wrap', lineHeight: 1.5, wordBreak: 'break-word' }}>
               {comment.comment_text}

@@ -88,7 +88,7 @@ export async function getAppleIdData(id: string) {
       .maybeSingle(),
     supabase
       .from('apple_id_comments')
-      .select('*, profiles(display_name, avatar_url, role)')
+      .select('*, profiles(display_name, avatar_url, role, name_theme)')
       .eq('apple_id', id)
       .order('created_at', { ascending: true })
   ]);
