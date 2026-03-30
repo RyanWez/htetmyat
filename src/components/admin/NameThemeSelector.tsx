@@ -27,7 +27,7 @@ export default function NameThemeSelector({ currentTheme }: { currentTheme: stri
     try {
       await updateNameTheme(selectedTheme);
       toast.success('Theme Saved', `Name theme updated successfully!`);
-    } catch (err) {
+    } catch {
       toast.error('Error', 'Failed to save name theme.');
       setSelectedTheme(currentTheme);
     } finally {
