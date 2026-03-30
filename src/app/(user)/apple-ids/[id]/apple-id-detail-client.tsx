@@ -9,12 +9,13 @@ import { getCountryFlag, copyToClipboard } from '@/lib/utils';
 import { useToast } from '@/components/ui/Toast';
 import Link from 'next/link';
 import AppleIcon from '@/components/AppleIcon';
-import { addComment, getAppleIdData } from './actions';
+import { addComment, deleteComment, getAppleIdData } from './actions';
 import { useSession } from 'next-auth/react';
 
 interface Profile {
   display_name: string;
   avatar_url: string;
+  role: string;
 }
 
 interface Comment {
@@ -107,6 +108,17 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     }
   };
 
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm('Are you sure you want to delete this comment?')) return;
+    try {
+      await deleteComment(commentId, id);
+      toast.success('Comment deleted!', 'မှတ်ချက် ဖျက်သိမ်းပြီးပါပြီ။');
+      await fetchAppleId();
+    } catch (err: unknown) {
+      toast.error('Error', err instanceof Error ? err.message : 'ဖျက်သိမ်းခြင်း မအောင်မြင်ပါ။');
+    }
+  };
+
   // Helper to flatly fetch all descendants of a comment
   const getThreadComments = (parentId: string): Comment[] => {
     const thread: Comment[] = [];
@@ -149,14 +161,30 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '6px', marginLeft: '12px' }}>
             <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>{new Date(comment.created_at).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}</span>
             {currentUser && (
-              <button 
-                onClick={() => setReplyingTo({ id: comment.id, name: comment.profiles?.display_name || 'Anonymous User' })}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0, transition: 'color 0.2s' }}
-                onMouseOver={e => e.currentTarget.style.color = 'var(--brand-primary)'}
-                onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
-              >
-                Reply
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button 
+                  onClick={() => setReplyingTo({ id: comment.id, name: comment.profiles?.display_name || 'Anonymous User' })}
+                  style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0, transition: 'color 0.2s' }}
+                  onMouseOver={e => e.currentTarget.style.color = 'var(--brand-primary)'}
+                  onMouseOut={e => e.currentTarget.style.color = 'var(--text-muted)'}
+                >
+                  Reply
+                </button>
+
+                {/* Delete logic */}
+                {/* 1. If currentUser is ADMIN */}
+                {/* 2. Logic: (Target comment role != admin) OR (Target owner id = my id) */}
+                {currentUser.role === 'admin' && (
+                  (comment.profiles?.role !== 'admin' || comment.user_id === currentUser.id) && (
+                    <button 
+                      onClick={() => handleDeleteComment(comment.id)}
+                      style={{ background: 'none', border: 'none', color: '#ef4444', fontSize: '13px', fontWeight: 600, cursor: 'pointer', padding: 0, opacity: 0.8 }}
+                    >
+                      Delete
+                    </button>
+                  )
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -590,7 +618,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                            {/* Decorative Vertical Line connecting replies */}
                            <div style={{ position: 'absolute', left: '25px', top: '0', bottom: '16px', width: '2px', background: 'var(--border-color)', borderRadius: '2px', opacity: 0.7 }} />
                            
-                           {threadComments.map((reply, index) => (
+                           {threadComments.map((reply) => (
                              <div key={reply.id} style={{ position: 'relative' }}>
                                {/* Decorative Curve Line for each reply */}
                                <div style={{ position: 'absolute', left: '-27px', top: '16px', width: '16px', height: '2px', background: 'var(--border-color)', borderRadius: '2px', opacity: 0.7 }} />

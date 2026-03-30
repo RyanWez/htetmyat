@@ -35,6 +35,47 @@ export async function addComment(formData: FormData) {
   revalidatePath(`/apple-ids/${apple_id}`);
 }
 
+export async function deleteComment(commentId: string, appleId: string) {
+  const session = await auth();
+  const user = session?.user;
+  
+  if (!user || user.role !== 'admin') {
+    throw new Error('Only admins can delete comments.');
+  }
+
+  const supabase = await createServiceClient();
+
+  // Fetch the comment to check who owns it
+  const { data: comment, error: fetchError } = await supabase
+    .from('apple_id_comments')
+    .select('*, profiles(role)')
+    .eq('id', commentId)
+    .single();
+
+  if (fetchError || !comment) {
+    throw new Error('Comment not found.');
+  }
+
+  // Logic: 
+  // 1. If target is a User comment -> Any Admin can delete.
+  // 2. If target is an Admin comment -> Only the author Admin can delete.
+  const targetIsAdmin = comment.profiles?.role === 'admin';
+  if (targetIsAdmin && comment.user_id !== user.id) {
+    throw new Error('You can only delete your own admin comments.');
+  }
+
+  const { error: deleteError } = await supabase
+    .from('apple_id_comments')
+    .delete()
+    .eq('id', commentId);
+
+  if (deleteError) {
+    throw new Error('Failed to delete comment.');
+  }
+
+  revalidatePath(`/apple-ids/${appleId}`);
+}
+
 export async function getAppleIdData(id: string) {
   const supabase = await createServiceClient();
   
@@ -47,7 +88,7 @@ export async function getAppleIdData(id: string) {
       .maybeSingle(),
     supabase
       .from('apple_id_comments')
-      .select('*, profiles(display_name, avatar_url)')
+      .select('*, profiles(display_name, avatar_url, role)')
       .eq('apple_id', id)
       .order('created_at', { ascending: true })
   ]);
