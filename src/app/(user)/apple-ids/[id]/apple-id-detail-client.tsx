@@ -52,7 +52,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
       }
       textareaRef.current?.focus();
     }
-  }, [replyingTo]);
+  }, [replyingTo, commentText]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < 640);
