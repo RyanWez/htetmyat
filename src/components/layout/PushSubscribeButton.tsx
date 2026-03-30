@@ -81,9 +81,10 @@ export default function PushSubscribeButton() {
 
       setIsSubscribed(true);
       toast.success('Subscribed!', 'You will now receive Apple ID updates.');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Failed to subscribe:', err);
-      toast.error('Subscription Failed', err.message || 'Could not enable notifications.');
+      const message = err instanceof Error ? err.message : 'Could not enable notifications.';
+      toast.error('Subscription Failed', message);
     } finally {
       setLoading(false);
     }

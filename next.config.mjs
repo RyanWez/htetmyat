@@ -9,6 +9,7 @@ const withPWA = withPWAInit({
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  serverExternalPackages: ['web-push'],
   experimental: {
     serverActions: {
       bodySizeLimit: '10mb',

@@ -16,6 +16,7 @@ const eslintConfig = defineConfig([
     "public/sw.js",
     "public/workbox-*.js",
     "public/fallback-*.js",
+    "public/worker-*.js",
   ]),
 ]);
 
