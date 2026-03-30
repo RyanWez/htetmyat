@@ -1,9 +1,12 @@
 import { auth } from '@/lib/auth';
 import AvatarUpload from '@/components/admin/AvatarUpload';
+import NameThemeSelector from '@/components/admin/NameThemeSelector';
+import { getProfileData } from './actions';
 
 export default async function AdminSettingsPage() {
   const session = await auth();
   const currentAvatar = session?.user?.image || null;
+  const profile = await getProfileData();
 
   return (
     <div className="admin-page-container">
@@ -18,7 +21,7 @@ export default async function AdminSettingsPage() {
           <h2 style={{ marginBottom: '1.5rem', alignSelf: 'flex-start' }}>Public Profile</h2>
           <AvatarUpload currentUrl={currentAvatar} />
           
-          <div style={{ width: '100%', marginTop: '2rem', padding: '1.5rem', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-subtle)' }}>
+          <div style={{ width: '100%', marginTop: '2rem', padding: '1.5rem', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
               <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Full Name</span>
               <span style={{ fontWeight: 600 }}>{session?.user?.name}</span>
@@ -28,6 +31,9 @@ export default async function AdminSettingsPage() {
               <span style={{ fontWeight: 600 }}>{session?.user?.email}</span>
             </div>
           </div>
+
+          {/* Theme Selector UI */}
+          <NameThemeSelector currentTheme={profile?.name_theme || 'none'} />
         </div>
 
         {/* Other Settings (Placeholder) */}
