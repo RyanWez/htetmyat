@@ -33,7 +33,21 @@ export default function Footer() {
       </div>
 
       <div className={styles.bottom}>
-        <p>© {new Date().getFullYear()} HMA — All rights reserved.</p>
+        <div className={styles.bottomInner}>
+          <p>© {new Date().getFullYear()} HMA — All rights reserved.</p>
+          <div className={styles.devCredit}>
+            <span className={styles.devText}>Developed by</span>
+            <a 
+              href="https://ryanwez.vercel.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className={styles.devLink}
+            >
+              Ryan Wez
+              <span className={styles.devHeart}>❤️</span>
+            </a>
+          </div>
+        </div>
       </div>
     </footer>
   );
