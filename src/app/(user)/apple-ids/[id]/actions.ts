@@ -21,6 +21,10 @@ export async function addComment(formData: FormData) {
     throw new Error('Missing fields');
   }
 
+  if (comment_text.length > 150) {
+    throw new Error('Comment must be 150 characters or less.');
+  }
+
   const { error } = await supabase
     .from('apple_id_comments')
     .insert([

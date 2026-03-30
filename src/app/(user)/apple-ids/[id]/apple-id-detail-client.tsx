@@ -37,6 +37,7 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   const [replyingTo, setReplyingTo] = useState<{ id: string, name: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [commentText, setCommentText] = useState('');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
@@ -44,13 +45,12 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
   const toast = useToast();
 
   useEffect(() => {
-    if (replyingTo && textareaRef.current) {
-      const currentVal = textareaRef.current.value;
+    if (replyingTo) {
       const mention = `@${replyingTo.name} `;
-      if (!currentVal.startsWith(mention)) {
-        textareaRef.current.value = mention;
+      if (!commentText.startsWith(mention)) {
+        setCommentText(mention);
       }
-      textareaRef.current.focus();
+      textareaRef.current?.focus();
     }
   }, [replyingTo]);
 
@@ -95,10 +95,17 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
     const form = e.currentTarget;
     setIsSubmitting(true);
     const formData = new FormData(form);
+    if (commentText.length > 150) {
+      toast.error('Error', 'Comment must be 150 characters or less.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       await addComment(formData);
       toast.success('Comment posted!', 'မှတ်ချက်ထည့်သွင်းမှု အောင်မြင်ပါသည်။');
       form.reset();
+      setCommentText('');
       setReplyingTo(null);
       await fetchAppleId();
     } catch (err: unknown) {
@@ -543,25 +550,45 @@ export default function AppleIdDetailClient({ id }: { id: string }) {
                   </div>
                   
                   <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '12px', minWidth: 0 }}>
-                    <textarea 
-                      ref={textareaRef}
-                      name="comment_text" 
-                      placeholder={replyingTo ? "Write a reply..." : "Write a comment..."}
-                      rows={2}
-                      required
-                      style={{ 
-                        width: '100%', 
-                        padding: '12px', 
-                        borderRadius: '12px', 
-                        background: 'var(--bg-inset)', 
-                        border: 'none', 
-                        color: 'var(--text-primary)',
-                        fontFamily: 'inherit',
-                        resize: 'vertical',
-                        outline: 'none',
-                        minHeight: '44px'
-                      }}
-                    ></textarea>
+                    <div style={{ position: 'relative', width: '100%' }}>
+                      <textarea 
+                        ref={textareaRef}
+                        name="comment_text" 
+                        value={commentText}
+                        onChange={(e) => setCommentText(e.target.value)}
+                        placeholder={replyingTo ? "Write a reply..." : "Write a comment..."}
+                        rows={2}
+                        required
+                        maxLength={150}
+                        style={{ 
+                          width: '100%', 
+                          padding: '12px', 
+                          paddingBottom: '30px',
+                          borderRadius: '12px', 
+                          background: 'var(--bg-inset)', 
+                          border: 'none', 
+                          color: 'var(--text-primary)',
+                          fontFamily: 'inherit',
+                          resize: 'vertical',
+                          outline: 'none',
+                          minHeight: '44px'
+                        }}
+                      ></textarea>
+                      <div style={{ 
+                        position: 'absolute', 
+                        bottom: '8px', 
+                        right: '12px', 
+                        fontSize: '11px', 
+                        color: commentText.length >= 150 ? '#ef4444' : 'var(--text-muted)',
+                        fontWeight: 600,
+                        pointerEvents: 'none',
+                        background: 'var(--bg-inset)',
+                        padding: '2px 4px',
+                        borderRadius: '4px'
+                      }}>
+                        {commentText.length}/150
+                      </div>
+                    </div>
                     
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <button 
