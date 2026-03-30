@@ -43,14 +43,18 @@ export async function getUserActivityStats() {
 
   const supabase = await createServiceClient();
   
-  // Get logs for the last 24 hours
-  const yesterday = new Date();
-  yesterday.setHours(yesterday.getHours() - 24);
+  const MMT_OFFSET = 6.5 * 60 * 60 * 1000; // 6.5 hours in milliseconds
+  
+  // Get start of today (Midnight in Myanmar Time)
+  const now = new Date();
+  const nowMmt = new Date(now.getTime() + MMT_OFFSET);
+  nowMmt.setUTCHours(0, 0, 0, 0);
+  const startOfDayUtc = new Date(nowMmt.getTime() - MMT_OFFSET);
 
   const { data: logs, error } = await supabase
     .from('activity_logs')
     .select('created_at, user_id, metadata')
-    .gte('created_at', yesterday.toISOString());
+    .gte('created_at', startOfDayUtc.toISOString());
 
   if (error) {
     console.error('Error fetching logs:', error);
@@ -59,7 +63,6 @@ export async function getUserActivityStats() {
 
   // Aggregate by 2-hour blocks (Myanmar Time)
   const result = [];
-  const MMT_OFFSET = 6.5 * 60 * 60 * 1000; // 6.5 hours in milliseconds
 
   for (let i = 0; i < 12; i++) {
     const hourStart = (i * 2);
