@@ -4,6 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { AppleId } from '@/lib/supabase/types';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import webpush from 'web-push';
 
 // Helper to verify admin access
 async function verifyAdmin() {
@@ -58,6 +59,42 @@ export async function updateAppleId(id: string, data: Partial<Omit<AppleId, 'id'
     const { error } = await supabase.from('apple_ids').update(data).eq('id', id);
     
     if (error) throw error;
+    
+    // Trigger push notification if the ID was just marked active
+    if (data.is_active === true) {
+      try {
+        const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+        const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+        const subject = `mailto:${process.env.ADMIN_EMAIL || 'admin@example.com'}`;
+        
+        if (vapidPublicKey && vapidPrivateKey) {
+          webpush.setVapidDetails(subject, vapidPublicKey, vapidPrivateKey);
+          
+          const { data: subs, error: subsError } = await supabase
+            .from('push_subscriptions')
+            .select('*');
+            
+          if (!subsError && subs && subs.length > 0) {
+            const { data: updatedId } = await supabase.from('apple_ids').select('title').eq('id', id).single();
+            const payload = JSON.stringify({
+              title: 'Apple ID is Active!',
+              body: `The Apple ID "${updatedId?.title || 'you are following'}" is now active and ready to use.`,
+              data: { url: `/apple-ids/${id}` }
+            });
+
+            await Promise.allSettled(subs.map(sub => {
+              const pushSubscription = {
+                endpoint: sub.endpoint,
+                keys: { p256dh: sub.p256dh, auth: sub.auth }
+              };
+              return webpush.sendNotification(pushSubscription, payload);
+            }));
+          }
+        }
+      } catch (pushErr) {
+        console.error('Failed to send push notifications:', pushErr);
+      }
+    }
     
     revalidatePath('/admin/apple-ids');
     revalidatePath('/apple-ids');
