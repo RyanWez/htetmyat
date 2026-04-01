@@ -8,6 +8,7 @@ import Image from 'next/image';
 import styles from './Header.module.css';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import InstallPromptDialog from '@/components/ui/InstallPromptDialog';
+import NotificationCenter from './NotificationCenter';
 
 function HeaderContent() {
   const pathname = usePathname();
@@ -131,6 +132,9 @@ function HeaderContent() {
 
           {session?.user && (
             <>
+              {/* Notification Center */}
+              <NotificationCenter />
+              
               {/* Desktop User Dropdown */}
               <div className={`${styles.userDropdown} ${styles.desktopOnly}`} ref={dropdownRef}>
                 <button

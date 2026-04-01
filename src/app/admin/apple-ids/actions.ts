@@ -63,6 +63,32 @@ export async function updateAppleId(id: string, data: Partial<Omit<AppleId, 'id'
     // Trigger push notification if the ID was just marked active
     if (data.is_active === true) {
       try {
+        const { data: updatedId } = await supabase.from('apple_ids').select('title').eq('id', id).single();
+        const appleIdTitle = updatedId?.title || 'an Apple ID';
+
+        // 1. In-App Notification Flow
+        const { data: template } = await supabase
+          .from('notification_templates')
+          .select('*')
+          .eq('name', 'apple_id_active')
+          .single();
+
+        let notiTitle = 'Apple ID is Active! 🎉';
+        let notiMessage = `The Apple ID "${appleIdTitle}" is now active and ready to use.`;
+
+        if (template) {
+          notiTitle = template.title_template.replace(/\{\{title\}\}/g, appleIdTitle);
+          notiMessage = template.message_template.replace(/\{\{title\}\}/g, appleIdTitle);
+        }
+
+        await supabase.from('notifications').insert({
+          title: notiTitle,
+          message: notiMessage,
+          link: `/apple-ids/${id}`,
+          type: 'global'
+        });
+
+        // 2. Web Push Notification Flow (Old logic)
         const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
         const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
         const subject = `mailto:${process.env.ADMIN_EMAIL || 'admin@example.com'}`;
@@ -75,10 +101,9 @@ export async function updateAppleId(id: string, data: Partial<Omit<AppleId, 'id'
             .select('*');
             
           if (!subsError && subs && subs.length > 0) {
-            const { data: updatedId } = await supabase.from('apple_ids').select('title').eq('id', id).single();
             const payload = JSON.stringify({
-              title: 'Apple ID is Active!',
-              body: `The Apple ID "${updatedId?.title || 'you are following'}" is now active and ready to use.`,
+              title: notiTitle,
+              body: notiMessage,
               data: { url: `/apple-ids/${id}` }
             });
 
@@ -92,7 +117,7 @@ export async function updateAppleId(id: string, data: Partial<Omit<AppleId, 'id'
           }
         }
       } catch (pushErr) {
-        console.error('Failed to send push notifications:', pushErr);
+        console.error('Failed to send notifications:', pushErr);
       }
     }
     

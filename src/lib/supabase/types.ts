@@ -36,6 +36,32 @@ export interface Profile {
   display_name_changed_at: string | null;
 }
 
+export interface NotificationTemplate {
+  id: string;
+  name: string;
+  title_template: string;
+  message_template: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  link: string | null;
+  type: 'global' | 'personal';
+  user_id: string | null;
+  created_at: string;
+}
+
+export interface UserNotiRead {
+  id: string;
+  user_id: string;
+  notification_id: string;
+  read_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -53,6 +79,21 @@ export interface Database {
         Row: Profile;
         Insert: Omit<Profile, 'created_at' | 'updated_at'>;
         Update: Partial<Omit<Profile, 'id' | 'created_at' | 'updated_at'>>;
+      };
+      notification_templates: {
+        Row: NotificationTemplate;
+        Insert: Omit<NotificationTemplate, 'id' | 'created_at' | 'updated_at'>;
+        Update: Partial<Omit<NotificationTemplate, 'id' | 'created_at' | 'updated_at'>>;
+      };
+      notifications: {
+        Row: Notification;
+        Insert: Omit<Notification, 'id' | 'created_at'>;
+        Update: Partial<Omit<Notification, 'id' | 'created_at'>>;
+      };
+      user_noti_reads: {
+        Row: UserNotiRead;
+        Insert: Omit<UserNotiRead, 'id' | 'read_at'>;
+        Update: Partial<Omit<UserNotiRead, 'id' | 'read_at'>>;
       };
     };
   };

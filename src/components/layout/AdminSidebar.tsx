@@ -33,6 +33,7 @@ const menuItems: MenuItem[] = [
     ]
   },
   { href: '/admin/reports', label: 'Reports', icon: '⚠️' },
+  { href: '/admin/notifications', label: 'Notifications', icon: '🔔' },
   { href: '/admin/settings', label: 'Settings', icon: '⚙️' },
 ];
 
