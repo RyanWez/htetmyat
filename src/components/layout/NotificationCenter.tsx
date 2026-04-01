@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
-import { getMyNotifications, markNotificationAsRead, NotificationWithRead } from './notification-actions';
+import { getMyNotifications, markNotificationAsRead, markAllAsRead, NotificationWithRead } from './notification-actions';
 import styles from './NotificationCenter.module.css';
 
 // Client-side relative time formatter
@@ -166,6 +166,19 @@ export default function NotificationCenter() {
     setIsOpen(false);
   };
 
+  const handleMarkAllRead = async () => {
+    const unreadIds = notifications.filter(n => !n.is_read).map(n => n.id);
+    if (unreadIds.length === 0) return;
+    
+    // Optimistic update
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    
+    const { success } = await markAllAsRead(unreadIds);
+    if (success) {
+      toast.success('Success', 'All notifications marked as read');
+    }
+  };
+
   if (status !== 'authenticated') return null;
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
@@ -187,11 +200,21 @@ export default function NotificationCenter() {
       {isOpen && (
         <div className={styles.dropdown}>
           <div className={styles.header}>
-            <span className={styles.title}>Notifications</span>
+            <div className={styles.headerTitleArea}>
+              <span className={styles.title}>Notifications</span>
+              {unreadCount > 0 && (
+                <span style={{ fontSize: '13px', color: 'var(--accent-danger)', fontWeight: 600 }}>
+                  {unreadCount} New
+                </span>
+              )}
+            </div>
             {unreadCount > 0 && (
-              <span style={{ fontSize: '13px', color: 'var(--accent-danger)', fontWeight: 600 }}>
-                {unreadCount} New
-              </span>
+              <button 
+                className={styles.markAllReadBtn}
+                onClick={handleMarkAllRead}
+              >
+                Mark all read
+              </button>
             )}
           </div>
           <div className={styles.list}>

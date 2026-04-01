@@ -82,3 +82,35 @@ export async function markNotificationAsRead(notificationId: string) {
     return { success: false };
   }
 }
+
+export async function markAllAsRead(unreadIds: string[]) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) return { success: false };
+    const userId = session.user.id;
+
+    if (!unreadIds || unreadIds.length === 0) return { success: true };
+
+    const supabase = await createServiceClient();
+
+    const inserts = unreadIds.map(id => ({
+      user_id: userId,
+      notification_id: id,
+      read_at: new Date().toISOString()
+    }));
+
+    // Perform bulk insert
+    const { error } = await supabase.from('user_noti_reads').upsert(inserts, {
+      onConflict: 'user_id, notification_id',
+      ignoreDuplicates: true
+    });
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (err) {
+    console.error('Error marking all as read:', err);
+    return { success: false };
+  }
+}
+

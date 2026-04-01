@@ -60,6 +60,28 @@
   align-items: center;
 }
 
+.headerTitleArea {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.markAllReadBtn {
+  background: transparent;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--brand-primary);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: var(--radius-md);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.markAllReadBtn:hover {
+  background: var(--brand-light);
+}
+
 .title {
   font-weight: 600;
   font-size: 16px;
@@ -188,8 +210,8 @@
   }
   
   .list {
-    max-height: none;
-    flex: 1;
+    max-height: 280px; /* ~3 items */
+    flex: none;
     overflow-y: auto;
   }
 }
