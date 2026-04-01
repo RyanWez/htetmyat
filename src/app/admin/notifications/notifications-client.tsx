@@ -149,15 +149,16 @@ export default function NotificationsClient({ initialTemplates }: Props) {
             />
           </div>
 
-          <div className={styles.formGroup} style={{ flexDirection: 'row', alignItems: 'center', gap: '8px' }}>
+          <div className={styles.checkboxWrapper} onClick={() => setSendPush(!sendPush)}>
             <input 
               type="checkbox" 
               id="sendPush" 
+              className={styles.checkbox}
               checked={sendPush} 
               onChange={e => setSendPush(e.target.checked)} 
-              style={{ width: '18px', height: '18px' }}
+              onClick={e => e.stopPropagation()}
             />
-            <label htmlFor="sendPush" className={styles.label} style={{ cursor: 'pointer' }}>
+            <label htmlFor="sendPush" style={{ cursor: 'pointer', margin: 0, fontWeight: 600, color: 'var(--text-primary)' }}>
               Also send Web Push to offline users
             </label>
           </div>
@@ -171,9 +172,9 @@ export default function NotificationsClient({ initialTemplates }: Props) {
       {activeTab === 'templates' && (
         <form onSubmit={handleSaveTemplate} className={styles.card}>
           <h2 className={styles.cardTitle}>&quot;Active Apple ID&quot; Auto Template</h2>
-          <p className={styles.helpText} style={{ marginBottom: '16px' }}>
+          <p className={styles.helpText}>
             This template is automatically sent when you mark an Apple ID as Active. 
-            Use <code style={{ background: 'var(--surface-hover)', padding: '2px 4px', borderRadius: '4px' }}>{`{{title}}`}</code> to insert the Apple ID email/title dynamically.
+            Use <code className={styles.codeBadge}>{`{{title}}`}</code> to insert the Apple ID email/title dynamically.
           </p>
 
           <div className={styles.formGroup}>

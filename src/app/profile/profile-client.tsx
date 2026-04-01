@@ -6,6 +6,7 @@ import { updateDisplayName, changePassword } from './actions';
 import { signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import AvatarUpload from '@/components/admin/AvatarUpload';
+import PushSubscribeButton from '@/components/layout/PushSubscribeButton';
 import Image from 'next/image';
 
 interface ProfileData {
@@ -564,11 +565,42 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
           </div>
         </motion.div>
 
-        {/* Sign Out */}
+        {/* Notification Settings */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
+          style={{
+            display: 'flex', flexDirection: 'column',
+            gap: 'var(--space-4)', marginBottom: 'var(--space-8)',
+          }}
+        >
+          <h2 style={{
+            fontSize: '1.1rem', fontWeight: 700,
+            margin: '0 0 8px 0', color: 'var(--text-primary)',
+          }}>
+            Notifications
+          </h2>
+
+          <div className="glass-card profile-action-card">
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <h3 style={{ fontWeight: 700, fontSize: '1.05rem', margin: '0 0 4px 0' }}>Push Notifications</h3>
+              <p style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', margin: 0 }}>
+                Receive immediate alerts when new Apple IDs are added or updated.
+              </p>
+            </div>
+            
+            <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'flex-end', marginLeft: 'auto' }}>
+              <PushSubscribeButton />
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Sign Out */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           style={{
             display: 'flex', flexDirection: 'column',
             gap: 'var(--space-4)', marginBottom: 'var(--space-8)',

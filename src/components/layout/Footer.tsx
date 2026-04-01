@@ -12,7 +12,9 @@ export default function Footer() {
             <span>HMA</span>
           </Link>
           <p className={styles.tagline}>Free Apple IDs, Managed & Updated Daily</p>
-          <PushSubscribeButton />
+          <div style={{ marginTop: '16px' }}>
+            <PushSubscribeButton />
+          </div>
         </div>
 
         <div className={styles.links}>

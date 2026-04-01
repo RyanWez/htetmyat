@@ -11,11 +11,15 @@ export default async function NotificationsPage() {
   const templates = result.success && result.data ? result.data : [];
 
   return (
-    <div>
-      <h1 style={{ marginBottom: '24px', fontSize: '24px', color: 'var(--text-primary)' }}>
-        Notification Settings
-      </h1>
-      <NotificationsClient initialTemplates={templates} />
+    <div className="admin-page-container">
+      <div className="section-header">
+        <h1>Notification Settings</h1>
+        <p className="subtitle">Manage system notifications, broadcast messages, and auto-reply templates.</p>
+      </div>
+      
+      <div style={{ marginTop: 'var(--space-6)' }}>
+        <NotificationsClient initialTemplates={templates} />
+      </div>
     </div>
   );
 }

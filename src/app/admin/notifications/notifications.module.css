@@ -1,111 +1,208 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  max-width: 800px;
+  gap: 2rem;
+  max-width: 900px;
+  animation: fadeUp 0.4s ease-out;
 }
 
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tabs Design */
 .tabs {
   display: flex;
-  gap: 12px;
-  border-bottom: 1px solid var(--border-medium);
-  margin-bottom: 24px;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: var(--bg-surface-solid);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  width: fit-content;
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .tab {
-  padding: 12px 24px;
+  padding: 10px 24px;
   background: transparent;
   color: var(--text-secondary);
   border: none;
-  border-bottom: 2px solid transparent;
   cursor: pointer;
-  font-weight: 500;
-  font-size: 15px;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--radius-full);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tab:hover {
   color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
 .tabActive {
-  color: var(--brand-primary);
-  border-bottom-color: var(--brand-primary);
+  background: var(--brand-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px var(--brand-light);
+}
+.tabActive:hover {
+  background: var(--brand-primary);
+  color: #fff;
+  filter: brightness(1.1);
 }
 
+/* Card Design */
 .card {
-  background: var(--surface-card);
-  border: 1px solid var(--border-light);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: var(--bg-surface-solid);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-2xl);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
+  animation: fadeUp 0.4s ease-out;
 }
 
 .cardTitle {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 2rem;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.02em;
 }
 
+/* Forms */
 .formGroup {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .label {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .input, .textarea, .select {
   width: 100%;
-  padding: 12px;
+  padding: 14px 16px;
   border: 1px solid var(--border-medium);
-  border-radius: 8px;
-  background: var(--surface-background);
+  border-radius: var(--radius-lg);
+  background: var(--bg-inset);
   color: var(--text-primary);
   font-family: inherit;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
+  font-size: 15px;
+  transition: all 0.2s ease;
 }
 
 .input:focus, .textarea:focus, .select:focus {
   outline: none;
   border-color: var(--brand-primary);
+  background: var(--surface-background);
+  box-shadow: 0 0 0 4px var(--brand-light);
 }
 
 .textarea {
-  min-height: 120px;
+  min-height: 140px;
   resize: vertical;
+  line-height: 1.5;
 }
 
 .button {
-  background: var(--brand-primary);
+  background: var(--brand-gradient, var(--brand-primary));
   color: white;
   border: none;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 15px;
   cursor: pointer;
-  transition: opacity 0.2s ease;
+  transition: all 0.3s ease;
   width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 1rem;
+  box-shadow: 0 4px 12px var(--brand-light);
 }
 
-.button:hover {
-  opacity: 0.9;
+.button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px var(--brand-light);
+  filter: brightness(1.1);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .button:disabled {
-  opacity: 0.5;
+  background: var(--bg-disabled);
+  color: var(--text-muted);
+  box-shadow: none;
   cursor: not-allowed;
+  transform: none;
 }
 
 .helpText {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.codeBadge {
+  background: var(--bg-elevated);
+  color: var(--brand-primary);
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
   font-size: 13px;
-  color: var(--text-muted);
-  margin-top: 4px;
+  font-weight: 700;
+  border: 1px solid var(--border-default);
+}
+
+/* Checkbox specific */
+.checkboxWrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 12px;
+}
+
+.checkboxWrapper:hover {
+  border-color: var(--brand-primary);
+  background: var(--bg-hover);
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--brand-primary);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 1.5rem;
+  }
 }
