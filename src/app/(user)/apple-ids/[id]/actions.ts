@@ -3,6 +3,7 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import webpush from 'web-push';
 
 export async function addComment(formData: FormData) {
   const session = await auth();
@@ -100,6 +101,42 @@ export async function addComment(formData: FormData) {
     // 4. Batch insert all notifications at once (efficient)
     if (notificationsToInsert.length > 0) {
       await supabase.from('notifications').insert(notificationsToInsert);
+
+      // 5. Send Web Push to all notified users' devices
+      const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      const vapidPrivateKey = process.env.VAPID_PRIVATE_KEY;
+      const subject = `mailto:${process.env.ADMIN_EMAIL || 'admin@example.com'}`;
+
+      if (vapidPublicKey && vapidPrivateKey) {
+        webpush.setVapidDetails(subject, vapidPublicKey, vapidPrivateKey);
+
+        // Collect all user IDs that need push
+        const targetUserIds = notificationsToInsert.map(n => n.user_id);
+
+        // Fetch their push subscriptions in one query
+        const { data: subs } = await supabase
+          .from('push_subscriptions')
+          .select('*')
+          .in('user_id', targetUserIds);
+
+        if (subs && subs.length > 0) {
+          // Map user_id → notification for personalized push content
+          const notiByUser = new Map(notificationsToInsert.map(n => [n.user_id, n]));
+
+          await Promise.allSettled(subs.map(sub => {
+            const noti = notiByUser.get(sub.user_id);
+            const pushPayload = JSON.stringify({
+              title: noti?.title || `💬 New Comment on "${appleTitle}"`,
+              body: noti?.message || `${commenterName} commented`,
+              data: { url: notiLink }
+            });
+            return webpush.sendNotification(
+              { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth } },
+              pushPayload
+            );
+          }));
+        }
+      }
     }
   } catch (notiErr) {
     // Notification errors should never block the comment from being saved
