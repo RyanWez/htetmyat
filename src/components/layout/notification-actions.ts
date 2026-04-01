@@ -13,7 +13,7 @@ export type NotificationWithRead = {
   is_read: boolean;
 };
 
-export async function getMyNotifications(): Promise<{ success: boolean; data?: NotificationWithRead[]; error?: string }> {
+export async function getMyNotifications(limit = 10, offset = 0): Promise<{ success: boolean; data?: NotificationWithRead[]; hasMore?: boolean; error?: string }> {
   try {
     const session = await auth();
     if (!session?.user?.id) return { success: false, error: 'Unauthorized' };
@@ -27,7 +27,7 @@ export async function getMyNotifications(): Promise<{ success: boolean; data?: N
       .select('*')
       .or(`type.eq.global,user_id.eq.${userId}`)
       .order('created_at', { ascending: false })
-      .limit(30);
+      .range(offset, offset + limit); // +limit fetches one extra to determine hasMore
 
     if (notiError) throw notiError;
 
@@ -41,13 +41,17 @@ export async function getMyNotifications(): Promise<{ success: boolean; data?: N
 
     const readSet = new Set(reads?.map(r => r.notification_id));
 
+    const notisArray = notis || [];
+    const hasMore = notisArray.length > limit;
+    const items = notisArray.slice(0, limit);
+
     // Combine
-    const result: NotificationWithRead[] = (notis || []).map(n => ({
+    const result: NotificationWithRead[] = items.map(n => ({
       ...n,
       is_read: readSet.has(n.id)
     }));
 
-    return { success: true, data: result };
+    return { success: true, data: result, hasMore };
   } catch (err) {
     console.error('Error fetching notifications:', err);
     return { success: false, error: 'Failed' };

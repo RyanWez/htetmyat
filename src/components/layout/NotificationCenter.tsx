@@ -32,13 +32,16 @@ export default function NotificationCenter() {
   const { data: session, status } = useSession();
   const [notifications, setNotifications] = useState<NotificationWithRead[]>([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
   const fetchNotis = async (showToastForNew = false) => {
     if (status !== 'authenticated') return;
-    const { success, data } = await getMyNotifications();
+    const { success, data, hasMore: more } = await getMyNotifications(10, 0);
     if (success && data) {
+      setHasMore(!!more);
       setNotifications(prev => {
         // Find if there are new unread notifications that weren't in previous state
         if (showToastForNew && prev.length > 0) {
@@ -55,6 +58,24 @@ export default function NotificationCenter() {
         return data;
       });
     }
+  };
+
+  const loadMore = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isLoadingMore || !hasMore) return;
+    
+    setIsLoadingMore(true);
+    const { success, data, hasMore: more } = await getMyNotifications(10, notifications.length);
+    if (success && data) {
+      setHasMore(!!more);
+      setNotifications(prev => {
+        // Append unique notifications
+        const currentIds = new Set(prev.map(p => p.id));
+        const newUnique = data.filter(d => !currentIds.has(d.id));
+        return [...prev, ...newUnique];
+      });
+    }
+    setIsLoadingMore(false);
   };
 
   useEffect(() => {
@@ -169,6 +190,15 @@ export default function NotificationCenter() {
                   <span className={styles.itemTime}>{formatTimeAgo(noti.created_at)}</span>
                 </Link>
               ))
+            )}
+            {hasMore && (
+              <button 
+                className={styles.loadMoreBtn} 
+                onClick={loadMore}
+                disabled={isLoadingMore}
+              >
+                {isLoadingMore ? 'Loading...' : 'Load More Options'}
+              </button>
             )}
           </div>
         </div>
