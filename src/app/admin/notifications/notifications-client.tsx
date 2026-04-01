@@ -170,7 +170,7 @@ export default function NotificationsClient({ initialTemplates }: Props) {
 
       {activeTab === 'templates' && (
         <form onSubmit={handleSaveTemplate} className={styles.card}>
-          <h2 className={styles.cardTitle}>"Active Apple ID" Auto Template</h2>
+          <h2 className={styles.cardTitle}>&quot;Active Apple ID&quot; Auto Template</h2>
           <p className={styles.helpText} style={{ marginBottom: '16px' }}>
             This template is automatically sent when you mark an Apple ID as Active. 
             Use <code style={{ background: 'var(--surface-hover)', padding: '2px 4px', borderRadius: '4px' }}>{`{{title}}`}</code> to insert the Apple ID email/title dynamically.

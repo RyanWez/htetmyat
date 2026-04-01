@@ -2,7 +2,6 @@
 
 import { createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
-import { revalidatePath } from 'next/cache';
 import webpush from 'web-push';
 
 async function verifyAdmin() {

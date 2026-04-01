@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { createClient } from '@/lib/supabase/client';
@@ -37,7 +37,7 @@ export default function NotificationCenter() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
-  const fetchNotis = async (showToastForNew = false) => {
+  const fetchNotis = useCallback(async (showToastForNew = false) => {
     if (status !== 'authenticated') return;
     const { success, data, hasMore: more } = await getMyNotifications(10, 0);
     if (success && data) {
@@ -58,7 +58,7 @@ export default function NotificationCenter() {
         return data;
       });
     }
-  };
+  }, [status, toast]);
 
   const loadMore = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -79,20 +79,33 @@ export default function NotificationCenter() {
   };
 
   useEffect(() => {
-    fetchNotis();
+    let isMounted = true;
+    
+    const initFetch = async () => {
+      if (isMounted) {
+        await fetchNotis();
+      }
+    };
+    
+    initFetch();
     
     // Fallback Polling (every 15s) to guarantee updates if WebSocket gets blocked
-    const interval = setInterval(() => fetchNotis(true), 15000);
+    const interval = setInterval(() => {
+      if (isMounted) fetchNotis(true);
+    }, 15000);
     
     // Window focus fetch (feels real-time when returning to tab)
-    const onFocus = () => fetchNotis(true);
+    const onFocus = () => {
+      if (isMounted) fetchNotis(true);
+    };
     window.addEventListener('focus', onFocus);
 
     return () => {
+      isMounted = false;
       clearInterval(interval);
       window.removeEventListener('focus', onFocus);
     };
-  }, [status]);
+  }, [fetchNotis]);
 
   useEffect(() => {
     // Only subscribe to realtime if authenticated
@@ -114,7 +127,7 @@ export default function NotificationCenter() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [status, session?.user?.id]);
+  }, [status, session?.user?.id, fetchNotis]);
 
   // Handle outside click closure
   useEffect(() => {
