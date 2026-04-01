@@ -30,6 +30,11 @@ export function usePushSubscription() {
     } else {
       setLoading(false);
     }
+
+    // Sync state across multiple components
+    const handleSync = () => setIsSubscribed(true);
+    window.addEventListener('hma-push-subscribed', handleSync);
+    return () => window.removeEventListener('hma-push-subscribed', handleSync);
   }, []);
 
   const checkSubscription = async () => {
@@ -45,6 +50,9 @@ export function usePushSubscription() {
   };
 
   const subscribeToPush = async () => {
+    // Prevent double subscribe attempts
+    if (isSubscribed || loading) return false;
+    
     if (!session?.user) {
       toast.error('Login Required', 'Please login to enable notifications.');
       return false;
@@ -79,6 +87,7 @@ export function usePushSubscription() {
       if (!res.ok) throw new Error('Failed to save subscription');
 
       setIsSubscribed(true);
+      window.dispatchEvent(new Event('hma-push-subscribed')); // Sync across all components instantly
       toast.success('Subscribed!', 'You will now receive Apple ID updates.');
       return true;
     } catch (err) {
