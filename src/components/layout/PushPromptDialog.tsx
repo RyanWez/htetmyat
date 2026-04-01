@@ -31,6 +31,19 @@ export default function PushPromptDialog() {
     return () => clearTimeout(timer);
   }, [session, isSubscribed, isSupported]);
 
+  // Lock body scroll when prompt is showing
+  useEffect(() => {
+    if (showPrompt) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showPrompt]);
+
   const handleDismiss = () => {
     setShowPrompt(false);
     localStorage.setItem('pushPromptDismissedAt', Date.now().toString());
@@ -56,7 +69,6 @@ export default function PushPromptDialog() {
           zIndex: 99998,
           animation: 'fadeIn 0.3s ease'
         }}
-        onClick={handleDismiss}
       />
       
       <div 
