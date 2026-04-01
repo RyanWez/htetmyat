@@ -35,16 +35,42 @@ export default function NotificationCenter() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
 
-  const fetchNotis = async () => {
+  const fetchNotis = async (showToastForNew = false) => {
     if (status !== 'authenticated') return;
     const { success, data } = await getMyNotifications();
     if (success && data) {
-      setNotifications(data);
+      setNotifications(prev => {
+        // Find if there are new unread notifications that weren't in previous state
+        if (showToastForNew && prev.length > 0) {
+          const prevIds = new Set(prev.map(p => p.id));
+          const newNotis = data.filter(n => !prevIds.has(n.id) && !n.is_read);
+          
+          if (newNotis.length > 0) {
+            // Defer side-effect to avoid 'Cannot update a component while rendering' error
+            setTimeout(() => {
+              newNotis.forEach(n => toast.info(n.title, n.message));
+            }, 0);
+          }
+        }
+        return data;
+      });
     }
   };
 
   useEffect(() => {
     fetchNotis();
+    
+    // Fallback Polling (every 15s) to guarantee updates if WebSocket gets blocked
+    const interval = setInterval(() => fetchNotis(true), 15000);
+    
+    // Window focus fetch (feels real-time when returning to tab)
+    const onFocus = () => fetchNotis(true);
+    window.addEventListener('focus', onFocus);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
+    };
   }, [status]);
 
   useEffect(() => {
@@ -54,15 +80,12 @@ export default function NotificationCenter() {
     const supabase = createClient();
     const userId = session?.user?.id;
     
-    const channel = supabase.channel('realtime_notifications')
+    // Create a stable channel name
+    const channel = supabase.channel('global_notifications')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
         const newNoti = payload.new;
-        // Global or explicitly for this user
         if (newNoti.type === 'global' || newNoti.user_id === userId) {
-          // Trigger ding/toast
-          toast.info('New Notification', newNoti.title);
-          // Refetch to get updated list and accurate states
-          fetchNotis();
+           fetchNotis(true);
         }
       })
       .subscribe();
@@ -70,7 +93,7 @@ export default function NotificationCenter() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [status, session]);
+  }, [status, session?.user?.id]);
 
   // Handle outside click closure
   useEffect(() => {
@@ -119,7 +142,7 @@ export default function NotificationCenter() {
           <div className={styles.header}>
             <span className={styles.title}>Notifications</span>
             {unreadCount > 0 && (
-              <span style={{ fontSize: '13px', color: 'var(--brand-primary)', fontWeight: 500 }}>
+              <span style={{ fontSize: '13px', color: 'var(--accent-danger)', fontWeight: 600 }}>
                 {unreadCount} New
               </span>
             )}
