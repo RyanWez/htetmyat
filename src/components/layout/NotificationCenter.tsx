@@ -36,29 +36,42 @@ export default function NotificationCenter() {
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
+  const toastedIds = useRef<Set<string>>(new Set());
+  const notificationsRef = useRef<NotificationWithRead[]>([]);
+
+  // Update ref whenever state changes
+  useEffect(() => {
+    notificationsRef.current = notifications;
+  }, [notifications]);
 
   const fetchNotis = useCallback(async (showToastForNew = false) => {
     if (status !== 'authenticated') return;
+    
     const { success, data, hasMore: more } = await getMyNotifications(10, 0);
     if (success && data) {
       setHasMore(!!more);
-      setNotifications(prev => {
-        // Find if there are new unread notifications that weren't in previous state
-        if (showToastForNew && prev.length > 0) {
-          const prevIds = new Set(prev.map(p => p.id));
-          const newNotis = data.filter(n => !prevIds.has(n.id) && !n.is_read);
-          
-          if (newNotis.length > 0) {
-            // Defer side-effect to avoid 'Cannot update a component while rendering' error
-            setTimeout(() => {
-              newNotis.forEach(n => toast.info(n.title, n.message));
-            }, 0);
-          }
-        }
-        return data;
-      });
+      
+      // Calculate new notifications BEFORE calling setNotifications
+      // This is safe even if current notifications state hasn't updated yet IF
+      // we check against data. 
+      // Actually, comparing against state 'notifications' here is safer 
+      // if we're worried about concurrent fetches, but we should use the ref
+      // to guarantee we don't toast the same ID twice.
+
+      if (showToastForNew) {
+        // Use ref for comparison to keep the callback stable (no dependency on notifications state)
+        const currentIds = new Set(notificationsRef.current.map(n => n.id));
+        const newNotis = data.filter(n => !n.is_read && !currentIds.has(n.id) && !toastedIds.current.has(n.id));
+        
+        newNotis.forEach(n => {
+          toastedIds.current.add(n.id);
+          toast.info(n.title, n.message);
+        });
+      }
+      
+      setNotifications(data);
     }
-  }, [status, toast]);
+  }, [status, toast]); // notifications removed from deps
 
   const loadMore = async (e: React.MouseEvent) => {
     e.preventDefault();
