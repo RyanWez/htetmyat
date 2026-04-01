@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import styles from './Footer.module.css';
-import PushSubscribeButton from './PushSubscribeButton';
 
 export default function Footer() {
   return (
@@ -12,9 +11,6 @@ export default function Footer() {
             <span>HMA</span>
           </Link>
           <p className={styles.tagline}>Free Apple IDs, Managed & Updated Daily</p>
-          <div style={{ marginTop: '16px' }}>
-            <PushSubscribeButton />
-          </div>
         </div>
 
         <div className={styles.links}>

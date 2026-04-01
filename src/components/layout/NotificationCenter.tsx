@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
 import { getMyNotifications, markNotificationAsRead, markAllAsRead, NotificationWithRead } from './notification-actions';
+import { usePushSubscription } from '@/hooks/usePushSubscription';
 import styles from './NotificationCenter.module.css';
 
 // Client-side relative time formatter
@@ -32,8 +33,11 @@ export default function NotificationCenter() {
   const { data: session, status } = useSession();
   const [notifications, setNotifications] = useState<NotificationWithRead[]>([]);
   const [isOpen, setIsOpen] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
+  
+  const { isSubscribed, subscribeToPush, loading: pushLoading } = usePushSubscription();
+  
   const dropdownRef = useRef<HTMLDivElement>(null);
   const toast = useToast();
   const toastedIds = useRef<Set<string>>(new Set());
@@ -217,6 +221,37 @@ export default function NotificationCenter() {
               </button>
             )}
           </div>
+          
+          {isSubscribed === false && (
+            <div style={{
+              padding: '12px 16px', background: 'var(--accent-info-light)',
+              borderBottom: '1px solid var(--border-default)',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              gap: '12px'
+            }}>
+              <div>
+                <p style={{ margin: '0 0 2px 0', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary)' }}>
+                  Turn on Notifications
+                </p>
+                <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-secondary)' }}>
+                  Get real-time updates for new Apple IDs.
+                </p>
+              </div>
+              <button 
+                onClick={subscribeToPush}
+                disabled={pushLoading}
+                style={{
+                  padding: '6px 12px', background: 'var(--brand-primary)',
+                  color: '#fff', border: 'none', borderRadius: 'var(--radius-full)',
+                  fontSize: '12px', fontWeight: 600, cursor: pushLoading ? 'default' : 'pointer',
+                  opacity: pushLoading ? 0.7 : 1, whiteSpace: 'nowrap'
+                }}
+              >
+                {pushLoading ? '...' : 'Enable'}
+              </button>
+            </div>
+          )}
+
           <div className={styles.list}>
             {notifications.length === 0 ? (
               <div className={styles.empty}>You have no notifications right now.</div>

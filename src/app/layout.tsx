@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import Providers from '@/components/Providers';
 import ActivityTracker from '@/components/ActivityTracker';
+import PushPromptDialog from '@/components/layout/PushPromptDialog';
 
 export const metadata: Metadata = {
   title: 'HMA — Free Apple IDs',
@@ -48,6 +49,7 @@ export default function RootLayout({
       <body>
         <Providers>
           <ActivityTracker />
+          <PushPromptDialog />
           {children}
         </Providers>
       </body>
