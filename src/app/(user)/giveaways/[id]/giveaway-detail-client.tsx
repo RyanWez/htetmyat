@@ -104,14 +104,15 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
         >
           {/* Logo Header */}
           {giveaway.image_url && (
-             <div style={{ padding: '40px 32px 0', display: 'flex', justifyContent: 'center' }}>
-                <Image 
-                  src={giveaway.image_url} 
-                  alt={giveaway.title} 
-                  width={140} 
-                  height={140} 
-                  style={{ objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.5))' }}
-                />
+             <div style={{ padding: '60px 32px 0', display: 'flex', justifyContent: 'center' }}>
+                <div style={{ width: '160px', height: '160px', borderRadius: '36px', overflow: 'hidden', position: 'relative', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', border: '1px solid rgba(255,255,255,0.05)', background: '#000' }}>
+                  <Image 
+                    src={giveaway.image_url} 
+                    alt={giveaway.title} 
+                    fill
+                    style={{ objectFit: 'cover' }}
+                  />
+                </div>
              </div>
           )}
 

@@ -216,14 +216,15 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
               >
                   <motion.div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }} variants={{ hover: { scale: 1.05 } }} transition={{ duration: 0.6 }}>
                     {giveaway.image_url ? (
-                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(168, 85, 247, 0.15) 0%, #020617 100%)' }}>
+                      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
                         <Image 
                           src={giveaway.image_url} 
                           alt={giveaway.title} 
-                          width={140}
-                          height={140}
-                          style={{ objectFit: 'contain', opacity: giveaway.is_active ? 0.9 : 0.4, filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.5))' }}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          style={{ objectFit: 'cover', opacity: giveaway.is_active ? 0.7 : 0.3 }}
                         />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(2,6,23,0) 0%, rgba(2,6,23,0.8) 100%)' }} />
                       </div>
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1e1b4b 0%, #020617 100%)' }}>
