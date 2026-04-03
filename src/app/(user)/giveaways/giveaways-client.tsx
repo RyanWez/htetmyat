@@ -223,7 +223,7 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                             alt={giveaway.title} 
                             fill
                             sizes="(max-width: 768px) 100vw, 33vw"
-                            style={{ objectFit: 'contain', filter: giveaway.is_active ? 'drop-shadow(0 4px 20px rgba(0,0,0,0.5))' : 'grayscale(100%) opacity(0.3)' }}
+                            style={{ objectFit: 'contain', borderRadius: '32px', overflow: 'hidden', filter: giveaway.is_active ? 'drop-shadow(0 4px 20px rgba(0,0,0,0.5))' : 'grayscale(100%) opacity(0.3)' }}
                           />
                         </div>
                         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(11,15,25,0) 50%, rgba(11,15,25,0.9) 80%, rgba(11,15,25,1) 100%)' }} />
@@ -240,29 +240,39 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                   </div>
 
                   <motion.div 
-                    style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px', zIndex: 3, background: 'linear-gradient(to top, rgba(2,6,23,1) 0%, rgba(2,6,23,0.4) 60%, transparent 100%)' }}
+                    style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '28px', zIndex: 3 }}
+                    variants={{ 
+                      hidden: { y: 15, opacity: 0.9 }, 
+                      visible: { y: 15, opacity: 1 }, 
+                      hover: { y: 0, opacity: 1 } 
+                    }}
+                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                           <motion.span 
-                            animate={giveaway.is_active ? { opacity: [1, 0.4, 1] } : {}} 
+                            animate={giveaway.is_active ? { opacity: [1, 0.4, 1], scale: [1, 1.2, 1] } : {}} 
                             transition={{ repeat: Infinity, duration: 2 }}
-                            style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: giveaway.is_active ? '#10b981' : '#64748b', boxShadow: giveaway.is_active ? '0 0 12px #10b981' : 'none' }}
+                            style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: giveaway.is_active ? '#10b981' : '#64748b', boxShadow: giveaway.is_active ? '0 0 15px rgba(16, 185, 129, 0.6)' : 'none' }}
                           />
-                          <span style={{ color: giveaway.is_active ? '#34d399' : '#94a3b8', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>
+                          <span style={{ color: giveaway.is_active ? '#34d399' : '#94a3b8', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px' }}>
                             {giveaway.is_active ? 'Active' : 'Expired'}
                           </span>
                         </div>
 
-                        <h3 style={{ color: '#ffffff', margin: '0 0 8px 0', fontSize: '24px', fontWeight: 700, lineHeight: 1.2 }}>
+                        <h3 style={{ color: '#ffffff', margin: '0 0 10px 0', fontSize: '26px', fontWeight: 800, lineHeight: 1.1, letterSpacing: '-0.5px' }}>
                           {giveaway.title}
                         </h3>
                         
-                        <p style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 16px 0', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                        <motion.p 
+                          variants={{ hidden: { opacity: 0, height: 0 }, visible: { opacity: 0, height: 0 }, hover: { opacity: 1, height: 'auto' } }}
+                          style={{ color: '#94a3b8', fontSize: '14px', margin: '0 0 20px 0', overflow: 'hidden' }}
+                        >
                           {giveaway.description || 'Premium giveaway details inside.'}
-                        </p>
+                        </motion.p>
 
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: giveaway.is_active ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.05)', color: giveaway.is_active ? '#d8b4fe' : '#94a3b8', border: `1px solid ${giveaway.is_active ? 'rgba(168, 85, 247, 0.4)' : 'rgba(255,255,255,0.1)'}`, padding: '10px 20px', borderRadius: '100px', fontSize: '14px', fontWeight: 600, width: '100%', justifyContent: 'center', transition: 'all 0.2s' }}>
-                          <span>{giveaway.is_active ? (currentUser ? 'View Credentials' : (giveaway.type === 'ACCOUNT' ? 'Unlock Account' : 'Unlock Key')) : 'View Details'}</span> <span style={{ fontSize: '16px' }}>&rarr;</span>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', background: giveaway.is_active ? 'rgba(168, 85, 247, 0.25)' : 'rgba(255,255,255,0.08)', color: giveaway.is_active ? '#d8b4fe' : '#94a3b8', border: `1px solid ${giveaway.is_active ? 'rgba(168, 85, 247, 0.5)' : 'rgba(255,255,255,0.15)'}`, padding: '12px 24px', borderRadius: '100px', fontSize: '14px', fontWeight: 700, width: '100%', justifyContent: 'center', transition: 'all 0.3s', backdropFilter: 'blur(10px)' }}>
+                          <span>{giveaway.is_active ? (currentUser ? 'View Credentials' : (giveaway.type === 'ACCOUNT' ? 'Unlock Account' : 'Unlock Key')) : 'View Details'}</span> 
+                          <motion.span variants={{ hover: { x: 5 } }}>&rarr;</motion.span>
                         </div>
                   </motion.div>
 
