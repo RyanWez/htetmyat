@@ -93,7 +93,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.isBanned = false;
         token.lastActiveCheck = Date.now();
-        token.name_theme = (user as any).name_theme;
+        token.name_theme = user.name_theme;
       }
 
       // Periodic check: verify the user is still active in the database
