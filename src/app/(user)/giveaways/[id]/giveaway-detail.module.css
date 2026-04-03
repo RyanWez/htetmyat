@@ -1,0 +1,340 @@
+.page {
+  padding: 40px 20px;
+  min-height: 80vh;
+  display: flex;
+  justify-content: center;
+}
+
+.container {
+  width: 100%;
+  max-width: 680px;
+}
+
+/* Card Styling */
+.card {
+  background: #111827;
+  border-radius: 24px;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  position: relative;
+}
+
+/* Header */
+.cardHeader {
+  text-align: center;
+  padding: 32px 32px 0 32px;
+}
+
+.typeBadge {
+  display: inline-block;
+  background: rgba(168, 85, 247, 0.15);
+  color: #d8b4fe;
+  padding: 6px 16px;
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.title {
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 8px 0;
+}
+
+.description {
+  color: #94a3b8;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* QR Code Section */
+.qrContainer {
+  display: flex;
+  justify-content: center;
+  padding: 32px;
+}
+
+.qrFrame {
+  background: #fff;
+  padding: 16px;
+  border-radius: 16px;
+  box-shadow: 0 0 30px rgba(168, 85, 247, 0.2);
+  border: 4px solid rgba(168, 85, 247, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Metadata Table */
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  margin-bottom: 32px;
+}
+
+.dataRow {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dataRow:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dataLabel {
+  padding: 16px 24px;
+  color: #94a3b8;
+  font-weight: 500;
+  width: 40%;
+}
+
+.dataValue {
+  padding: 16px 24px;
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.statusActive {
+  color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.statusInactive {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+/* Credentials Block */
+.credentialsWrapper {
+  padding: 0 24px 32px 24px;
+}
+
+.credentialsTitle {
+  font-size: 14px;
+  color: #94a3b8;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.terminal {
+  background: #000;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 16px;
+  font-family: monospace;
+  color: #a855f7;
+  font-size: 14px;
+  word-break: break-all;
+  position: relative;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.terminal:hover {
+  border-color: rgba(168, 85, 247, 0.5);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.15);
+}
+
+.copyLabel {
+  background: rgba(168, 85, 247, 0.2);
+  color: #d8b4fe;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: sans-serif;
+}
+
+/* Auth Wall */
+.authWall {
+  text-align: center;
+  padding: 40px 20px;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 16px;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  margin: 0 24px 32px 24px;
+  backdrop-filter: blur(8px);
+}
+
+.authWallIcon {
+  font-size: 40px;
+  margin-bottom: 16px;
+  opacity: 0.8;
+}
+
+.authWall h3 {
+  color: #f8fafc;
+  font-size: 20px;
+  margin: 0 0 8px 0;
+}
+
+.authWall p {
+  color: #94a3b8;
+  margin: 0 0 24px 0;
+  font-size: 14px;
+}
+
+.loginBtn {
+  background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 32px;
+  border-radius: 100px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.loginBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+}
+
+/* Comments Section */
+.commentsSection {
+  margin-top: 48px;
+}
+
+.commentsSection h2 {
+  color: #fff;
+  font-size: 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.commentForm {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 32px;
+}
+
+.commentInput {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 100%;
+  padding: 16px;
+  border-radius: 12px;
+  min-height: 100px;
+  resize: vertical;
+  font-size: 15px;
+  transition: all 0.3s;
+  margin-bottom: 16px;
+}
+
+.commentInput:focus {
+  outline: none;
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.submitBtn {
+  background: rgba(168, 85, 247, 0.8);
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.submitBtn:hover {
+  background: rgba(168, 85, 247, 1);
+}
+
+.submitBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.commentList {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.commentItem {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+}
+
+.commentHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1e293b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #94a3b8;
+  overflow: hidden;
+  position: relative;
+}
+
+.commentAuthor {
+  color: #f8fafc;
+  font-weight: 600;
+}
+
+.commentDate {
+  color: #64748b;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.commentBody {
+  color: #e2e8f0;
+  font-size: 15px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
+.deleteBtn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 8px;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+
+.deleteBtn:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.1);
+}

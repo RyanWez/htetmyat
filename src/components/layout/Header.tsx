@@ -20,6 +20,7 @@ function HeaderContent() {
   const navLinks = [
     { href: '/', label: 'Home' },
     { href: '/apple-ids', label: 'Apple IDs' },
+    { href: '/giveaways', label: 'Giveaways' },
     { href: '/blog', label: 'Blog' },
   ];
   

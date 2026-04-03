@@ -1,5 +1,31 @@
 // Database types matching schema.sql
 
+export interface Giveaway {
+  id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  is_active: boolean;
+  image_url: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface GiveawaySecret {
+  giveaway_id: string;
+  qr_code_url: string | null;
+  credentials: string | null;
+}
+
+export interface GiveawayComment {
+  id: string;
+  giveaway_id: string;
+  user_id: string;
+  comment_text: string;
+  parent_id: string | null;
+  created_at: string;
+}
+
 export interface AppleId {
   id: string;
   title: string;
@@ -94,6 +120,21 @@ export interface Database {
         Row: UserNotiRead;
         Insert: Omit<UserNotiRead, 'id' | 'read_at'>;
         Update: Partial<Omit<UserNotiRead, 'id' | 'read_at'>>;
+      };
+      giveaways: {
+        Row: Giveaway;
+        Insert: Omit<Giveaway, 'id' | 'created_at'>;
+        Update: Partial<Omit<Giveaway, 'id' | 'created_at'>>;
+      };
+      giveaway_secrets: {
+        Row: GiveawaySecret;
+        Insert: GiveawaySecret;
+        Update: Partial<GiveawaySecret>;
+      };
+      giveaway_comments: {
+        Row: GiveawayComment;
+        Insert: Omit<GiveawayComment, 'id' | 'created_at'>;
+        Update: Partial<Omit<GiveawayComment, 'id' | 'created_at'>>;
       };
     };
   };

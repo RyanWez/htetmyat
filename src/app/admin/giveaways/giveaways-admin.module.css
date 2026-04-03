@@ -1,0 +1,316 @@
+.page {
+  /* No fixed max-width here, controlled by parent layout */
+  width: 100%;
+}
+
+.headerRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.pageTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-1);
+}
+
+.pageDesc {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+}
+
+.headerActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* Table Wrapper */
+.tableWrap {
+  overflow-x: auto;
+  padding: 0;
+}
+
+.skeletonRow {
+  height: 48px;
+  margin: var(--space-3) var(--space-4);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Form */
+.formGroup {
+  margin-bottom: var(--space-5);
+}
+
+/* ══════════════════════════════════
+   Status Badge (in table)
+   ══════════════════════════════════ */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-xs);
+  font-weight: var(--font-semibold);
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  letter-spacing: 0.02em;
+  line-height: 1.4;
+}
+
+.statusIndicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusActive {
+  background: var(--accent-success-light);
+  color: var(--accent-success);
+}
+
+.statusActive .statusIndicator {
+  background: var(--accent-success);
+  box-shadow: 0 0 6px var(--accent-success);
+}
+
+.statusInactive {
+  background: var(--bg-elevated);
+  color: var(--text-tertiary);
+}
+
+.statusInactive .statusIndicator {
+  background: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+/* Inactive rows */
+.rowInactive td {
+  opacity: 0.55;
+}
+.rowInactive:hover td {
+  opacity: 0.8;
+}
+
+/* ══════════════════════════════════
+   iOS-style Toggle Switch
+   ══════════════════════════════════ */
+.switchTrack {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 11px;
+  background: var(--bg-inset);
+  border: 1.5px solid var(--border-default);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 0;
+  flex-shrink: 0;
+  outline: none;
+}
+
+.switchTrack:hover {
+  border-color: var(--border-hover);
+}
+
+.switchTrack:focus-visible {
+  box-shadow: 0 0 0 3px var(--brand-light);
+}
+
+.switchThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.switchOn {
+  background: var(--accent-success);
+  border-color: var(--accent-success);
+}
+
+.switchOn .switchThumb {
+  transform: translateX(18px);
+}
+
+.switchOn:hover {
+  background: #059669;
+  border-color: #059669;
+}
+
+.switchLoading {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Larger variant for modal */
+.modalSwitchTrack {
+  composes: switchTrack;
+  width: 48px;
+  height: 26px;
+  border-radius: 13px;
+}
+
+.modalSwitchTrack .switchThumb {
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+}
+
+.modalSwitchTrack.switchOn .switchThumb {
+  transform: translateX(22px);
+}
+
+/* ══════════════════════════════════
+   Modal Status Control
+   ══════════════════════════════════ */
+.modalStatusControl {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+}
+
+.modalStatusLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
+  transition: color var(--transition-fast);
+}
+
+.modalStatusLabelActive {
+  color: var(--accent-success);
+}
+
+.modalStatusLabelActive .statusIndicator {
+  background: var(--accent-success);
+  box-shadow: 0 0 6px var(--accent-success);
+}
+
+.modalStatusLabelInactive {
+  color: var(--text-tertiary);
+}
+
+.modalStatusLabelInactive .statusIndicator {
+  background: var(--text-tertiary);
+  opacity: 0.5;
+}
+
+/* ══════════════════════════════════
+   Action Buttons (SVG icons)
+   ══════════════════════════════════ */
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px !important;
+  border-radius: var(--radius-md) !important;
+  color: var(--text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.actionBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-elevated);
+}
+
+.actionBtnDanger:hover {
+  color: var(--accent-danger) !important;
+  background: var(--accent-danger-light) !important;
+}
+
+/* ══════════════════════════════════
+   Filter Tabs
+   ══════════════════════════════════ */
+.filterTabs {
+  display: flex;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: 3px;
+  width: fit-content;
+}
+
+.filterTab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+}
+
+.filterTab:hover {
+  color: var(--text-primary);
+}
+
+.filterTabActive {
+  background: var(--bg-surface-solid);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.filterCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  font-size: 11px;
+  font-weight: var(--font-bold);
+  background: var(--bg-inset);
+  border-radius: var(--radius-full);
+  padding: 0 6px;
+  color: var(--text-tertiary);
+}
+
+.filterTabActive .filterCount {
+  background: var(--brand-light);
+  color: var(--brand-primary);
+}
+
+/* Status dots in filter tabs */
+.statusDotGreen,
+.statusDotGray {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.statusDotGreen {
+  background: var(--accent-success);
+  box-shadow: 0 0 5px var(--accent-success);
+}
+
+.statusDotGray {
+  background: var(--text-tertiary);
+  opacity: 0.5;
+}

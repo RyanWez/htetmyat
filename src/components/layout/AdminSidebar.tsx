@@ -24,6 +24,7 @@ type MenuItem = {
 const menuItems: MenuItem[] = [
   { href: '/admin', label: 'Dashboard', icon: '📊' },
   { href: '/admin/apple-ids', label: 'Apple IDs', icon: <AppleIcon /> },
+  { href: '/admin/giveaways', label: 'Giveaways', icon: '🎁' },
   { href: '/admin/posts', label: 'Blog Posts', icon: '📝' },
   { 
     label: 'User Management', 
