@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Giveaway, GiveawaySecret } from '@/lib/supabase/types';
 import { useToast } from '@/components/ui/Toast';
@@ -29,9 +30,14 @@ interface GiveawayDetailProps {
 
 export default function GiveawayDetailClient({ giveaway, secret, initialComments, currentUser }: GiveawayDetailProps) {
   const toast = useToast();
+  const router = useRouter();
   const [comments, setComments] = useState(initialComments);
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    setComments(initialComments);
+  }, [initialComments]);
 
   const handleCopy = (text: string) => {
     if (text) {
@@ -54,9 +60,7 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
       toast.success('Success', 'Comment added.');
       setCommentText('');
       
-      // Removed optimistic update due to ID matching issue for subsequent deletions.
-      // Wait for page refresh or load to see it.
-      window.location.reload();
+      router.refresh();
     } catch (err: unknown) {
       const error = err as Error;
       toast.error('Error', error.message || 'Failed to post comment.');
@@ -110,6 +114,7 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
                     src={giveaway.image_url} 
                     alt={giveaway.title} 
                     fill
+                    sizes="160px"
                     style={{ objectFit: 'cover' }}
                   />
                 </div>
@@ -227,20 +232,22 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
               const isAdmin = author?.role === 'admin';
               const displayName = (author?.display_name as string) || 'Anonymous';
               const avatarUrl = author?.avatar_url as string | undefined;
+              const nameTheme = author?.name_theme as string | undefined;
+              const themeClass = nameTheme && nameTheme !== 'none' ? `name-theme-${nameTheme}` : '';
 
               return (
                 <div key={comment.id} className={styles.commentItem}>
                   <div className={styles.commentHeader}>
                     <div className={styles.avatar}>
                       {avatarUrl ? (
-                         <Image src={avatarUrl} alt={displayName} fill style={{ objectFit: 'cover' }} />
+                         <Image src={avatarUrl} alt={displayName} fill sizes="40px" style={{ objectFit: 'cover' }} />
                       ) : (
                         displayName.charAt(0).toUpperCase()
                       )}
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                      <span className={styles.commentAuthor} style={{ color: isAdmin ? '#a855f7' : '#f8fafc' }}>
-                        {displayName} {isAdmin && <span style={{ fontSize: '12px', background: 'rgba(168,85,247,0.2)', padding:'2px 6px', borderRadius:'4px' }}>Admin</span>}
+                      <span className={`${styles.commentAuthor} ${themeClass}`.trim()} style={{ color: themeClass ? undefined : (isAdmin ? '#a855f7' : '#f8fafc') }}>
+                        {displayName}
                       </span>
                       <span className={styles.commentDate}>
                         {new Date(comment.created_at).toLocaleDateString()}

@@ -52,7 +52,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           );
           const { data: profile } = await serviceClient
             .from('profiles')
-            .select('is_active')
+            .select('is_active, name_theme')
             .eq('id', data.user.id)
             .single();
 
@@ -73,6 +73,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: data.user.user_metadata?.display_name || data.user.email,
             role: role,
             image: data.user.user_metadata?.avatar_url || null,
+            name_theme: profile?.name_theme || null,
           };
         } catch (err) {
           // Re-throw ACCOUNT_SUSPENDED so NextAuth propagates it
@@ -92,6 +93,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.id = user.id;
         token.isBanned = false;
         token.lastActiveCheck = Date.now();
+        token.name_theme = (user as any).name_theme;
       }
 
       // Periodic check: verify the user is still active in the database
@@ -107,13 +109,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             );
             const { data: profile } = await serviceClient
               .from('profiles')
-              .select('is_active, avatar_url')
+              .select('is_active, avatar_url, name_theme')
               .eq('id', token.id)
               .single();
 
             if (profile) {
               token.isBanned = !profile.is_active;
               token.picture = profile.avatar_url; // Update picture in token
+              token.name_theme = profile.name_theme;
             }
           } catch {
             // On error, don't change ban status to avoid false positives
@@ -130,6 +133,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.role = token.role as 'admin' | 'user';
         session.user.isBanned = token.isBanned as boolean;
         session.user.image = (token.picture as string) || null;
+        session.user.name_theme = token.name_theme as string | null;
       }
       return session;
     },

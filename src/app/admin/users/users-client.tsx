@@ -12,6 +12,7 @@ interface User {
   role: string;
   is_active: boolean;
   created_at: string;
+  name_theme?: string;
 }
 
 export default function UsersClient({ initialUsers, totalCount }: { initialUsers: User[], totalCount: number }) {
@@ -206,7 +207,7 @@ export default function UsersClient({ initialUsers, totalCount }: { initialUsers
                           {user.email?.[0].toUpperCase()}
                         </div>
                         <div>
-                          <p style={{ margin: 0, color: 'var(--text-primary)', fontWeight: 600 }}>{user.display_name || 'User Account'}</p>
+                          <p className={user.name_theme && user.name_theme !== 'none' ? `name-theme-${user.name_theme}` : ''} style={{ margin: 0, fontWeight: 600, color: (user.name_theme && user.name_theme !== 'none') ? undefined : 'var(--text-primary)' }}>{user.display_name || 'User Account'}</p>
                           <p style={{ margin: 0, color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>{user.email}</p>
                         </div>
                       </Link>

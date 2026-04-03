@@ -24,7 +24,7 @@ export default async function AdminSettingsPage() {
           <div style={{ width: '100%', marginTop: '2rem', padding: '1.5rem', background: 'var(--bg-elevated)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border-default)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
               <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Full Name</span>
-              <span style={{ fontWeight: 600 }}>{session?.user?.name}</span>
+              <span className={session?.user?.name_theme && session.user.name_theme !== 'none' ? `name-theme-${session.user.name_theme}` : ''} style={{ fontWeight: 600, color: (session?.user?.name_theme && session.user.name_theme !== 'none') ? undefined : 'var(--text-primary)' }}>{session?.user?.name}</span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
               <span style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>Email Address</span>

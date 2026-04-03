@@ -14,6 +14,7 @@ interface User {
   is_active: boolean;
   created_at: string;
   last_sign_in_at?: string;
+  name_theme?: string;
 }
 
 export default function UserDetailClient({ user }: { user: User }) {
@@ -129,7 +130,7 @@ export default function UserDetailClient({ user }: { user: User }) {
           </div>
           <div className="banner-content">
             <div>
-              <h1 className="banner-content-title" style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <h1 className={`banner-content-title ${user.name_theme && user.name_theme !== 'none' ? 'name-theme-' + user.name_theme : ''}`.trim()} style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, margin: '0 0 4px 0', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 12, color: (user.name_theme && user.name_theme !== 'none') ? undefined : 'var(--text-primary)' }}>
                 {user.display_name || 'System User'}
                 <span style={{
                   padding: '4px 10px', borderRadius: 'var(--radius-full)', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.05em', textTransform: 'uppercase', verticalAlign: 'middle',

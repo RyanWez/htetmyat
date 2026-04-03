@@ -163,7 +163,7 @@ function HeaderContent() {
                 {dropdownOpen && (
                   <div className={styles.dropdownMenu}>
                     <div className={styles.dropdownHeader}>
-                      <span className={styles.userName}>{session.user.name}</span>
+                      <span className={`${styles.userName} ${session.user.name_theme && session.user.name_theme !== 'none' ? 'name-theme-' + session.user.name_theme : ''}`.trim()}>{session.user.name}</span>
                       <span className={styles.userEmail}>{session.user.email}</span>
                     </div>
                     <div className={styles.dropdownDivider} />

@@ -20,6 +20,7 @@ interface ProfileData {
   updated_at: string;
   display_name_changed_at: string | null;
   last_sign_in_at?: string;
+  name_theme?: string;
 }
 
 export default function ProfileClient({ profile }: { profile: ProfileData }) {
@@ -216,11 +217,12 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
           <div className="profile-banner-content">
             <div>
               <h1
-                className="profile-banner-title"
+                className={`profile-banner-title ${profile.name_theme && profile.name_theme !== 'none' ? 'name-theme-' + profile.name_theme : ''}`.trim()}
                 style={{
                   fontSize: 'var(--text-3xl)', fontWeight: 800,
                   margin: '0 0 4px 0', letterSpacing: '-0.02em',
                   display: 'flex', alignItems: 'center', gap: 12,
+                  color: (profile.name_theme && profile.name_theme !== 'none') ? undefined : 'var(--text-primary)'
                 }}
               >
                 {profile.display_name || 'System User'}

@@ -30,10 +30,11 @@ export default async function GiveawayPage({ params }: { params: Promise<{ id: s
     notFound();
   }
 
+  const { createServiceClient } = await import('@/lib/supabase/server');
+  const serviceClient = await createServiceClient();
+
   let secret = null;
   if (session?.user) {
-    const { createServiceClient } = await import('@/lib/supabase/server');
-    const serviceClient = await createServiceClient();
     const { data: secretData } = await serviceClient
       .from('giveaway_secrets')
       .select('giveaway_id, qr_code_url, credentials')
@@ -46,7 +47,7 @@ export default async function GiveawayPage({ params }: { params: Promise<{ id: s
   }
 
   // Fetch comments
-  const { data: comments } = await supabase
+  const { data: comments } = await serviceClient
     .from('giveaway_comments')
     .select(`
       id,
@@ -55,7 +56,7 @@ export default async function GiveawayPage({ params }: { params: Promise<{ id: s
       comment_text,
       created_at,
       parent_id,
-      profiles:user_id ( id, display_name, avatar_url, role )
+      profiles:user_id ( id, display_name, avatar_url, role, name_theme )
     `)
     .eq('giveaway_id', id)
     .order('created_at', { ascending: false });

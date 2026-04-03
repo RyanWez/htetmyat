@@ -187,7 +187,7 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
               <div 
                 key={i} 
                 className="skeleton" 
-                style={{ height: '320px', borderRadius: '24px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.05)' }} 
+                style={{ height: '440px', borderRadius: '24px', backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.05)' }} 
               />
             ))}
           </div>
@@ -212,19 +212,21 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                   },
                   hover: { y: -8, transition: { duration: 0.3 } }
                 }}
-                style={{ padding: 0, overflow: 'hidden', height: '320px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(168, 85, 247, 0.15)', backgroundColor: '#0b0f19', cursor: 'pointer', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}
+                style={{ padding: 0, overflow: 'hidden', height: '440px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(168, 85, 247, 0.15)', backgroundColor: '#0b0f19', cursor: 'pointer', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}
               >
                   <motion.div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }} variants={{ hover: { scale: 1.05 } }} transition={{ duration: 0.6 }}>
                     {giveaway.image_url ? (
-                      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-                        <Image 
-                          src={giveaway.image_url} 
-                          alt={giveaway.title} 
-                          fill
-                          sizes="(max-width: 768px) 100vw, 33vw"
-                          style={{ objectFit: 'cover', opacity: giveaway.is_active ? 0.7 : 0.3 }}
-                        />
-                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(2,6,23,0) 0%, rgba(2,6,23,0.8) 100%)' }} />
+                      <div style={{ width: '100%', height: '100%', position: 'relative', background: 'radial-gradient(circle at center, rgba(168, 85, 247, 0.1) 0%, transparent 70%)' }}>
+                        <div style={{ position: 'absolute', inset: '40px 40px 140px 40px' }}>
+                          <Image 
+                            src={giveaway.image_url} 
+                            alt={giveaway.title} 
+                            fill
+                            sizes="(max-width: 768px) 100vw, 33vw"
+                            style={{ objectFit: 'contain', filter: giveaway.is_active ? 'drop-shadow(0 4px 20px rgba(0,0,0,0.5))' : 'grayscale(100%) opacity(0.3)' }}
+                          />
+                        </div>
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(11,15,25,0) 50%, rgba(11,15,25,0.9) 80%, rgba(11,15,25,1) 100%)' }} />
                       </div>
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1e1b4b 0%, #020617 100%)' }}>
