@@ -33,9 +33,9 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
   const [commentText, setCommentText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleCopy = () => {
-    if (secret?.credentials) {
-      navigator.clipboard.writeText(secret.credentials);
+  const handleCopy = (text: string) => {
+    if (text) {
+      navigator.clipboard.writeText(text);
       toast.success('Copied', 'Credential copied to clipboard.');
     }
   };
@@ -54,24 +54,9 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
       toast.success('Success', 'Comment added.');
       setCommentText('');
       
-      // Optimistic update
-      if (currentUser) {
-        const newComment = {
-          id: Math.random().toString(),
-          giveaway_id: giveaway.id,
-          user_id: currentUser.id,
-          comment_text: commentText,
-          created_at: new Date().toISOString(),
-          parent_id: null,
-          profile: {
-            id: currentUser.id,
-            display_name: currentUser.name || 'User',
-            avatar_url: currentUser.image || '',
-            role: currentUser.role || ''
-          }
-        };
-        setComments([newComment, ...comments]);
-      }
+      // Removed optimistic update due to ID matching issue for subsequent deletions.
+      // Wait for page refresh or load to see it.
+      window.location.reload();
     } catch (err: unknown) {
       const error = err as Error;
       toast.error('Error', error.message || 'Failed to post comment.');
@@ -92,8 +77,20 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
     }
   };
 
-  // Convert metadata object into array of [key, value]
   const metadataEntries = giveaway.metadata ? Object.entries(giveaway.metadata) : [];
+  
+  let accountEmail = '';
+  let accountPassword = '';
+  
+  if (giveaway.type === 'ACCOUNT' && secret?.credentials) {
+    try {
+      const parsed = JSON.parse(secret.credentials);
+      accountEmail = parsed.email || '';
+      accountPassword = parsed.password || '';
+    } catch {
+      accountEmail = secret.credentials; // Fallback
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -105,23 +102,27 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
           animate={{ opacity: 1, y: 0 }}
           className={styles.card}
         >
-          <div className={styles.cardHeader}>
-            <span className={styles.typeBadge}>{giveaway.type}</span>
+          {/* Logo Header */}
+          {giveaway.image_url && (
+             <div style={{ padding: '40px 32px 0', display: 'flex', justifyContent: 'center' }}>
+                <Image 
+                  src={giveaway.image_url} 
+                  alt={giveaway.title} 
+                  width={140} 
+                  height={140} 
+                  style={{ objectFit: 'contain', filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.5))' }}
+                />
+             </div>
+          )}
+
+          <div className={styles.cardHeader} style={{ paddingTop: giveaway.image_url ? '24px' : '40px' }}>
+            <span className={styles.typeBadge}>{giveaway.type === 'ACCOUNT' ? 'Account' : 'VPN Key'}</span>
             <h1 className={styles.title}>{giveaway.title}</h1>
             <p className={styles.description}>{giveaway.description}</p>
           </div>
 
-          {/* QR Code Section (Only if Secret is Available) */}
-          {secret?.qr_code_url && (
-            <div className={styles.qrContainer}>
-              <div className={styles.qrFrame}>
-                <Image src={secret.qr_code_url} alt="QR Code" width={200} height={200} />
-              </div>
-            </div>
-          )}
-
           {/* Info Table */}
-          <div style={{ padding: '0 24px' }}>
+          <div style={{ padding: '32px 24px' }}>
             <table className={styles.dataTable}>
               <tbody>
                 <tr className={styles.dataRow}>
@@ -147,19 +148,42 @@ export default function GiveawayDetailClient({ giveaway, secret, initialComments
           {/* Protected Area: Credentials / Auth Wall */}
           {currentUser ? (
             <div className={styles.credentialsWrapper}>
-              <div className={styles.credentialsTitle}>
-                <span>Connection Key / Credentials</span>
-                <span className={styles.copyLabel}>Click to Copy</span>
-              </div>
-              <div className={styles.terminal} onClick={handleCopy}>
-                {secret?.credentials || 'No credentials found.'}
-              </div>
+              
+              {giveaway.type === 'VPN_KEY' ? (
+                <>
+                  <div className={styles.credentialsTitle}>
+                    <span>Connection Key / Credentials</span>
+                    <span className={styles.copyLabel} onClick={() => handleCopy(secret?.credentials || '')} style={{ cursor: 'pointer' }}>Click to Copy</span>
+                  </div>
+                  <div className={styles.terminal} onClick={() => handleCopy(secret?.credentials || '')}>
+                    {secret?.credentials || 'No credentials found.'}
+                  </div>
+                </>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                   <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                         <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '4px' }}>Email Address</div>
+                         <div style={{ fontSize: '16px', color: '#fff', fontWeight: 600 }}>{accountEmail || 'N/A'}</div>
+                      </div>
+                      <button className="btn btn-ghost" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#d8b4fe' }} onClick={() => handleCopy(accountEmail)}>Copy Email</button>
+                   </div>
+                   <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                         <div style={{ fontSize: '13px', color: '#94a3b8', marginBottom: '4px' }}>Password</div>
+                         <div style={{ fontSize: '16px', color: '#fff', fontFamily: 'monospace' }}>{accountPassword || 'N/A'}</div>
+                      </div>
+                      <button className="btn btn-ghost" style={{ background: 'rgba(168, 85, 247, 0.1)', color: '#d8b4fe' }} onClick={() => handleCopy(accountPassword)}>Copy Pass</button>
+                   </div>
+                </div>
+              )}
+
             </div>
           ) : (
             <div className={styles.authWall}>
               <div className={styles.authWallIcon}>🔒</div>
               <h3>Sign in to Unlock</h3>
-              <p>You need to be logged in to view the QR code and credentials.</p>
+              <p>You need to be logged in to view the credentials.</p>
               <Link href={`/login?callbackUrl=/giveaways/${giveaway.id}`} className={styles.loginBtn}>
                 Login Now
               </Link>

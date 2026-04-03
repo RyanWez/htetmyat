@@ -214,15 +214,17 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                 }}
                 style={{ padding: 0, overflow: 'hidden', height: '320px', position: 'relative', borderRadius: '24px', border: '1px solid rgba(168, 85, 247, 0.15)', backgroundColor: '#0b0f19', cursor: 'pointer', boxShadow: '0 8px 30px rgba(0,0,0,0.5)' }}
               >
-                  <motion.div style={{ position: 'absolute', inset: 0 }} variants={{ hover: { scale: 1.05 } }} transition={{ duration: 0.6 }}>
+                  <motion.div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }} variants={{ hover: { scale: 1.05 } }} transition={{ duration: 0.6 }}>
                     {giveaway.image_url ? (
-                      <Image 
-                        src={giveaway.image_url} 
-                        alt={giveaway.title} 
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        style={{ objectFit: 'cover', opacity: 0.4 }}
-                      />
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, rgba(168, 85, 247, 0.15) 0%, #020617 100%)' }}>
+                        <Image 
+                          src={giveaway.image_url} 
+                          alt={giveaway.title} 
+                          width={140}
+                          height={140}
+                          style={{ objectFit: 'contain', opacity: giveaway.is_active ? 0.9 : 0.4, filter: 'drop-shadow(0 0 20px rgba(0,0,0,0.5))' }}
+                        />
+                      </div>
                     ) : (
                       <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'radial-gradient(circle at center, #1e1b4b 0%, #020617 100%)' }}>
                         <span style={{ fontSize: '80px', opacity: 0.1 }}>{getTypeIcon(giveaway.type)}</span>
@@ -231,7 +233,7 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                   </motion.div>
 
                   <div style={{ position: 'absolute', top: 16, right: 16, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(10px)', padding: '6px 12px', borderRadius: '30px', fontSize: '12px', border: '1px solid rgba(255,255,255,0.1)', display: 'flex', gap: '6px', alignItems: 'center', zIndex: 2, color: '#e2e8f0', fontWeight: 600 }}>
-                    {giveaway.type}
+                    {giveaway.type === 'ACCOUNT' ? 'Account' : giveaway.type === 'VPN_KEY' ? 'VPN Key' : giveaway.type}
                   </div>
 
                   <motion.div 
