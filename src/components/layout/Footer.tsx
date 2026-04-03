@@ -38,7 +38,7 @@ export default function Footer() {
           <div className={styles.devCredit}>
             <span className={styles.devText}>Developed by</span>
             <a 
-              href="https://ryanwez.vercel.app" 
+              href="https://ryanwez.com" 
               target="_blank" 
               rel="noopener noreferrer"
               className={styles.devLink}
