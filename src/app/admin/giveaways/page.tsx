@@ -13,7 +13,7 @@ type AugmentedGiveaway = Giveaway & Partial<GiveawaySecret>;
 
 const LOGOS = [
   'expressvpn.png', 'outline.png', 'shadowrocket.png', 
-  'tidal.png', 'toggle.png', 'v2box.png', 'v2ray.png'
+  'tidal.png', 'toggle.png', 'v2box.png', 'v2ray.png','hiddify.png'
 ];
 
 export default function AdminGiveaways() {
@@ -56,7 +56,7 @@ export default function AdminGiveaways() {
     
     let email = '';
     let password = '';
-    let credentials = item.credentials || '';
+    const credentials = item.credentials || '';
     
     if (item.type === 'ACCOUNT') {
       try {
@@ -178,7 +178,7 @@ export default function AdminGiveaways() {
                 <tr key={item.id} className={!item.is_active ? styles.rowInactive : ''}>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      {item.image_url && <img src={item.image_url} alt="" width={24} height={24} style={{ borderRadius: '4px' }} />}
+                      {item.image_url && <Image src={item.image_url} alt="" width={24} height={24} style={{ borderRadius: '4px', objectFit: 'contain' }} />}
                       {item.title}
                     </div>
                   </td>
@@ -228,7 +228,7 @@ export default function AdminGiveaways() {
                 <div className={styles.formGroup}>
                   <label className="input-label">Target Logo *</label>
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    {form.image_url && <img src={form.image_url} alt="preview" width={40} height={40} style={{ borderRadius: '8px', background: 'rgba(255,255,255,0.1)' }} />}
+                    {form.image_url && <Image src={form.image_url} alt="preview" width={40} height={40} style={{ borderRadius: '8px', background: 'rgba(255,255,255,0.1)', objectFit: 'contain' }} />}
                     <select className="select-field" style={{ flex: 1 }} value={form.image_url} onChange={e => setForm({...form, image_url: e.target.value})}>
                       {LOGOS.map(logo => (
                         <option key={logo} value={`/giveways/${logo}`}>{logo}</option>

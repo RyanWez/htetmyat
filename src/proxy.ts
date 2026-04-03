@@ -22,7 +22,7 @@ export default auth((req) => {
   }
 
   // Public paths
-  const publicPaths = ['/login', '/api/auth', '/blog', '/apple-ids'];
+  const publicPaths = ['/login', '/api/auth', '/blog', '/apple-ids', '/giveaways'];
   
   // Exact match for '/' (Home), startWith match for other public paths
   const isPublicPath = 

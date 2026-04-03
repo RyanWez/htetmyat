@@ -260,7 +260,7 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                         </p>
 
                         <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: giveaway.is_active ? 'rgba(168, 85, 247, 0.2)' : 'rgba(255,255,255,0.05)', color: giveaway.is_active ? '#d8b4fe' : '#94a3b8', border: `1px solid ${giveaway.is_active ? 'rgba(168, 85, 247, 0.4)' : 'rgba(255,255,255,0.1)'}`, padding: '10px 20px', borderRadius: '100px', fontSize: '14px', fontWeight: 600, width: '100%', justifyContent: 'center', transition: 'all 0.2s' }}>
-                          <span>{giveaway.is_active ? (currentUser ? 'View Credentials' : 'Login to Unlock') : 'View Details'}</span> <span style={{ fontSize: '16px' }}>&rarr;</span>
+                          <span>{giveaway.is_active ? (currentUser ? 'View Credentials' : (giveaway.type === 'ACCOUNT' ? 'Unlock Account' : 'Unlock Key')) : 'View Details'}</span> <span style={{ fontSize: '16px' }}>&rarr;</span>
                         </div>
                   </motion.div>
 
