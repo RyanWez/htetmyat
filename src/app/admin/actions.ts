@@ -106,48 +106,19 @@ export async function getWeeklyActivityStats() {
 
   const supabase = await createServiceClient();
 
-  // Get logs for the last 7 days
-  const lastWeek = new Date();
-  lastWeek.setDate(lastWeek.getDate() - 7);
-
-  const { data: logs, error } = await supabase
-    .from('activity_logs')
-    .select('created_at, user_id, metadata')
-    .gte('created_at', lastWeek.toISOString());
+  // Professional approach: Let PostgreSQL handle timezone-aware aggregation
+  // The RPC function uses Asia/Yangon timezone and generate_series to produce
+  // exactly 7 days ending with today, with proper LEFT JOIN for zero-fill
+  const { data, error } = await supabase.rpc('get_weekly_activity_stats');
 
   if (error) {
-    console.error('Error fetching logs:', error);
+    console.error('Error fetching weekly stats:', error);
     return [];
   }
 
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const results = [];
-  const MMT_OFFSET = 6.5 * 60 * 60 * 1000;
-  
-  // Create last 7 days including today
-  for (let i = 6; i >= 0; i--) {
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() - i);
-    
-    // Normalize targetDate to Myanmar Time Date String
-    const targetMmtDate = new Date(targetDate.getTime() + MMT_OFFSET);
-    const targetDayString = targetMmtDate.getUTCDate();
-    const targetMonthString = targetMmtDate.getUTCMonth();
-    const dayName = days[targetMmtDate.getUTCDay()];
-    
-    const dayLogs = logs?.filter(l => {
-      const logUtcDate = new Date(l.created_at);
-      const logMmtDate = new Date(logUtcDate.getTime() + MMT_OFFSET);
-      return logMmtDate.getUTCDate() === targetDayString && 
-             logMmtDate.getUTCMonth() === targetMonthString;
-    }) || [];
-
-    results.push({
-      name: dayName,
-      weekly: new Set(dayLogs.filter(l => l.user_id).map(l => l.user_id)).size,
-      nonLogin: new Set(dayLogs.filter(l => !l.user_id).map(l => (l.metadata as ActivityMetadata)?.userAgent || Math.random())).size
-    });
-  }
-
-  return results;
+  return (data || []).map((row: { day_name: string; weekly_users: number; non_login: number }) => ({
+    name: row.day_name,
+    weekly: row.weekly_users,
+    nonLogin: row.non_login,
+  }));
 }
