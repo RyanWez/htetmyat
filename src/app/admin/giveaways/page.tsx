@@ -13,7 +13,8 @@ type AugmentedGiveaway = Giveaway & Partial<GiveawaySecret>;
 
 const LOGOS = [
   'expressvpn.png', 'outline.png', 'shadowrocket.png', 
-  'tidal.png', 'toggle.png', 'v2box.png', 'v2ray.png','hiddify.png'
+  'tidal.png', 'toggle.png', 'v2box.png', 'v2ray.png', 'hiddify.png' ,
+  'avira.png', 'f-secure.png'
 ];
 
 export default function AdminGiveaways() {
