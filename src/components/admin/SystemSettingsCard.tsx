@@ -27,13 +27,19 @@ export default function SystemSettingsCard({ initialSettings }: props) {
         maintenance_end_time: settings.maintenance_end_time || null,
       });
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 3000);
-    } catch (e) {
+    } catch {
       alert('Failed to save settings');
     } finally {
       setIsSaving(false);
     }
   };
+
+  React.useEffect(() => {
+    if (success) {
+      const t = setTimeout(() => setSuccess(false), 3000);
+      return () => clearTimeout(t);
+    }
+  }, [success]);
 
   return (
     <div className="glass-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--bg-elevated)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
