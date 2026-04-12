@@ -8,6 +8,9 @@ export const metadata: Metadata = {
   keywords: ['apple ids', 'free apple id', 'ios', 'app store account'],
 };
 
+export const revalidate = 60;
+
+
 export default async function HomePage() {
   const supabase = await createClient();
   const { count } = await supabase
