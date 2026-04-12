@@ -1,12 +1,15 @@
 import { auth } from '@/lib/auth';
 import AvatarUpload from '@/components/admin/AvatarUpload';
 import NameThemeSelector from '@/components/admin/NameThemeSelector';
+import SystemSettingsCard from '@/components/admin/SystemSettingsCard';
 import { getProfileData } from './actions';
+import { getSiteSettings } from '@/lib/settings';
 
 export default async function AdminSettingsPage() {
   const session = await auth();
   const currentAvatar = session?.user?.image || null;
   const profile = await getProfileData();
+  const siteSettings = await getSiteSettings();
 
   return (
     <div className="admin-page-container">
@@ -36,13 +39,8 @@ export default async function AdminSettingsPage() {
           <NameThemeSelector currentTheme={profile?.name_theme || 'none'} />
         </div>
 
-        {/* Other Settings (Placeholder) */}
-        <div className="glass-card" style={{ padding: '2.5rem 2rem' }}>
-          <h2 style={{ marginBottom: '1.5rem' }}>Account Security</h2>
-          <div style={{ height: '300px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-inset)', borderRadius: 'var(--radius-lg)', color: 'var(--text-tertiary)', border: '2px dashed var(--border-default)' }}>
-            <p>Password & TFA coming soon.</p>
-          </div>
-        </div>
+        {/* System Settings & Maintenance */}
+        <SystemSettingsCard initialSettings={siteSettings} />
       </div>
     </div>
   );
