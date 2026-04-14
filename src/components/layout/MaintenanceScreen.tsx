@@ -33,6 +33,10 @@ export default function MaintenanceScreen({ message, endTime }: MaintenanceScree
         });
       } else {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        // Timer expired — reload after a short delay so the server
+        // auto-disables maintenance mode and shows the real site
+        clearInterval(timer);
+        setTimeout(() => window.location.reload(), 3000);
       }
     };
 

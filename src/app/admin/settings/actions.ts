@@ -2,7 +2,7 @@
 
 import { createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
-import { revalidatePath } from 'next/cache';
+import { revalidatePath, revalidateTag } from 'next/cache';
 
 export async function updateNameTheme(theme: string) {
   const session = await auth();
@@ -64,6 +64,7 @@ export async function updateSystemSettings(data: {
     throw new Error('Failed to update system settings');
   }
   
+  revalidateTag('site_settings', 'default');
   revalidatePath('/', 'layout');
 
   return { success: true };

@@ -33,12 +33,34 @@ export const getSiteSettings = unstable_cache(
         return defaultSettings;
       }
       
-      return data[0] as SiteSettings;
+      const settings = data[0] as SiteSettings;
+
+      // Auto-disable maintenance mode if the end time has passed
+      if (
+        settings.maintenance_mode &&
+        settings.maintenance_end_time &&
+        new Date(settings.maintenance_end_time).getTime() <= Date.now()
+      ) {
+        const { error: updateError } = await supabase
+          .from('site_settings')
+          .update({
+            maintenance_mode: false,
+            maintenance_end_time: null,
+          })
+          .eq('id', settings.id);
+
+        if (!updateError) {
+          settings.maintenance_mode = false;
+          settings.maintenance_end_time = null;
+        }
+      }
+
+      return settings;
     } catch (err) {
       console.error('Error in getSiteSettings:', err);
       return defaultSettings;
     }
   },
   ['site_settings_cache'], // Cache key
-  { tags: ['site_settings'] } // Tag for on-demand revalidation
+  { tags: ['site_settings'], revalidate: 30 } // Revalidate every 30s so timer expiry is detected promptly
 );
