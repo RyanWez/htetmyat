@@ -106,11 +106,6 @@ export default function NotificationCenter() {
     
     initFetch();
     
-    // Fallback Polling (every 15s) to guarantee updates if WebSocket gets blocked
-    const interval = setInterval(() => {
-      if (isMounted) fetchNotis(true);
-    }, 15000);
-    
     // Window focus fetch (feels real-time when returning to tab)
     const onFocus = () => {
       if (isMounted) fetchNotis(true);
@@ -119,7 +114,6 @@ export default function NotificationCenter() {
 
     return () => {
       isMounted = false;
-      clearInterval(interval);
       window.removeEventListener('focus', onFocus);
     };
   }, [fetchNotis]);

@@ -33,14 +33,15 @@ export default function AppleIdsClient() {
 
   const PAGE_SIZE = 12;
 
-  // Polling setup (replaces Realtime to avoid 200 connections limit)
+  // Refetch data when window regains focus (replaces heavy polling)
   useEffect(() => {
-    const interval = setInterval(() => {
-      setDbRevision(prev => prev + 1); // Trigger refetch on interval
-    }, 60000); // Poll every 60 seconds
-
+    const onFocus = () => {
+      setDbRevision(prev => prev + 1); // Trigger refetch on focus
+    };
+    
+    window.addEventListener('focus', onFocus);
     return () => {
-      clearInterval(interval);
+      window.removeEventListener('focus', onFocus);
     };
   }, []);
 
