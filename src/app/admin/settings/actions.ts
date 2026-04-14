@@ -7,7 +7,7 @@ import { revalidatePath, revalidateTag } from 'next/cache';
 export async function updateNameTheme(theme: string) {
   const session = await auth();
   if (!session?.user?.id) {
-    throw new Error('Unauthorized');
+    return { success: false, error: 'Unauthorized' };
   }
 
   const supabase = await createServiceClient();
@@ -19,7 +19,7 @@ export async function updateNameTheme(theme: string) {
 
   if (error) {
     console.error('Error updating name theme:', error);
-    throw new Error('Failed to update theme');
+    return { success: false, error: 'Failed to update theme' };
   }
 
   revalidatePath('/admin/settings');
@@ -51,7 +51,7 @@ export async function updateSystemSettings(data: {
 }) {
   const session = await auth();
   if (session?.user?.role !== 'admin') {
-    throw new Error('Unauthorized');
+    return { success: false, error: 'Unauthorized' };
   }
 
   const supabase = await createServiceClient();
@@ -61,7 +61,7 @@ export async function updateSystemSettings(data: {
 
   if (error) {
     console.error('Error updating system settings:', error);
-    throw new Error('Failed to update system settings');
+    return { success: false, error: 'Failed to update system settings' };
   }
   
   revalidateTag('site_settings', 'default');

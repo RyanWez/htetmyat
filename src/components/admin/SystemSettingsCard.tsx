@@ -21,14 +21,18 @@ export default function SystemSettingsCard({ initialSettings }: props) {
     setIsSaving(true);
     setSuccess(false);
     try {
-      await updateSystemSettings({
+      const res = await updateSystemSettings({
         maintenance_mode: settings.maintenance_mode,
         maintenance_message: settings.maintenance_message,
         maintenance_end_time: settings.maintenance_end_time || null,
       });
-      setSuccess(true);
+      if (res.success) {
+        setSuccess(true);
+      } else {
+        alert(res.error || 'Failed to save settings');
+      }
     } catch {
-      alert('Failed to save settings');
+      alert('An unexpected error occurred');
     } finally {
       setIsSaving(false);
     }
