@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useToast } from '@/components/ui/Toast';
-import { checkAccountStatus, checkDeviceLimitByEmail, registerDeviceByEmail } from './actions';
+import { checkAccountStatus, checkDeviceLimitByEmail } from './actions';
 import { generateDeviceFingerprint, getDeviceName } from '@/lib/device-fingerprint';
 import styles from './login.module.css';
 
@@ -116,8 +116,7 @@ function LoginContent() {
       }
     } catch (err) {
       console.error('Login submit error:', err);
-      // Ignore NEXT_REDIRECT errors so Next.js can navigate
-      if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string' && (err as any).message.includes('NEXT_REDIRECT')) {
+      if (err && typeof err === 'object' && 'message' in err && typeof (err as Record<string, unknown>).message === 'string' && ((err as Record<string, unknown>).message as string).includes('NEXT_REDIRECT')) {
         throw err;
       }
       
