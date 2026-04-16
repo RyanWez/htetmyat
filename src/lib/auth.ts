@@ -3,8 +3,8 @@ import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 
 
-// Check interval for is_active status (30 seconds)
-const ACTIVE_CHECK_INTERVAL_MS = 30 * 1000;
+// Check interval for is_active status (10 minutes)
+const ACTIVE_CHECK_INTERVAL_MS = 10 * 60 * 1000;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,

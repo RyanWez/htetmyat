@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import Providers from '@/components/Providers';
-import ActivityTracker from '@/components/ActivityTracker';
 import PushPromptDialog from '@/components/layout/PushPromptDialog';
 
 export const metadata: Metadata = {
@@ -48,7 +47,6 @@ export default function RootLayout({
       </head>
       <body>
         <Providers>
-          <ActivityTracker />
           <PushPromptDialog />
           {children}
         </Providers>

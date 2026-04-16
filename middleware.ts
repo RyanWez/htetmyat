@@ -38,8 +38,9 @@ export default auth((req) => {
 // - api (API routes)
 // - _next/static (static files)
 // - _next/image (image optimization files)
+// - _vercel (vercel internals)
 // - favicon.ico, sitemap.xml, robots.txt (metadata files)
 // - manifest.json, sw.js, worker-* (PWA files)
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|manifest.json|sw.js|worker-.*).*)'],
+  matcher: ['/((?!api|_next/static|_next/image|_vercel|favicon.ico|manifest.json|sw.js|worker-.*).*)'],
 };
