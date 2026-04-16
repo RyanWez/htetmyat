@@ -86,11 +86,34 @@ export async function updateSystemSettings(data: {
     if (standardProfiles && standardProfiles.length > 0) {
       const standardUserIds = standardProfiles.map(p => p.id);
       
-      // Delete devices only for standard users, forcing them to log out and re-register under the new limit
-      await supabase
+      // Get all devices associated with these standard users
+      const { data: allDevices } = await supabase
         .from('user_devices')
-        .delete()
+        .select('user_id')
         .in('user_id', standardUserIds);
+
+      if (allDevices && allDevices.length > 0) {
+        // Tally up how many devices each user has
+        const userDeviceCounts: Record<string, number> = {};
+        for (const device of allDevices) {
+          userDeviceCounts[device.user_id] = (userDeviceCounts[device.user_id] || 0) + 1;
+        }
+
+        // Identify users who EXCEED the NEW limit
+        const violatingUserIds = Object.keys(userDeviceCounts).filter(
+          userId => userDeviceCounts[userId] > data.max_devices_default
+        );
+
+        if (violatingUserIds.length > 0) {
+          console.log(`Wiping devices for ${violatingUserIds.length} users who exceeded the new limit of ${data.max_devices_default}`);
+          
+          // Delete devices ONLY for violating users, forcing them to log out and re-register under the new rules
+          await supabase
+            .from('user_devices')
+            .delete()
+            .in('user_id', violatingUserIds);
+        }
+      }
     }
   }
   
