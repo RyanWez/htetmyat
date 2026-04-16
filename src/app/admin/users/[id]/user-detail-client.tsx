@@ -401,7 +401,7 @@ export default function UserDetailClient({ user, initialDevices }: { user: User;
                         {device.device_name}
                       </p>
                       <div style={{ display: 'flex', gap: '12px', marginTop: '2px', flexWrap: 'wrap' }}>
-                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span suppressHydrationWarning style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           🕒 {getRelativeTime(device.last_used_at)}
                         </span>
                         <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
