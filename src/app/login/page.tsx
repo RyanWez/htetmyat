@@ -120,7 +120,21 @@ function LoginContent() {
       if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string' && (err as any).message.includes('NEXT_REDIRECT')) {
         throw err;
       }
-      toast.error('Error', 'စနစ်ချို့ယွင်းမှုဖြစ်ပေါ်နေပါတယ်။ ခဏနေမှပြန်ကြိုးစားကြည့်ပါ။');
+      
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      if (errorMessage === 'DEVICE_LIMIT_REACHED') {
+        toast.error(
+          '📱 Device Limit ပြည့်သွားပါပြီ',
+          'ခွင့်ပြုထားသော Device အရေအတွက် ပြည့်သွားပါပြီ။ အကူအညီလိုပါက Admin ထံ ဆက်သွယ်ပါ။'
+        );
+      } else if (errorMessage === 'ACCOUNT_SUSPENDED') {
+        toast.error(
+          '🚫 အကောင့် ရပ်ထားပါသည်',
+          'သင့်အကောင့်ကို Admin မှ ရပ်ဆိုင်းထားပါသည်။ အကူအညီလိုပါက Admin ထံ ဆက်သွယ်ပါ။'
+        );
+      } else {
+        toast.error('Error', 'စနစ်ချို့ယွင်းမှုဖြစ်ပေါ်နေပါတယ်။ ခဏနေမှပြန်ကြိုးစားကြည့်ပါ။');
+      }
     } finally {
       setLoading(false);
     }
