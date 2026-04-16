@@ -93,6 +93,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             role: role,
             image: data.user.user_metadata?.avatar_url || null,
             name_theme: profile?.name_theme || null,
+            fingerprint: credentials.fingerprint, // Pass fingerprint to JWT
           };
         } catch (err) {
           // Re-throw ACCOUNT_SUSPENDED so NextAuth propagates it
@@ -113,6 +114,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.isBanned = false;
         token.lastActiveCheck = Date.now();
         token.name_theme = user.name_theme;
+        token.device_fingerprint = (user as any).fingerprint || null;
       }
 
       // Periodic check: verify the user is still active in the database
@@ -132,15 +134,34 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               .eq('id', token.id)
               .single();
 
-            // Check if user has at least one registered device
-            const { count: deviceCount } = await serviceClient
-              .from('user_devices')
-              .select('*', { count: 'exact', head: true })
-              .eq('user_id', token.id);
+            // Check if this specific session's device still exists
+            let isDeviceMissing = false;
+            if (token.device_fingerprint) {
+              const { data: myDevice } = await serviceClient
+                .from('user_devices')
+                .select('id')
+                .eq('user_id', token.id)
+                .eq('device_fingerprint', token.device_fingerprint)
+                .single();
+              
+              if (!myDevice) {
+                isDeviceMissing = true;
+              }
+            } else {
+              // Fallback for older sessions that don't have token.device_fingerprint
+              const { count: deviceCount } = await serviceClient
+                .from('user_devices')
+                .select('*', { count: 'exact', head: true })
+                .eq('user_id', token.id);
+                
+              if (deviceCount === 0) {
+                isDeviceMissing = true;
+              }
+            }
 
             if (profile) {
-              // Mark user as banned if they are inactive, OR if they are a standard user with NO registered devices
-              const isDeviceBanned = token.role !== 'admin' && deviceCount === 0;
+              // Mark user as banned if they are inactive, OR if their specific device was deleted
+              const isDeviceBanned = token.role !== 'admin' && isDeviceMissing;
               token.isBanned = !profile.is_active || isDeviceBanned;
               token.picture = profile.avatar_url; // Update picture in token
               token.name_theme = profile.name_theme;
