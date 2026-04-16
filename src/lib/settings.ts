@@ -6,6 +6,7 @@ export interface SiteSettings {
   maintenance_mode: boolean;
   maintenance_message: string | null;
   maintenance_end_time: string | null;
+  max_devices_default: number;
   updated_at: string;
 }
 
@@ -14,6 +15,7 @@ const defaultSettings: SiteSettings = {
   maintenance_mode: false,
   maintenance_message: 'We are currently under maintenance. Please check back later.',
   maintenance_end_time: null,
+  max_devices_default: 1,
   updated_at: new Date().toISOString(),
 };
 

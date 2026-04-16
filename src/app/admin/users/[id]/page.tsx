@@ -1,4 +1,4 @@
-import { fetchUserById } from '../actions';
+import { fetchUserById, fetchUserDevices } from '../actions';
 import UserDetailClient from '@/app/admin/users/[id]/user-detail-client';
 import { notFound } from 'next/navigation';
 
@@ -17,5 +17,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
     notFound();
   }
 
-  return <UserDetailClient user={user} />;
+  const devicesResult = await fetchUserDevices(id);
+
+  return <UserDetailClient user={user} initialDevices={devicesResult.data || []} />;
 }

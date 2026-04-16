@@ -57,9 +57,19 @@ export interface Profile {
   avatar_url: string | null;
   role: 'admin' | 'user';
   is_active: boolean;
+  max_devices: number | null;
   created_at: string;
   updated_at: string;
   display_name_changed_at: string | null;
+}
+
+export interface UserDevice {
+  id: string;
+  user_id: string;
+  device_fingerprint: string;
+  device_name: string;
+  last_used_at: string;
+  created_at: string;
 }
 
 export interface NotificationTemplate {
@@ -135,6 +145,11 @@ export interface Database {
         Row: GiveawayComment;
         Insert: Omit<GiveawayComment, 'id' | 'created_at'>;
         Update: Partial<Omit<GiveawayComment, 'id' | 'created_at'>>;
+      };
+      user_devices: {
+        Row: UserDevice;
+        Insert: Omit<UserDevice, 'id' | 'last_used_at' | 'created_at'>;
+        Update: Partial<Omit<UserDevice, 'id' | 'created_at'>>;
       };
     };
   };

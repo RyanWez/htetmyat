@@ -194,3 +194,89 @@ export async function deleteUser(id: string) {
     return { success: false, error: error.message || 'Failed to delete user' };
   }
 }
+
+// ==========================================
+// Device Management Actions
+// ==========================================
+
+export async function fetchUserDevices(userId: string) {
+  try {
+    await verifyAdmin();
+    const supabase = await createServiceClient();
+
+    const { data: devices, error } = await supabase
+      .from('user_devices')
+      .select('*')
+      .eq('user_id', userId)
+      .order('last_used_at', { ascending: false });
+
+    if (error) throw error;
+
+    return { success: true, data: devices || [] };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error fetching user devices:', error);
+    return { success: false, data: [], error: error.message || 'Failed to fetch devices' };
+  }
+}
+
+export async function removeDevice(deviceId: string) {
+  try {
+    await verifyAdmin();
+    const supabase = await createServiceClient();
+
+    const { error } = await supabase
+      .from('user_devices')
+      .delete()
+      .eq('id', deviceId);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error removing device:', error);
+    return { success: false, error: error.message || 'Failed to remove device' };
+  }
+}
+
+export async function removeAllDevices(userId: string) {
+  try {
+    await verifyAdmin();
+    const supabase = await createServiceClient();
+
+    const { error } = await supabase
+      .from('user_devices')
+      .delete()
+      .eq('user_id', userId);
+
+    if (error) throw error;
+
+    return { success: true };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error removing all devices:', error);
+    return { success: false, error: error.message || 'Failed to remove all devices' };
+  }
+}
+
+export async function updateMaxDevices(userId: string, maxDevices: number | null) {
+  try {
+    await verifyAdmin();
+    const supabase = await createServiceClient();
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ max_devices: maxDevices })
+      .eq('id', userId);
+
+    if (error) throw error;
+
+    revalidatePath(`/admin/users/${userId}`);
+    return { success: true };
+  } catch (err) {
+    const error = err as Error;
+    console.error('Error updating max devices:', error);
+    return { success: false, error: error.message || 'Failed to update device limit' };
+  }
+}

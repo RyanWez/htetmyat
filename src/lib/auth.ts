@@ -14,6 +14,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        fingerprint: { label: 'Fingerprint', type: 'text' },
+        deviceName: { label: 'Device Name', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -58,6 +60,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (profile && profile.is_active === false) {
             throw new Error('ACCOUNT_SUSPENDED');
+          }
+
+          // Record new device fingerprint if provided
+          if (credentials.fingerprint && credentials.deviceName) {
+            await serviceClient
+              .from('user_devices')
+              .upsert(
+                {
+                  user_id: data.user.id,
+                  device_fingerprint: credentials.fingerprint as string,
+                  device_name: credentials.deviceName as string,
+                  last_used_at: new Date().toISOString(),
+                },
+                {
+                  onConflict: 'user_id,device_fingerprint',
+                }
+              );
           }
 
           // Determine role: check env ADMIN_EMAIL first, then user metadata
@@ -113,8 +132,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               .eq('id', token.id)
               .single();
 
+            // Check if user has at least one registered device
+            const { count: deviceCount } = await serviceClient
+              .from('user_devices')
+              .select('*', { count: 'exact', head: true })
+              .eq('user_id', token.id);
+
             if (profile) {
-              token.isBanned = !profile.is_active;
+              // Mark user as banned if they are inactive, OR if they have NO registered devices
+              token.isBanned = !profile.is_active || (deviceCount === 0);
               token.picture = profile.avatar_url; // Update picture in token
               token.name_theme = profile.name_theme;
             }

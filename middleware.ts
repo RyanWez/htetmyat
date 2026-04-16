@@ -9,6 +9,11 @@ export default auth((req) => {
   // Prevent logged-in users from accessing the login page
   if (isAuthPage) {
     if (isLoggedIn) {
+      // Do not redirect POST requests (like Server Actions) back to root, 
+      // otherwise Next.js client RPC parsing fails. Let them complete naturally.
+      if (req.method === 'POST') {
+        return null;
+      }
       return Response.redirect(new URL("/", nextUrl));
     }
     return null;

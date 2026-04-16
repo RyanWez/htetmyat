@@ -48,6 +48,7 @@ export async function updateSystemSettings(data: {
   maintenance_mode: boolean;
   maintenance_message: string | null;
   maintenance_end_time: string | null;
+  max_devices_default: number;
 }) {
   const session = await auth();
   if (session?.user?.role !== 'admin') {

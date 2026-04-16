@@ -9,6 +9,7 @@ interface props {
     maintenance_mode: boolean;
     maintenance_message: string | null;
     maintenance_end_time: string | null;
+    max_devices_default: number;
   };
 }
 
@@ -25,6 +26,7 @@ export default function SystemSettingsCard({ initialSettings }: props) {
         maintenance_mode: settings.maintenance_mode,
         maintenance_message: settings.maintenance_message,
         maintenance_end_time: settings.maintenance_end_time || null,
+        max_devices_default: settings.max_devices_default,
       });
       if (res.success) {
         setSuccess(true);
@@ -163,6 +165,70 @@ export default function SystemSettingsCard({ initialSettings }: props) {
           )}
         </AnimatePresence>
 
+      </div>
+
+      {/* Device Limit Section */}
+      <div style={{ background: 'var(--bg-inset)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-default)', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', overflow: 'hidden' }}>
+        {/* Subtle background glow for premium feel */}
+        <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '150px', height: '150px', background: 'var(--brand-primary, #6366f1)', opacity: 0.05, filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', position: 'relative', zIndex: 1 }}>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--brand-primary, #6366f1)', fontSize: '0.9rem' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+              </div>
+              Device Limit
+            </h3>
+            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4', display: 'inline-block', maxWidth: '300px' }}>
+              Set the global maximum allowed devices per user to prevent account sharing.
+            </span>
+          </div>
+          
+          {/* Segmented Control for 1-3 devices */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-default)' }}>
+            {[1, 2, 3].map((num) => {
+              const isSelected = settings.max_devices_default === num;
+              return (
+                <button
+                  key={num}
+                  onClick={() => setSettings({ ...settings, max_devices_default: num })}
+                  style={{
+                    width: '44px',
+                    height: '36px',
+                    borderRadius: '6px',
+                    border: '1px solid',
+                    borderColor: isSelected ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    background: isSelected ? 'var(--bg-elevated, #2a2a35)' : 'transparent',
+                    color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                    fontWeight: isSelected ? 600 : 500,
+                    fontSize: '0.9rem',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+                    boxShadow: isSelected ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.color = '#ffffff';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!isSelected) {
+                      e.currentTarget.style.color = 'var(--text-secondary)';
+                      e.currentTarget.style.background = 'transparent';
+                    }
+                  }}
+                >
+                  {num} <span style={{ fontSize: '0.75rem', opacity: isSelected ? 0.7 : 0.5, marginLeft: '2px' }}>{num === 1 ? 'pc' : 'pcs'}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>

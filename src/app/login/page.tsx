@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 import { useToast } from '@/components/ui/Toast';
-import { checkAccountStatus } from './actions';
+import { checkAccountStatus, checkDeviceLimitByEmail, registerDeviceByEmail } from './actions';
+import { generateDeviceFingerprint, getDeviceName } from '@/lib/device-fingerprint';
 import styles from './login.module.css';
 
 function LoginContent() {
@@ -18,19 +19,42 @@ function LoginContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const suspendedToastShown = useRef(false);
+  const deviceFingerprintRef = useRef<string>('');
+  const deviceNameRef = useRef<string>('Unknown Device');
+
+  // Generate device fingerprint on mount
+  useEffect(() => {
+    generateDeviceFingerprint().then(fp => {
+      deviceFingerprintRef.current = fp;
+    });
+    deviceNameRef.current = getDeviceName();
+  }, []);
 
   // Show suspended toast when redirected from middleware
   useEffect(() => {
     const reason = searchParams.get('reason');
     if (reason === 'suspended' && !suspendedToastShown.current) {
       suspendedToastShown.current = true;
-      // Small delay so toast renders after page mount
       const timer = setTimeout(() => {
         toast.error(
           '🚫 အကောင့် ရပ်ထားပါသည်',
           'သင့်အကောင့်ကို Admin မှ ရပ်ဆိုင်းထားပါသည်။ အကူအညီလိုပါက Admin ထံ ဆက်သွယ်ပါ။'
         );
-        // Clean the URL without reloading
+        router.replace('/login', { scroll: false });
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams, toast, router]);
+
+  // Show device limit toast when redirected
+  useEffect(() => {
+    const reason = searchParams.get('reason');
+    if (reason === 'device_limit') {
+      const timer = setTimeout(() => {
+        toast.error(
+          '📱 Device ကန့်သတ်ချက်',
+          'သင့် Device ကန့်သတ်ချက် ပြည့်သွားပါပြီ။ Admin ထံ ဆက်သွယ်ပါ။'
+        );
         router.replace('/login', { scroll: false });
       }, 300);
       return () => clearTimeout(timer);
@@ -53,15 +77,30 @@ function LoginContent() {
         return;
       }
 
-      // Step 2: Proceed with login
+      // Step 2: Check device limit BEFORE login
+      const fingerprint = deviceFingerprintRef.current;
+      if (fingerprint) {
+        const deviceCheck = await checkDeviceLimitByEmail(email, fingerprint);
+        if (!deviceCheck.allowed) {
+          toast.error(
+            '📱 Device ကန့်သတ်ချက် ပြည့်သွားပါပြီ',
+            'သင့်အကောင့်အတွက် Device အရေအတွက် ပြည့်သွားပါပြီ။ Admin ထံ ဆက်သွယ်ပါ။'
+          );
+          setLoading(false);
+          return;
+        }
+      }
+
+      // Step 3: Proceed with login
       const result = await signIn('credentials', {
         email,
         password,
+        fingerprint,
+        deviceName: deviceNameRef.current,
         redirect: false,
       });
 
       if (result?.error) {
-        // Check if the error is about suspension
         if (result.error.includes('ACCOUNT_SUSPENDED') || result.code === 'ACCOUNT_SUSPENDED') {
           toast.error(
             '🚫 အကောင့် ရပ်ထားပါသည်',
@@ -71,10 +110,16 @@ function LoginContent() {
           toast.error('Login Failed', 'အကောင့်မရှိတာ (သို့) Password မှားနေပါတယ်');
         }
       } else {
+        // Device is now securely registered natively inside auth.ts!
         router.push('/');
         router.refresh();
       }
-    } catch {
+    } catch (err) {
+      console.error('Login submit error:', err);
+      // Ignore NEXT_REDIRECT errors so Next.js can navigate
+      if (err && typeof err === 'object' && 'message' in err && typeof (err as any).message === 'string' && (err as any).message.includes('NEXT_REDIRECT')) {
+        throw err;
+      }
       toast.error('Error', 'စနစ်ချို့ယွင်းမှုဖြစ်ပေါ်နေပါတယ်။ ခဏနေမှပြန်ကြိုးစားကြည့်ပါ။');
     } finally {
       setLoading(false);

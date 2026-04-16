@@ -4,7 +4,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { updateUserRole, updateUserStatus, deleteUser, updateUserPassword } from '../actions';
+import { updateUserRole, updateUserStatus, deleteUser, updateUserPassword, removeDevice, removeAllDevices, updateMaxDevices } from '../actions';
 
 interface User {
   id: string;
@@ -15,30 +15,56 @@ interface User {
   created_at: string;
   last_sign_in_at?: string;
   name_theme?: string;
+  max_devices?: number | null;
 }
 
-export default function UserDetailClient({ user }: { user: User }) {
+interface Device {
+  id: string;
+  user_id: string;
+  device_fingerprint: string;
+  device_name: string;
+  last_used_at: string;
+  created_at: string;
+}
+
+export default function UserDetailClient({ user, initialDevices }: { user: User; initialDevices: Device[] }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [isResetting, setIsResetting] = useState(false);
+  const [devices, setDevices] = useState<Device[]>(initialDevices);
+  const [now] = useState(() => Date.now());
+  const [maxDevicesInput, setMaxDevicesInput] = useState<string>(
+    user.max_devices !== null && user.max_devices !== undefined ? String(user.max_devices) : ''
+  );
   const router = useRouter();
+
+  const showSuccess = (msg: string) => {
+    setError('');
+    setSuccess(msg);
+    setTimeout(() => setSuccess(''), 4000);
+  };
+
+  const showError = (msg: string) => {
+    setSuccess('');
+    setError(msg);
+  };
 
   const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newRole = e.target.value;
     setError(''); setSuccess('');
     startTransition(async () => {
       const res = await updateUserRole(user.id, newRole);
-      if (res.success) setSuccess('Access privileges updated successfully');
-      else setError(res.error || 'Failed to update access privileges');
+      if (res.success) showSuccess('Access privileges updated successfully');
+      else showError(res.error || 'Failed to update access privileges');
     });
   };
 
   const handlePasswordReset = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPassword || newPassword.length < 6) {
-      setError('Password must be at least 6 characters');
+      showError('Password must be at least 6 characters');
       return;
     }
     setError(''); setSuccess('');
@@ -47,10 +73,10 @@ export default function UserDetailClient({ user }: { user: User }) {
       const res = await updateUserPassword(user.id, newPassword);
       setIsResetting(false);
       if (res.success) {
-        setSuccess('Password updated successfully');
+        showSuccess('Password updated successfully');
         setNewPassword('');
       } else {
-        setError(res.error || 'Failed to update password');
+        showError(res.error || 'Failed to update password');
       }
     });
   };
@@ -59,8 +85,8 @@ export default function UserDetailClient({ user }: { user: User }) {
     setError(''); setSuccess('');
     startTransition(async () => {
       const res = await updateUserStatus(user.id, !user.is_active);
-      if (res.success) setSuccess(user.is_active ? 'Account suspended successfully' : 'Account activated successfully');
-      else setError(res.error || 'Failed to update account status');
+      if (res.success) showSuccess(user.is_active ? 'Account suspended successfully' : 'Account activated successfully');
+      else showError(res.error || 'Failed to update account status');
     });
   };
 
@@ -72,10 +98,73 @@ export default function UserDetailClient({ user }: { user: User }) {
         if (res.success) {
           router.push('/admin/users');
         } else {
-          setError(res.error || 'Failed to delete user');
+          showError(res.error || 'Failed to delete user');
         }
       });
     }
+  };
+
+  const handleRemoveDevice = (deviceId: string, deviceName: string) => {
+    if (!confirm(`"${deviceName}" ကို ဖြုတ်မှာ သေချာပါသလား?`)) return;
+    startTransition(async () => {
+      const res = await removeDevice(deviceId);
+      if (res.success) {
+        setDevices(prev => prev.filter(d => d.id !== deviceId));
+        showSuccess(`${deviceName} ကို ဖြုတ်လိုက်ပါပြီ`);
+      } else {
+        showError(res.error || 'Failed to remove device');
+      }
+    });
+  };
+
+  const handleRemoveAllDevices = () => {
+    if (!confirm(`${user.display_name || user.email} ရဲ့ Device အားလုံးကို ဖြုတ်မှာ သေချာပါသလား? ပြန် Login ဝင်ဖို့ လိုပါလိမ့်မယ်။`)) return;
+    startTransition(async () => {
+      const res = await removeAllDevices(user.id);
+      if (res.success) {
+        setDevices([]);
+        showSuccess('Device အားလုံး ဖြုတ်လိုက်ပါပြီ');
+      } else {
+        showError(res.error || 'Failed to remove all devices');
+      }
+    });
+  };
+
+  const handleMaxDevicesUpdate = () => {
+    const value = maxDevicesInput.trim() === '' ? null : parseInt(maxDevicesInput, 10);
+    if (value !== null && (isNaN(value) || value < 1 || value > 10)) {
+      showError('Device limit must be between 1 and 10');
+      return;
+    }
+    startTransition(async () => {
+      const res = await updateMaxDevices(user.id, value);
+      if (res.success) {
+        showSuccess(value === null ? 'Using global default device limit' : `Device limit set to ${value}`);
+      } else {
+        showError(res.error || 'Failed to update device limit');
+      }
+    });
+  };
+
+  // Helper to get device icon
+  const getDeviceIcon = (name: string) => {
+    if (name.includes('iPhone') || name.includes('Android')) return '📱';
+    if (name.includes('iPad')) return '📲';
+    if (name.includes('macOS') || name.includes('Windows') || name.includes('Linux')) return '💻';
+    return '🖥️';
+  };
+
+  // Helper for relative time (uses stable `now` from useState to avoid impure render)
+  const getRelativeTime = (dateStr: string) => {
+    const diff = now - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    return new Date(dateStr).toLocaleDateString();
   };
 
   return (
@@ -157,7 +246,8 @@ export default function UserDetailClient({ user }: { user: User }) {
           {[
             { label: 'System ID', value: user.id.split('-')[0] + '••••', full: user.id, icon: '🆔' },
             { label: 'Member Since', value: new Date(user.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }), icon: '📅' },
-            { label: 'Last Activity', value: user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Never logged in', icon: '🕒' }
+            { label: 'Last Activity', value: user.last_sign_in_at ? new Date(user.last_sign_in_at).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Never logged in', icon: '🕒' },
+            { label: 'Active Devices', value: `${devices.length} device${devices.length !== 1 ? 's' : ''}`, icon: '📱' }
           ].map((stat, i) => (
             <motion.div 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 + (i * 0.05) }}
@@ -175,6 +265,172 @@ export default function UserDetailClient({ user }: { user: User }) {
             </motion.div>
           ))}
         </div>
+
+        {/* ==========================================
+            Device Management Section
+            ========================================== */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} style={{ marginBottom: 'var(--space-8)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 'var(--space-4)', flexWrap: 'wrap', gap: '12px' }}>
+            <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              📱 Device Management
+            </h2>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Max devices control */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'var(--bg-elevated)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-default)' }}>
+                <span style={{ fontSize: '0.7rem', textTransform: 'uppercase', color: 'var(--text-tertiary)', fontWeight: 700, margin: '0 6px' }}>LIMIT:</span>
+                {['', '1', '2', '3'].map((val) => {
+                  const isSelected = maxDevicesInput === val;
+                  const label = val === '' ? 'System' : val;
+                  return (
+                    <button
+                      key={label}
+                      disabled={isPending}
+                      onClick={() => {
+                        setMaxDevicesInput(val);
+                        // Auto-save logic can go here if preferred, but we will leave the Set button instead
+                      }}
+                      style={{
+                        padding: '4px 10px',
+                        height: '28px',
+                        borderRadius: '6px',
+                        border: '1px solid',
+                        borderColor: isSelected ? 'rgba(255,255,255,0.1)' : 'transparent',
+                        background: isSelected ? 'var(--brand-primary)' : 'transparent',
+                        color: isSelected ? '#ffffff' : 'var(--text-secondary)',
+                        fontWeight: isSelected ? 600 : 500,
+                        fontSize: '0.8rem',
+                        cursor: isPending ? 'wait' : 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: isSelected ? '0 2px 6px rgba(99, 102, 241, 0.4)' : 'none',
+                        outline: 'none',
+                      }}
+                      onMouseOver={(e) => {
+                        if (!isSelected && !isPending) {
+                          e.currentTarget.style.color = '#ffffff';
+                          e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                        }
+                      }}
+                      onMouseOut={(e) => {
+                        if (!isSelected && !isPending) {
+                          e.currentTarget.style.color = 'var(--text-secondary)';
+                          e.currentTarget.style.background = 'transparent';
+                        }
+                      }}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+                <div style={{ width: '1px', height: '16px', background: 'var(--border-default)', margin: '0 4px' }} />
+                <button
+                  onClick={handleMaxDevicesUpdate}
+                  disabled={isPending || maxDevicesInput === (user.max_devices?.toString() || '')}
+                  style={{
+                    padding: '4px 12px', height: '28px', borderRadius: '6px', border: '1px solid rgba(255,255,255,0.1)',
+                    background: 'var(--bg-surface-solid)', color: '#fff', fontSize: '0.75rem',
+                    fontWeight: 600, cursor: isPending || maxDevicesInput === (user.max_devices?.toString() || '') ? 'not-allowed' : 'pointer', opacity: isPending || maxDevicesInput === (user.max_devices?.toString() || '') ? 0.5 : 1,
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!(isPending || maxDevicesInput === (user.max_devices?.toString() || ''))) {
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!(isPending || maxDevicesInput === (user.max_devices?.toString() || ''))) {
+                      e.currentTarget.style.background = 'var(--bg-surface-solid)';
+                    }
+                  }}
+                >
+                  Save
+                </button>
+              </div>
+              {devices.length > 0 && (
+                <button
+                  onClick={handleRemoveAllDevices}
+                  disabled={isPending}
+                  style={{
+                    padding: '6px 14px', borderRadius: 'var(--radius-md)', border: 'none',
+                    background: 'var(--accent-danger-light)', color: 'var(--accent-danger)',
+                    fontWeight: 600, fontSize: '0.8rem', cursor: isPending ? 'wait' : 'pointer',
+                    opacity: isPending ? 0.7 : 1, transition: 'all 0.2s',
+                    boxShadow: 'inset 0 0 0 1px currentColor',
+                  }}
+                >
+                  Clear All
+                </button>
+              )}
+            </div>
+          </div>
+
+          {devices.length === 0 ? (
+            <div className="glass-card" style={{ padding: '40px 24px', textAlign: 'center' }}>
+              <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.4 }}>📱</div>
+              <p style={{ color: 'var(--text-tertiary)', margin: 0, fontWeight: 500 }}>
+                No devices registered. User needs to log in to register a device.
+              </p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {devices.map((device, i) => (
+                <motion.div
+                  key={device.id}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="glass-card device-row"
+                  style={{
+                    padding: '16px 20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: '16px',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      width: 42, height: 42, borderRadius: 'var(--radius-lg)',
+                      background: 'var(--bg-elevated)', display: 'flex', alignItems: 'center',
+                      justifyContent: 'center', fontSize: '22px', flexShrink: 0,
+                      border: '1px solid var(--border-default)',
+                    }}>
+                      {getDeviceIcon(device.device_name)}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <p style={{ margin: 0, fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {device.device_name}
+                      </p>
+                      <div style={{ display: 'flex', gap: '12px', marginTop: '2px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          🕒 {getRelativeTime(device.last_used_at)}
+                        </span>
+                        <span style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          📅 {new Date(device.created_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleRemoveDevice(device.id, device.device_name)}
+                    disabled={isPending}
+                    title="Remove this device"
+                    style={{
+                      width: 34, height: 34, borderRadius: 'var(--radius-md)',
+                      border: '1px solid var(--border-default)', background: 'var(--bg-elevated)',
+                      color: 'var(--accent-danger)', cursor: isPending ? 'wait' : 'pointer',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: '16px', transition: 'all 0.2s', flexShrink: 0,
+                      opacity: isPending ? 0.5 : 1,
+                    }}
+                    className="device-remove-btn"
+                  >
+                    ✕
+                  </button>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
 
         {/* Settings Actions */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-8)' }}>
@@ -277,14 +533,18 @@ export default function UserDetailClient({ user }: { user: User }) {
         .back-btn:hover { background: rgba(255,255,255,0.1) !important; color: var(--text-primary) !important; transform: translateX(-4px); }
         
         .banner-content { padding: 56px 32px 32px 32px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 24px; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8); }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-6); margin-bottom: var(--space-8); }
         .action-card { padding: 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
         .action-form { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        
+        .device-row { transition: background 0.2s; }
+        .device-row:hover { background: var(--bg-surface-hover); }
+        .device-remove-btn:hover { background: var(--accent-danger-light) !important; border-color: var(--accent-danger) !important; }
         
         @media (max-width: 640px) {
           .banner-content { padding: 56px 20px 24px 20px; flex-direction: column; gap: 16px; }
           .banner-content-title { font-size: 1.5rem !important; flex-wrap: wrap; }
-          .stats-grid { grid-template-columns: 1fr; margin-bottom: var(--space-6); }
+          .stats-grid { grid-template-columns: 1fr 1fr; margin-bottom: var(--space-6); }
           .action-card { flex-direction: column; align-items: stretch; text-align: left; padding: 20px; gap: 16px; }
           .action-form { flex-direction: column; align-items: stretch; }
           .action-card button, .action-card select, .action-form input { width: 100%; box-sizing: border-box; }
