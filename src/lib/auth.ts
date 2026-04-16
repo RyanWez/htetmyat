@@ -114,7 +114,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.isBanned = false;
         token.lastActiveCheck = Date.now();
         token.name_theme = user.name_theme;
-        token.device_fingerprint = (user as any).fingerprint || null;
+        token.device_fingerprint = (user as unknown as { fingerprint?: string }).fingerprint || null;
       }
 
       // Periodic check: verify the user is still active in the database
