@@ -50,11 +50,19 @@ export async function fetchMyProfile() {
     // 3. Get auth data for last_sign_in_at
     const { data: authData } = await supabase.auth.admin.getUserById(user.id);
 
+    // 4. Get User's Active Devices
+    const { data: devices } = await supabase
+      .from('user_devices')
+      .select('id, device_name, last_used_at, created_at')
+      .eq('user_id', user.id)
+      .order('last_used_at', { ascending: false });
+
     return {
       success: true,
       data: {
         ...profile,
         last_sign_in_at: authData?.user?.last_sign_in_at,
+        devices: devices || [],
       },
     };
   } catch (err) {

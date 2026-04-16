@@ -21,6 +21,12 @@ interface ProfileData {
   display_name_changed_at: string | null;
   last_sign_in_at?: string;
   name_theme?: string;
+  devices?: {
+    id: string;
+    device_name: string;
+    last_used_at: string;
+    created_at: string;
+  }[];
 }
 
 export default function ProfileClient({ profile }: { profile: ProfileData }) {
@@ -76,6 +82,17 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
     }
     return () => { if (dismissTimer.current) clearTimeout(dismissTimer.current); };
   }, [error, success, clearMessages]);
+
+  const getRelativeTime = (dateStr: string) => {
+    if (!now) return '...'; // Prevent hydration mismatch before mount
+    const diff = now - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    return `${Math.floor(hours / 24)}d ago`;
+  };
 
   const handleUpdateName = () => {
     clearMessages();
@@ -595,6 +612,83 @@ export default function ProfileClient({ profile }: { profile: ProfileData }) {
             <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'flex-end', marginLeft: 'auto' }}>
               <PushSubscribeButton />
             </div>
+          </div>
+        </motion.div>
+
+        {/* Device History */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.38 }}
+          style={{
+            display: 'flex', flexDirection: 'column',
+            gap: 'var(--space-4)', marginBottom: 'var(--space-8)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+            <h2 style={{
+              fontSize: '1.1rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)',
+            }}>
+              Active Devices
+            </h2>
+            <span style={{ fontSize: '0.9rem', color: 'var(--text-tertiary)', fontWeight: 600 }}>
+              {profile.devices?.length || 0} device{(profile.devices?.length || 0) !== 1 ? 's' : ''}
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {profile.devices && profile.devices.length > 0 ? (
+              profile.devices.map((device, idx) => {
+                const getDeviceIcon = (name: string) => {
+                  const n = name.toLowerCase();
+                  if (n.includes('mac')) return '💻';
+                  if (n.includes('iphone') || n.includes('mobile')) return '📱';
+                  if (n.includes('windows')) return '🪟';
+                  return '💻';
+                };
+
+                return (
+                  <motion.div
+                    key={device.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.05 * idx }}
+                    className="glass-card"
+                    style={{
+                      padding: '16px 20px', display: 'flex', alignItems: 'center',
+                      border: '1px solid var(--border-default)',
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', flex: 1, gap: 16 }}>
+                      <div style={{
+                        width: 48, height: 48, borderRadius: 'var(--radius-md)',
+                        background: 'var(--bg-elevated)', display: 'flex',
+                        alignItems: 'center', justifyContent: 'center', fontSize: 24,
+                      }}>
+                        {getDeviceIcon(device.device_name)}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <p style={{ margin: '0 0 2px 0', fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {device.device_name}
+                        </p>
+                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                          <span suppressHydrationWarning style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            🕒 {getRelativeTime(device.last_used_at)}
+                          </span>
+                          <span style={{ fontSize: '0.85rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            📅 {new Date(device.last_used_at).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })
+            ) : (
+              <div className="glass-card" style={{ padding: '24px', textAlign: 'center' }}>
+                <p style={{ margin: 0, color: 'var(--text-tertiary)' }}>No active devices found.</p>
+              </div>
+            )}
           </div>
         </motion.div>
 
