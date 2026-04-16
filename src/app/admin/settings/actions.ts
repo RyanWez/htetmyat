@@ -56,6 +56,14 @@ export async function updateSystemSettings(data: {
   }
 
   const supabase = await createServiceClient();
+  
+  // Get current settings to detect if device limit is changing
+  const { data: currentSettings } = await supabase
+    .from('site_settings')
+    .select('max_devices_default')
+    .eq('id', 1)
+    .single();
+
   const { error } = await supabase
     .from('site_settings')
     .upsert({ id: 1, ...data });
@@ -63,6 +71,17 @@ export async function updateSystemSettings(data: {
   if (error) {
     console.error('Error updating system settings:', error);
     return { success: false, error: 'Failed to update system settings' };
+  }
+
+  // If the device limit was changed, enforce a global reset
+  if (currentSettings && currentSettings.max_devices_default !== data.max_devices_default) {
+    console.log(`Global device limit changed from ${currentSettings.max_devices_default} to ${data.max_devices_default}. Forcing global reset...`);
+    
+    // 1. Delete ALL registered devices so every user (including admins) is forced to log out and re-register
+    await supabase.from('user_devices').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    
+    // 2. Wipe any custom user overrides so everyone inherits the new global limit
+    await supabase.from('profiles').update({ max_devices: null }).neq('id', '00000000-0000-0000-0000-000000000000');
   }
   
   revalidateTag('site_settings', 'default');
