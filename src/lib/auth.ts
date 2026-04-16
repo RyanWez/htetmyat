@@ -139,8 +139,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               .eq('user_id', token.id);
 
             if (profile) {
-              // Mark user as banned if they are inactive, OR if they have NO registered devices
-              token.isBanned = !profile.is_active || (deviceCount === 0);
+              // Mark user as banned if they are inactive, OR if they are a standard user with NO registered devices
+              const isDeviceBanned = token.role !== 'admin' && deviceCount === 0;
+              token.isBanned = !profile.is_active || isDeviceBanned;
               token.picture = profile.avatar_url; // Update picture in token
               token.name_theme = profile.name_theme;
             }

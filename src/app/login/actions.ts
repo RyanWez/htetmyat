@@ -74,6 +74,22 @@ export async function checkDeviceLimitByEmail(
 
     const userId = profile.id;
 
+    // Check if user is an Admin (Admins have unlimited devices)
+    const adminEmails = (process.env.ADMIN_EMAIL || '').split(',').map(e => e.trim().toLowerCase());
+    let isAdmin = adminEmails.includes(email.toLowerCase().trim());
+
+    if (!isAdmin) {
+      // Check user metadata for admin role
+      const { data: userAuth } = await supabase.auth.admin.getUserById(userId);
+      if (userAuth?.user?.user_metadata?.role === 'admin') {
+        isAdmin = true;
+      }
+    }
+
+    if (isAdmin) {
+      return { allowed: true };
+    }
+
     // Check if this device is already registered for this user
     const { data: existingDevice } = await supabase
       .from('user_devices')

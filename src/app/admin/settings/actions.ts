@@ -73,15 +73,25 @@ export async function updateSystemSettings(data: {
     return { success: false, error: 'Failed to update system settings' };
   }
 
-  // If the device limit was changed, enforce a global reset
+  // If the device limit was changed, enforce a global reset ONLY on typical users
   if (currentSettings && currentSettings.max_devices_default !== data.max_devices_default) {
-    console.log(`Global device limit changed from ${currentSettings.max_devices_default} to ${data.max_devices_default}. Forcing global reset...`);
+    console.log(`Global device limit changed from ${currentSettings.max_devices_default} to ${data.max_devices_default}. Resetting global users...`);
     
-    // 1. Delete ALL registered devices so every user (including admins) is forced to log out and re-register
-    await supabase.from('user_devices').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    
-    // 2. Wipe any custom user overrides so everyone inherits the new global limit
-    await supabase.from('profiles').update({ max_devices: null }).neq('id', '00000000-0000-0000-0000-000000000000');
+    // Fetch users who do NOT have a custom override (they follow the global limit)
+    const { data: standardProfiles } = await supabase
+      .from('profiles')
+      .select('id')
+      .is('max_devices', null);
+
+    if (standardProfiles && standardProfiles.length > 0) {
+      const standardUserIds = standardProfiles.map(p => p.id);
+      
+      // Delete devices only for standard users, forcing them to log out and re-register under the new limit
+      await supabase
+        .from('user_devices')
+        .delete()
+        .in('user_id', standardUserIds);
+    }
   }
   
   revalidateTag('site_settings', 'default');
