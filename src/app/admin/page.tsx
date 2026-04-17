@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import dynamic from 'next/dynamic';
-import { getDashboardStats, getUserActivityStats, getWeeklyActivityStats } from './actions';
+import { getDashboardStats, getWeeklyActivityStats } from './actions';
 
 // Lazy-load DashboardClient to code-split recharts (~200KB) out of the main bundle.
 // Recharts is only needed on this admin page — no reason to ship it to every user.
@@ -22,16 +22,10 @@ export const revalidate = 0;
 
 export default async function AdminDashboardPage() {
   // Fetch all data in parallel on the server during the initial render request
-  const [stats, dailyRes, weeklyRes] = await Promise.all([
+  const [stats, weeklyRes] = await Promise.all([
     getDashboardStats(),
-    getUserActivityStats(),
     getWeeklyActivityStats(),
   ]);
 
-  const chartData = {
-    daily: dailyRes,
-    weekly: weeklyRes,
-  };
-
-  return <DashboardClient stats={stats} chartData={chartData} />;
+  return <DashboardClient stats={stats} chartData={weeklyRes} />;
 }

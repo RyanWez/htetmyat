@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { 
@@ -25,17 +24,10 @@ interface ChartData {
 
 interface DashboardClientProps {
   stats: DashboardStats;
-  chartData: {
-    daily: ChartData[];
-    weekly: ChartData[];
-  };
+  chartData: ChartData[];
 }
 
 export default function DashboardClient({ stats, chartData }: DashboardClientProps) {
-  const [chartType, setChartType] = useState<'daily' | 'weekly'>('daily');
-
-  const currentChartData = chartType === 'daily' ? chartData.daily : chartData.weekly;
-
   const statCards = [
     { label: 'Total IDs', value: stats.totalIds, icon: <AppleIcon />, color: 'var(--brand-primary)' },
     { label: 'Active IDs', value: stats.activeIds, icon: '✅', color: 'var(--accent-success)' },
@@ -87,24 +79,15 @@ export default function DashboardClient({ stats, chartData }: DashboardClientPro
           <div className={styles.chartHeader}>
             <h2 className={styles.sectionTitle} style={{ margin: 0 }}>User Activity</h2>
             <div className={styles.chartToggles}>
-              <button 
-                className={`${styles.chartToggle} ${chartType === 'daily' ? styles.chartToggleActive : ''}`}
-                onClick={() => setChartType('daily')}
-              >
-                Daily
-              </button>
-              <button 
-                className={`${styles.chartToggle} ${chartType === 'weekly' ? styles.chartToggleActive : ''}`}
-                onClick={() => setChartType('weekly')}
-              >
+              <span className={`${styles.chartToggle} ${styles.chartToggleActive}`}>
                 Weekly
-              </button>
+              </span>
             </div>
           </div>
           
           <div className={styles.chartContainer} style={{ minWidth: (typeof window !== 'undefined' && window.innerWidth < 640) ? '600px' : '100%' }}>
             <ResponsiveContainer width="100%" height={300}>
-              <AreaChart data={currentChartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="var(--brand-primary)" stopOpacity={0.15}/>
@@ -140,8 +123,8 @@ export default function DashboardClient({ stats, chartData }: DashboardClientPro
                 />
                 <Area
                   type="monotone"
-                  dataKey={chartType === 'daily' ? 'daily' : 'weekly'}
-                  name={chartType === 'daily' ? 'Active Users' : 'Weekly Visitors'}
+                  dataKey="weekly"
+                  name="Weekly Visitors"
                   stroke="var(--brand-primary)"
                   strokeWidth={3}
                   fillOpacity={1}
