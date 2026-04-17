@@ -3,8 +3,8 @@ import Credentials from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 
 
-// Check interval for is_active status (10 minutes)
-const ACTIVE_CHECK_INTERVAL_MS = 10 * 60 * 1000;
+// Check interval for is_active status (30 minutes — optimized from 10min to reduce Supabase API usage)
+const ACTIVE_CHECK_INTERVAL_MS = 60 * 60 * 1000;
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET,
@@ -143,7 +143,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 .eq('user_id', token.id)
                 .eq('device_fingerprint', token.device_fingerprint)
                 .single();
-              
+
               if (!myDevice) {
                 isDeviceMissing = true;
               }
@@ -153,7 +153,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 .from('user_devices')
                 .select('*', { count: 'exact', head: true })
                 .eq('user_id', token.id);
-                
+
               if (deviceCount === 0) {
                 isDeviceMissing = true;
               }

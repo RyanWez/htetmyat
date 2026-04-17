@@ -268,9 +268,8 @@ export default function AppleIdsClient() {
                   >
                         {/* Status Row with Pulse Animation */}
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-                          <motion.span 
-                            animate={{ opacity: [1, 0.4, 1], scale: [1, 0.8, 1] }} 
-                            transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                          <span 
+                            className="status-pulse"
                             style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: appleId.is_active ? '#10b981' : '#ef4444', boxShadow: appleId.is_active ? '0 0 12px #10b981' : '0 0 12px #ef4444' }}
                           />
                           <span style={{ color: appleId.is_active ? '#34d399' : '#f87171', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px' }}>

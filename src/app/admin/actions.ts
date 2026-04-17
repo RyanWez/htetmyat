@@ -42,7 +42,21 @@ export async function getUserActivityStats() {
   }
 
   const supabase = await createServiceClient();
-  
+
+  // ── Optimized: Try database-side aggregation via RPC first ──
+  // This avoids fetching all activity_logs rows and processing in JS.
+  // Falls back to client-side aggregation if RPC doesn't exist yet.
+  const { data: rpcData, error: rpcError } = await supabase.rpc('get_daily_activity_stats');
+
+  if (!rpcError && rpcData) {
+    return (rpcData as { name: string; daily: number; non_login: number }[]).map(row => ({
+      name: row.name,
+      daily: row.daily,
+      nonLogin: row.non_login,
+    }));
+  }
+
+  // ── Fallback: client-side aggregation (used before RPC migration is applied) ──
   const MMT_OFFSET = 6.5 * 60 * 60 * 1000; // 6.5 hours in milliseconds
   
   // Get start of today (Midnight in Myanmar Time)

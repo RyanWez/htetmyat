@@ -249,9 +249,8 @@ export default function GiveawaysClient({ currentUser }: GiveawaysClientProps) {
                     transition={{ type: "spring", stiffness: 300, damping: 25 }}
                   >
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                          <motion.span 
-                            animate={giveaway.is_active ? { opacity: [1, 0.4, 1], scale: [1, 1.2, 1] } : {}} 
-                            transition={{ repeat: Infinity, duration: 2 }}
+                          <span 
+                            className={giveaway.is_active ? "status-pulse" : ""}
                             style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', backgroundColor: giveaway.is_active ? '#10b981' : '#64748b', boxShadow: giveaway.is_active ? '0 0 15px rgba(16, 185, 129, 0.6)' : 'none' }}
                           />
                           <span style={{ color: giveaway.is_active ? '#34d399' : '#94a3b8', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px' }}>

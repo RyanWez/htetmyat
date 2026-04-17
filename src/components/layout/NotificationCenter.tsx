@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { createClient } from '@/lib/supabase/client';
+
 import { useToast } from '@/components/ui/Toast';
 import { getMyNotifications, markNotificationAsRead, markAllAsRead, NotificationWithRead } from './notification-actions';
 import { usePushSubscription } from '@/hooks/usePushSubscription';
@@ -118,27 +118,18 @@ export default function NotificationCenter() {
     };
   }, [fetchNotis]);
 
+  // Gentle periodic poll every 2 minutes (replaces Supabase Realtime to conserve free tier connections)
+  // Combined with the window-focus refetch above, this provides near-real-time updates
+  // without consuming persistent WebSocket connections (free tier limit: 200 concurrent)
   useEffect(() => {
-    // Only subscribe to realtime if authenticated
     if (status !== 'authenticated') return;
     
-    const supabase = createClient();
-    const userId = session?.user?.id;
+    const interval = setInterval(() => {
+      fetchNotis(true);
+    }, 2 * 60 * 1000); // Every 2 minutes
     
-    // Create a stable channel name
-    const channel = supabase.channel('global_notifications')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications' }, (payload) => {
-        const newNoti = payload.new;
-        if (newNoti.type === 'global' || newNoti.user_id === userId) {
-           fetchNotis(true);
-        }
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [status, session?.user?.id, fetchNotis]);
+    return () => clearInterval(interval);
+  }, [status, fetchNotis]);
 
   // Handle outside click closure
   useEffect(() => {
