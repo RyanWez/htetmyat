@@ -1,6 +1,17 @@
 import { Metadata } from 'next';
-import DashboardClient from './dashboard-client';
+import dynamic from 'next/dynamic';
 import { getDashboardStats, getUserActivityStats, getWeeklyActivityStats } from './actions';
+
+// Lazy-load DashboardClient to code-split recharts (~200KB) out of the main bundle.
+// Recharts is only needed on this admin page — no reason to ship it to every user.
+const DashboardClient = dynamic(() => import('./dashboard-client'), {
+  loading: () => (
+    <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-tertiary)' }}>
+      <div className="spinner" style={{ width: 24, height: 24, margin: '0 auto 16px' }} />
+      <p>Loading Dashboard...</p>
+    </div>
+  ),
+});
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard - HMA',

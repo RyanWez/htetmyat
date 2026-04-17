@@ -30,7 +30,7 @@ function formatTimeAgo(dateString: string) {
 }
 
 export default function NotificationCenter() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [notifications, setNotifications] = useState<NotificationWithRead[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hasMore, setHasMore] = useState(true);
