@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import { updateNameTheme } from '@/app/admin/settings/actions';
 import { useToast } from '@/components/ui/Toast';
+import styles from '@/app/admin/settings/settings.module.css';
 
 const themes = [
-  { id: 'none', label: 'None', class: '' },
-  { id: 'neon', label: 'Neon Glow (Cyan)', class: 'name-theme-neon' },
-  { id: 'matrix', label: 'Matrix Digital (Green)', class: 'name-theme-matrix' },
-  { id: 'matrix-blue', label: 'Matrix Digital (Blue)', class: 'name-theme-matrix-blue' },
-  { id: 'glitch', label: 'Digital Glitch (White)', class: 'name-theme-glitch' },
-  { id: 'gold', label: 'Golden Sparkle (Premium)', class: 'name-theme-gold' },
+  { id: 'none', label: 'Default', class: '' },
+  { id: 'neon', label: 'Neon Glow', class: 'name-theme-neon' },
+  { id: 'matrix', label: 'Matrix Green', class: 'name-theme-matrix' },
+  { id: 'matrix-blue', label: 'Matrix Blue', class: 'name-theme-matrix-blue' },
+  { id: 'glitch', label: 'Glitch Effect', class: 'name-theme-glitch' },
+  { id: 'gold', label: 'Golden Premium', class: 'name-theme-gold' },
 ];
 
 export default function NameThemeSelector({ currentTheme }: { currentTheme: string }) {
@@ -36,78 +37,50 @@ export default function NameThemeSelector({ currentTheme }: { currentTheme: stri
   };
 
   return (
-    <div style={{ width: '100%', marginTop: '2rem' }}>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1rem', color: 'var(--text-primary)' }}>
-        Name Theme Preview
-      </h3>
-      
-      {/* Preview Box */}
-      <div style={{ 
-        padding: '2rem', 
-        background: 'var(--bg-inset)', 
-        borderRadius: 'var(--radius-xl)', 
-        border: '1px solid var(--border-default)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginBottom: '2rem',
-        minHeight: '100px',
-        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)'
-      }}>
-        <span className={`name-theme-${selectedTheme}`} style={{ 
-          fontSize: '1.75rem', 
+    <div className={styles.themeCard}>
+      {/* Live Preview Area */}
+      <div className={styles.themePreviewArea}>
+        <span className={selectedTheme !== 'none' ? `name-theme-${selectedTheme}` : ''} style={{ 
+          fontSize: '1.6rem', 
           fontWeight: 800,
           color: selectedTheme === 'none' ? 'var(--text-primary)' : undefined,
           transition: 'all 0.3s ease'
         }}>
-          {selectedTheme === 'none' ? 'Default Name' : 'Premium Preview'}
+          {selectedTheme === 'none' ? 'Your Name' : 'Premium Preview'}
         </span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.85rem', marginBottom: '1.5rem' }}>
+      {/* Theme Options Grid */}
+      <div className={styles.themeSelector}>
         {themes.map((theme) => (
           <button
             key={theme.id}
             onClick={() => setSelectedTheme(theme.id)}
-            style={{
-              padding: '14px 20px',
-              borderRadius: 'var(--radius-lg)',
-              border: '2px solid',
-              borderColor: selectedTheme === theme.id ? 'var(--brand-primary)' : 'var(--border-default)',
-              background: selectedTheme === theme.id ? 'var(--brand-light)' : 'var(--bg-surface-solid)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              transition: 'all 0.2s ease',
-              width: '100%'
-            }}
+            className={`${styles.themeOption} ${selectedTheme === theme.id ? styles.selected : ''}`}
           >
-            <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{theme.label}</span>
-            {selectedTheme === theme.id && <span style={{ color: 'var(--brand-primary)', fontWeight: 800 }}>✓</span>}
+            <span className={styles.themeOptionLabel}>{theme.label}</span>
+            {selectedTheme === theme.id && <span className={styles.themeCheck}>✓</span>}
           </button>
         ))}
       </div>
 
-      <button
-        onClick={handleSave}
-        disabled={!isChanged || isUpdating}
-        className="btn btn-primary"
-        style={{
-          width: '100%',
-          padding: '16px',
-          fontSize: '1rem',
-          opacity: isChanged ? 1 : 0.5,
-          cursor: (!isChanged || isUpdating) ? 'not-allowed' : 'pointer'
-        }}
-      >
-        {isUpdating ? 'Saving Theme...' : isChanged ? 'Apply Changes' : 'Choose a new theme'}
-      </button>
-      
-      <p style={{ marginTop: '1.25rem', fontSize: '0.85rem', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.5 }}>
-        Choose a theme to see the preview. Click <strong>Apply Changes</strong> to save it to your profile.
-      </p>
+      {/* Actions */}
+      <div className={styles.themeActions}>
+        <button
+          onClick={handleSave}
+          disabled={!isChanged || isUpdating}
+          className="btn btn-primary"
+          style={{
+            width: '100%',
+            padding: '0.75rem',
+            fontSize: '0.9rem',
+            opacity: isChanged ? 1 : 0.5,
+            cursor: (!isChanged || isUpdating) ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {isUpdating ? 'Saving...' : isChanged ? 'Apply Theme' : 'Select a theme'}
+        </button>
+      </div>
     </div>
   );
 }
-

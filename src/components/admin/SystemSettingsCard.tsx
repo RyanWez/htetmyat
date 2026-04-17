@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { updateSystemSettings } from '@/app/admin/settings/actions';
 import { motion, AnimatePresence } from 'framer-motion';
+import styles from '@/app/admin/settings/settings.module.css';
 
 interface props {
   initialSettings: {
@@ -48,50 +49,25 @@ export default function SystemSettingsCard({ initialSettings }: props) {
   }, [success]);
 
   return (
-    <div className="glass-card" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'var(--bg-elevated)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-        <h2 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: 'var(--text-primary)' }}>System Configuration</h2>
-        <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem', margin: 0 }}>
-          Manage global site behavior, offline modes, and maintenance schedules.
-        </p>
-      </div>
-
-      <div style={{ background: 'var(--bg-inset)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-default)', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        
-        {/* Toggle Switch Row */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>Maintenance Mode</h3>
-            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem' }}>
-              Redirect public visitors to a maintenance screen. Admins retain access.
-            </span>
+    <div className={styles.systemCard}>
+      {/* ── Maintenance Mode ── */}
+      <div className={styles.configBlock}>
+        <div className={styles.configHeader}>
+          <div className={styles.configTitle}>
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              Maintenance Mode
+            </h3>
+            <span>Redirect visitors to a maintenance screen. Admins retain full access.</span>
           </div>
-          
+
           <div 
+            className={`${styles.toggle} ${settings.maintenance_mode ? styles.active : ''}`}
             onClick={() => setSettings({ ...settings, maintenance_mode: !settings.maintenance_mode })}
-            style={{
-              width: '44px',
-              height: '24px',
-              background: settings.maintenance_mode ? 'var(--color-success, #22c55e)' : 'rgba(255,255,255,0.1)',
-              borderRadius: '24px',
-              position: 'relative',
-              cursor: 'pointer',
-              transition: 'background 0.3s',
-              flexShrink: 0,
-            }}
           >
             <motion.div
-              layout
-              style={{
-                width: '18px',
-                height: '18px',
-                background: '#ffffff',
-                borderRadius: '50%',
-                position: 'absolute',
-                top: '3px',
-                left: settings.maintenance_mode ? '23px' : '3px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-              }}
+              className={styles.toggleKnob}
+              animate={{ left: settings.maintenance_mode ? '23px' : '3px' }}
               transition={{ type: 'spring', stiffness: 700, damping: 30 }}
             />
           </div>
@@ -103,143 +79,73 @@ export default function SystemSettingsCard({ initialSettings }: props) {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem', overflow: 'hidden' }}
+              style={{ overflow: 'hidden' }}
             >
-              <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                  Maintenance Message
-                </label>
-                <textarea
-                  value={settings.maintenance_message || ''}
-                  onChange={(e) => setSettings({ ...settings, maintenance_message: e.target.value })}
-                  placeholder="e.g. We are performing scheduled upgrades..."
-                  style={{
-                    width: '100%',
-                    padding: '0.875rem',
-                    borderRadius: '8px',
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid var(--border-default)',
-                    color: 'var(--text-primary)',
-                    minHeight: '80px',
-                    resize: 'vertical',
-                    fontSize: '0.9rem',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                  }}
-                  onFocus={(e) => e.target.style.border = '1px solid var(--brand-primary, #9333ea)'}
-                  onBlur={(e) => e.target.style.border = '1px solid var(--border-default)'}
-                />
-              </div>
+              <div className={styles.maintenanceExpanded}>
+                <div className={styles.formField}>
+                  <label>Maintenance Message</label>
+                  <textarea
+                    value={settings.maintenance_message || ''}
+                    onChange={(e) => setSettings({ ...settings, maintenance_message: e.target.value })}
+                    placeholder="e.g. We are performing scheduled upgrades..."
+                  />
+                </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '0.85rem', marginBottom: '0.5rem', color: 'var(--text-secondary)', fontWeight: 500 }}>
-                  Expected End Time (Optional)
-                </label>
-                <input
-                  type="datetime-local"
-                  value={settings.maintenance_end_time ? new Date(new Date(settings.maintenance_end_time).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
-                  onChange={(e) => {
-                    const dateInfo = e.target.value ? new Date(e.target.value).toISOString() : null;
-                    setSettings({ ...settings, maintenance_end_time: dateInfo });
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '0.875rem',
-                    borderRadius: '8px',
-                    background: 'rgba(0,0,0,0.2)',
-                    border: '1px solid var(--border-default)',
-                    color: 'var(--text-primary)',
-                    fontSize: '0.9rem',
-                    fontFamily: 'inherit',
-                    outline: 'none',
-                    colorScheme: 'dark'
-                  }}
-                  onFocus={(e) => e.target.style.border = '1px solid var(--brand-primary, #9333ea)'}
-                  onBlur={(e) => e.target.style.border = '1px solid var(--border-default)'}
-                />
-                <span style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                  A countdown timer will be shown to users if an end time is set.
-                </span>
+                <div className={styles.formField}>
+                  <label>Expected End Time</label>
+                  <input
+                    type="datetime-local"
+                    value={settings.maintenance_end_time ? new Date(new Date(settings.maintenance_end_time).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : ''}
+                    onChange={(e) => {
+                      const dateInfo = e.target.value ? new Date(e.target.value).toISOString() : null;
+                      setSettings({ ...settings, maintenance_end_time: dateInfo });
+                    }}
+                  />
+                  <span className="hint">A countdown timer will be shown to users if set.</span>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
       </div>
 
-      {/* Device Limit Section */}
-      <div style={{ background: 'var(--bg-inset)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-default)', display: 'flex', flexDirection: 'column', gap: '1.25rem', position: 'relative', overflow: 'hidden' }}>
-        {/* Subtle background glow for premium feel */}
-        <div style={{ position: 'absolute', top: '-50%', right: '-10%', width: '150px', height: '150px', background: 'var(--brand-primary, #6366f1)', opacity: 0.05, filter: 'blur(50px)', borderRadius: '50%', pointerEvents: 'none' }} />
-
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem', position: 'relative', zIndex: 1 }}>
-          <div>
-            <h3 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '28px', height: '28px', borderRadius: '6px', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--brand-primary, #6366f1)', fontSize: '0.9rem' }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
-              </div>
+      {/* ── Device Limit ── */}
+      <div className={styles.configBlock}>
+        <div className={styles.configHeader}>
+          <div className={styles.configTitle}>
+            <h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
               Device Limit
             </h3>
-            <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', lineHeight: '1.4', display: 'inline-block', maxWidth: '300px' }}>
-              Set the global maximum allowed devices per user to prevent account sharing.
-            </span>
+            <span>Maximum devices per user to prevent account sharing.</span>
           </div>
-          
-          {/* Segmented Control for 1-3 devices */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-default)' }}>
-            {[1, 2, 3].map((num) => {
-              const isSelected = settings.max_devices_default === num;
-              return (
-                <button
-                  key={num}
-                  onClick={() => setSettings({ ...settings, max_devices_default: num })}
-                  style={{
-                    width: '44px',
-                    height: '36px',
-                    borderRadius: '6px',
-                    border: '1px solid',
-                    borderColor: isSelected ? 'rgba(255,255,255,0.1)' : 'transparent',
-                    background: isSelected ? 'var(--bg-elevated, #2a2a35)' : 'transparent',
-                    color: isSelected ? '#ffffff' : 'var(--text-secondary)',
-                    fontWeight: isSelected ? 600 : 500,
-                    fontSize: '0.9rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-                    boxShadow: isSelected ? '0 2px 8px rgba(0,0,0,0.2)' : 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                  onMouseOver={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.color = '#ffffff';
-                      e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.color = 'var(--text-secondary)';
-                      e.currentTarget.style.background = 'transparent';
-                    }
-                  }}
-                >
-                  {num} <span style={{ fontSize: '0.75rem', opacity: isSelected ? 0.7 : 0.5, marginLeft: '2px' }}>{num === 1 ? 'pc' : 'pcs'}</span>
-                </button>
-              );
-            })}
+
+          <div className={styles.deviceSegmented}>
+            {[1, 2, 3].map((num) => (
+              <button
+                key={num}
+                className={`${styles.deviceBtn} ${settings.max_devices_default === num ? styles.selected : ''}`}
+                onClick={() => setSettings({ ...settings, max_devices_default: num })}
+              >
+                {num} {num === 1 ? 'device' : 'devices'}
+              </button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
+      {/* ── Actions ── */}
+      <div className={styles.systemActions}>
         <AnimatePresence>
           {success && (
             <motion.span 
-              initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }}
-              style={{ color: '#22c55e', fontSize: '0.85rem', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}
+              className={styles.savedBadge}
+              initial={{ opacity: 0, x: 10 }} 
+              animate={{ opacity: 1, x: 0 }} 
+              exit={{ opacity: 0 }}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
-              Settings Saved
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+              Saved
             </motion.span>
           )}
         </AnimatePresence>
@@ -247,38 +153,16 @@ export default function SystemSettingsCard({ initialSettings }: props) {
         <button
           onClick={handleSave}
           disabled={isSaving}
-          style={{
-            padding: '0.75rem 2rem',
-            background: 'var(--brand-primary, #6366f1)',
-            color: '#ffffff',
-            border: 'none',
-            borderRadius: '8px',
-            fontWeight: 600,
-            fontSize: '0.85rem',
-            letterSpacing: '0.02em',
-            cursor: isSaving ? 'wait' : 'pointer',
-            opacity: isSaving ? 0.7 : 1,
-            transition: 'background 0.2s',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            boxShadow: '0 2px 10px rgba(99, 102, 241, 0.2)'
-          }}
-          onMouseOver={(e) => { if (!isSaving) e.currentTarget.style.filter = 'brightness(1.1)'; }}
-          onMouseOut={(e) => { e.currentTarget.style.filter = 'none'; }}
+          className={styles.saveBtn}
         >
           {isSaving ? (
             <>
-              <div style={{ width: '14px', height: '14px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+              <div className="spinner" style={{ width: 14, height: 14 }} />
               Saving...
             </>
-          ) : 'Save Configuration'}
+          ) : 'Save Changes'}
         </button>
       </div>
-
-      <style jsx>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
     </div>
   );
 }

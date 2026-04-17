@@ -1,0 +1,520 @@
+/* ═══════════════════════════════════════════════
+   Admin Settings — Premium Layout
+   ═══════════════════════════════════════════════ */
+
+.settingsPage {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+/* ── Page Header ── */
+.pageHeader {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.pageHeader h1 {
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin: 0 0 0.35rem 0;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.pageHeader p {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 0.9rem;
+}
+
+/* ── Section Block ── */
+.section {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2.5rem;
+  padding: 2.5rem 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.section:last-child {
+  border-bottom: none;
+}
+
+/* ── Section Label (left side) ── */
+.sectionLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sectionIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  margin-bottom: 0.25rem;
+  flex-shrink: 0;
+}
+
+.sectionIcon.profile {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+  color: #818cf8;
+}
+
+.sectionIcon.theme {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(244, 114, 182, 0.15));
+  color: #f472b6;
+}
+
+.sectionIcon.system {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(56, 189, 248, 0.15));
+  color: #38bdf8;
+}
+
+.sectionLabel h2 {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.sectionLabel p {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* ── Section Content (right side) ── */
+.sectionContent {
+  min-width: 0;
+}
+
+/* ── Profile Card ── */
+.profileCard {
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  position: relative;
+}
+
+.profileBanner {
+  height: 100px;
+  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #06b6d4 100%);
+  position: relative;
+}
+
+.profileBanner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.3) 100%);
+}
+
+.profileBody {
+  padding: 0 2rem 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: -52px;
+  position: relative;
+  z-index: 1;
+}
+
+.profileInfo {
+  width: 100%;
+  margin-top: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.profileInfoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.profileInfoRow:last-child {
+  border-bottom: none;
+}
+
+.profileInfoLabel {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profileInfoLabel svg {
+  opacity: 0.5;
+}
+
+.profileInfoValue {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Theme Card ── */
+.themeCard {
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.themePreviewArea {
+  padding: 2.5rem 2rem;
+  background: var(--bg-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 110px;
+  border-bottom: 1px solid var(--border-default);
+  position: relative;
+  overflow: hidden;
+}
+
+.themePreviewArea::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(99,102,241,0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.themeSelector {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.themeOption {
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-default);
+  background: var(--bg-surface-solid);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  width: 100%;
+}
+
+.themeOption:hover {
+  border-color: var(--border-hover);
+  background: var(--bg-elevated);
+}
+
+.themeOption.selected {
+  border-color: var(--brand-primary);
+  background: var(--brand-light);
+  box-shadow: 0 0 0 1px var(--brand-primary);
+}
+
+.themeOptionLabel {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.82rem;
+}
+
+.themeCheck {
+  color: var(--brand-primary);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.themeActions {
+  padding: 0 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── System Config Card ── */
+.systemCard {
+  background: var(--bg-surface);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.configBlock {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.configBlock:last-child {
+  border-bottom: none;
+}
+
+.configHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.configTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.configTitle h3 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.configTitle span {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+
+/* Toggle */
+.toggle {
+  width: 48px;
+  height: 26px;
+  background: var(--bg-inset);
+  border: 1px solid var(--border-default);
+  border-radius: 26px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.toggle.active {
+  background: var(--accent-success);
+  border-color: var(--accent-success);
+}
+
+.toggleKnob {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Device Limit Segmented Control */
+.deviceSegmented {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg-inset);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+}
+
+.deviceBtn {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  text-align: center;
+}
+
+.deviceBtn:hover {
+  color: var(--text-primary);
+}
+
+.deviceBtn.selected {
+  background: var(--bg-surface-solid);
+  color: var(--text-primary);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+/* System Actions */
+.systemActions {
+  padding: 1.25rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-elevated);
+  border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+}
+
+.savedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--accent-success);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.saveBtn {
+  padding: 0.65rem 1.75rem;
+  background: var(--brand-gradient);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-full);
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 14px var(--brand-glow);
+}
+
+.saveBtn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px var(--brand-glow);
+  filter: brightness(1.1);
+}
+
+.saveBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Maintenance expanded area */
+.maintenanceExpanded {
+  padding-top: 1.25rem;
+  margin-top: 1.25rem;
+  border-top: 1px solid var(--border-default);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formField label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.formField textarea,
+.formField input[type="datetime-local"] {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  background: var(--bg-inset);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formField textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.formField textarea:focus,
+.formField input[type="datetime-local"]:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px var(--brand-light);
+}
+
+.formField .hint {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .section {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1.75rem 0;
+  }
+
+  .sectionLabel {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .sectionIcon {
+    margin-bottom: 0;
+  }
+
+  .sectionLabel p {
+    display: none;
+  }
+
+  .themeSelector {
+    grid-template-columns: 1fr;
+  }
+
+  .profileBanner {
+    height: 80px;
+  }
+
+  .profileBody {
+    padding: 0 1.25rem 1.5rem;
+    margin-top: -40px;
+  }
+
+  .configBlock {
+    padding: 1.25rem;
+  }
+
+  .systemActions {
+    padding: 1rem 1.25rem;
+  }
+
+  .configHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
