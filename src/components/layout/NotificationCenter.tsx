@@ -118,18 +118,10 @@ export default function NotificationCenter() {
     };
   }, [fetchNotis]);
 
-  // Gentle periodic poll every 2 minutes (replaces Supabase Realtime to conserve free tier connections)
-  // Combined with the window-focus refetch above, this provides near-real-time updates
-  // without consuming persistent WebSocket connections (free tier limit: 200 concurrent)
-  useEffect(() => {
-    if (status !== 'authenticated') return;
-    
-    const interval = setInterval(() => {
-      fetchNotis(true);
-    }, 2 * 60 * 1000); // Every 2 minutes
-    
-    return () => clearInterval(interval);
-  }, [status, fetchNotis]);
+  // NOTE: With 300 users, periodic polling would consume too many Supabase API calls.
+  // Notifications are refreshed via window-focus refetch (above) — this covers the
+  // most important UX scenario (user returns to tab) at zero background cost.
+  // For real-time needs, re-enable Supabase Realtime when upgrading from free tier.
 
   // Handle outside click closure
   useEffect(() => {

@@ -21,27 +21,33 @@ export default auth((req) => {
     return response;
   }
 
-  // Public paths
+  // Public paths — accessible without login
   const publicPaths = ['/login', '/api/auth', '/blog', '/apple-ids', '/giveaways'];
   
-  // Exact match for '/' (Home), startWith match for other public paths
+  // Exact match for '/' (Home), startsWith match for other public paths
   const isPublicPath = 
     pathname === '/' || 
     publicPaths.some((path) => pathname.startsWith(path));
 
   if (isPublicPath) {
     // If logged in but NOT banned, don't allow visiting /login
+    // Do not redirect POST requests (like Server Actions) to prevent RPC parsing failures
     if (isLoggedIn && pathname === '/login' && !req.auth?.user?.isBanned) {
+      if (req.method === 'POST') {
+        return NextResponse.next();
+      }
       return NextResponse.redirect(new URL('/', req.url));
     }
     return NextResponse.next();
   }
 
+  // Protected routes — require login
   if (!isLoggedIn) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(loginUrl);
   }
+
   // Admin route protection
   if (pathname === '/admin' || pathname.startsWith('/admin/')) {
     const role = req.auth?.user?.role;
@@ -58,4 +64,3 @@ export const config = {
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|json)$).*)',
   ],
 };
-
