@@ -57,6 +57,20 @@ export async function updateAppleId(id: string, data: Partial<Omit<AppleId, 'id'
   
   try {
     const supabase = await createServiceClient();
+
+    // Check if images are being updated to clean up Cloudinary
+    if (data.images !== undefined) {
+      const { data: oldAppleId } = await supabase.from('apple_ids').select('images').eq('id', id).single();
+      if (oldAppleId?.images) {
+        const { deleteCloudinaryImage } = await import('@/lib/cloudinary');
+        const newImages = data.images || [];
+        const imagesToDelete = oldAppleId.images.filter((img: string) => !newImages.includes(img));
+        if (imagesToDelete.length > 0) {
+          await Promise.allSettled(imagesToDelete.map((img: string) => deleteCloudinaryImage(img)));
+        }
+      }
+    }
+
     const { error } = await supabase.from('apple_ids').update(data).eq('id', id);
     
     if (error) throw error;
@@ -136,6 +150,14 @@ export async function deleteAppleId(id: string) {
   
   try {
     const supabase = await createServiceClient();
+
+    // Delete images from Cloudinary
+    const { data: oldAppleId } = await supabase.from('apple_ids').select('images').eq('id', id).single();
+    if (oldAppleId?.images && oldAppleId.images.length > 0) {
+      const { deleteCloudinaryImage } = await import('@/lib/cloudinary');
+      await Promise.allSettled(oldAppleId.images.map((img: string) => deleteCloudinaryImage(img)));
+    }
+
     const { error } = await supabase.from('apple_ids').delete().eq('id', id);
     
     if (error) throw error;

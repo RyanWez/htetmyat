@@ -80,6 +80,15 @@ export async function updateGiveaway(id: string, formData: Partial<Giveaway> & P
   if (formData.image_url !== undefined) toUpdate.image_url = formData.image_url;
   if (formData.metadata !== undefined) toUpdate.metadata = formData.metadata;
 
+  // Delete old image if it's being updated
+  if (formData.image_url !== undefined && formData.image_url !== null) {
+    const { data: oldGiveaway } = await supabase.from('giveaways').select('image_url').eq('id', id).single();
+    if (oldGiveaway?.image_url && oldGiveaway.image_url !== formData.image_url) {
+      const { deleteCloudinaryImage } = await import('@/lib/cloudinary');
+      await deleteCloudinaryImage(oldGiveaway.image_url);
+    }
+  }
+
   if (Object.keys(toUpdate).length > 0) {
     const { error: updateError } = await supabase
       .from('giveaways')
@@ -97,6 +106,15 @@ export async function updateGiveaway(id: string, formData: Partial<Giveaway> & P
       .maybeSingle();
 
     if (existingSecret) {
+      // Delete old QR code if it's being updated
+      if (formData.qr_code_url !== undefined && formData.qr_code_url !== null) {
+        const { data: oldSecret } = await supabase.from('giveaway_secrets').select('qr_code_url').eq('giveaway_id', id).single();
+        if (oldSecret?.qr_code_url && oldSecret.qr_code_url !== formData.qr_code_url) {
+          const { deleteCloudinaryImage } = await import('@/lib/cloudinary');
+          await deleteCloudinaryImage(oldSecret.qr_code_url);
+        }
+      }
+
       await supabase
         .from('giveaway_secrets')
         .update({
@@ -124,6 +142,25 @@ export async function updateGiveaway(id: string, formData: Partial<Giveaway> & P
 export async function deleteGiveaway(id: string) {
   await requireAdmin();
   const supabase = await createServiceClient();
+
+  // Delete images from Cloudinary
+  const { data: oldGiveaway } = await supabase
+    .from('giveaways')
+    .select('image_url, giveaway_secrets(qr_code_url)')
+    .eq('id', id)
+    .single();
+
+  if (oldGiveaway) {
+    const { deleteCloudinaryImage } = await import('@/lib/cloudinary');
+    if (oldGiveaway.image_url) await deleteCloudinaryImage(oldGiveaway.image_url);
+    
+    const secrets = Array.isArray(oldGiveaway.giveaway_secrets) 
+      ? oldGiveaway.giveaway_secrets[0] 
+      : oldGiveaway.giveaway_secrets;
+      
+    if (secrets?.qr_code_url) await deleteCloudinaryImage(secrets.qr_code_url);
+  }
+
   const { error } = await supabase.from('giveaways').delete().eq('id', id);
   if (error) return { success: false, error: error.message };
   

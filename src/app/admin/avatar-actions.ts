@@ -73,8 +73,20 @@ export async function uploadAdminAvatar(formData: FormData) {
 
     const publicUrl = uploadResult.secure_url;
 
-    // 4. Update Profile Table in Supabase
+    // 4. Get old avatar to delete
     const supabase = await createServiceClient();
+    const { data: oldProfile } = await supabase
+      .from('profiles')
+      .select('avatar_url')
+      .eq('id', session.user.id)
+      .single();
+
+    if (oldProfile?.avatar_url) {
+      const { deleteCloudinaryImage } = await import('@/lib/cloudinary');
+      await deleteCloudinaryImage(oldProfile.avatar_url);
+    }
+
+    // 5. Update Profile Table in Supabase
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ avatar_url: publicUrl })
