@@ -4,6 +4,8 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import sharp from 'sharp';
+import cloudinary from '@/lib/cloudinary';
+import { UploadApiResponse } from 'cloudinary';
 
 /**
  * Upload an admin avatar, optimize it, and update the profiles table.
@@ -53,37 +55,26 @@ export async function uploadAdminAvatar(formData: FormData) {
       buffer = Buffer.from(optimized);
     }
 
-    // 3. Upload to Supabase Storage
+    // 3. Upload to Cloudinary using upload_stream
+    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'avatars',
+          public_id: `admin-${session.user.id}-${Date.now()}`,
+          resource_type: 'image',
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result as UploadApiResponse);
+        }
+      );
+      uploadStream.end(buffer);
+    });
+
+    const publicUrl = uploadResult.secure_url;
+
+    // 4. Update Profile Table in Supabase
     const supabase = await createServiceClient();
-    
-    // Ensure the bucket exists
-    const { data: buckets } = await supabase.storage.listBuckets();
-    if (!buckets?.find(b => b.id === 'avatars')) {
-      const { error: createError } = await supabase.storage.createBucket('avatars', {
-        public: true,
-        fileSizeLimit: 5242880, // 5MB
-      });
-      if (createError) throw createError;
-    }
-
-    const fileExt = isGif ? 'gif' : 'webp';
-    const filePath = `admin-${session.user.id}-${Date.now()}.${fileExt}`;
-    
-    const { data: uploadData, error: uploadError } = await supabase.storage
-      .from('avatars')
-      .upload(filePath, buffer, {
-        contentType: isGif ? 'image/gif' : 'image/webp',
-        upsert: true,
-      });
-
-    if (uploadError) throw uploadError;
-
-    // 4. Get Public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(uploadData.path);
-
-    // 5. Update Profile Table
     const { error: profileError } = await supabase
       .from('profiles')
       .update({ avatar_url: publicUrl })
@@ -91,7 +82,7 @@ export async function uploadAdminAvatar(formData: FormData) {
 
     if (profileError) throw profileError;
 
-    // 6. Update Auth User Metadata (to reflect across NextAuth sessions)
+    // 5. Update Auth User Metadata (to reflect across NextAuth sessions)
     await supabase.auth.admin.updateUserById(session.user.id, {
       user_metadata: { avatar_url: publicUrl }
     });

@@ -5,7 +5,8 @@ import { AppleId } from '@/lib/supabase/types';
 import { auth } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 import webpush from 'web-push';
-
+import cloudinary from '@/lib/cloudinary';
+import { UploadApiResponse } from 'cloudinary';
 // Helper to verify admin access
 async function verifyAdmin() {
   const session = await auth();
@@ -155,29 +156,30 @@ export async function uploadAppleIdImage(formData: FormData) {
     const file = formData.get('file') as File | null;
     if (!file) return { success: false, error: 'No file provided' };
 
-    const supabase = await createServiceClient();
-    
     // Generate safe filename
-    const fileExt = file.name.split('.').pop() || 'png';
-    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
+    const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}`;
     
     // Convert File to Buffer
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
-    const { error: uploadError } = await supabase.storage
-      .from('apple_ids')
-      .upload(fileName, buffer, {
-        contentType: file.type,
-      });
+    // Upload to Cloudinary
+    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        {
+          folder: 'apple_ids',
+          public_id: fileName,
+          resource_type: 'image',
+        },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result as UploadApiResponse);
+        }
+      );
+      uploadStream.end(buffer);
+    });
       
-    if (uploadError) throw uploadError;
-    
-    const { data: { publicUrl } } = supabase.storage
-      .from('apple_ids')
-      .getPublicUrl(fileName);
-      
-    return { success: true, url: publicUrl };
+    return { success: true, url: uploadResult.secure_url };
   } catch (err) {
     const error = err as Error;
     console.error('Upload Error:', error);
