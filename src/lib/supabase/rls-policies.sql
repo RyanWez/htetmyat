@@ -20,7 +20,3 @@ ON public.posts FOR SELECT USING (true);
 CREATE POLICY "Allow public read access on site_settings" 
 ON public.site_settings FOR SELECT USING (true);
 
--- Add missing unique constraint for user_devices to allow login tracking
-ALTER TABLE public.user_devices 
-ADD CONSTRAINT user_devices_user_id_device_fingerprint_key UNIQUE (user_id, device_fingerprint);
-

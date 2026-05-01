@@ -24,7 +24,8 @@ CREATE TABLE public.user_devices (
   device_fingerprint TEXT NOT NULL,
   device_name TEXT NOT NULL,
   last_used_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(user_id, device_fingerprint)
 );
 
 -- apple_ids table
